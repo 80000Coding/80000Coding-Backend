@@ -2,7 +2,7 @@
 name: Feature request Template
 about: Create a report to help us improve
 title: "✨ Add Something..."
-labels: bug
+labels: ''
 assignees: ''
 
 ---
