@@ -17,6 +17,9 @@ public class User extends Auditable{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "github_id", nullable = false)
+    private Integer githubId;
+
     @Column(name = "name", nullable = false)
     private String name;
 
