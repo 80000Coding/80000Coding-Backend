@@ -17,6 +17,7 @@ public class TestService {
     public String getNowUserName() {
         User user = User.builder()
                 .name("테스트" + randomNumber())
+                .githubId(Integer.parseInt(randomNumber()))
                 .bio("소개")
                 .role("1")
                 .build();
