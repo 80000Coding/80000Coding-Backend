@@ -15,7 +15,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final String[] webSecurityIgnoring = {
-            "/",
+            "/**",
             "/favicon.ico",
             "/api-docs/**",
             "/test/**",
