@@ -1,7 +1,8 @@
-package io.oopy.coding.service;
+package io.oopy.coding.test;
 
-import io.oopy.coding.domain.entity.User;
-import io.oopy.coding.domain.repository.UserRepository;
+import io.oopy.coding.domain.user.domain.RoleType;
+import io.oopy.coding.domain.user.domain.User;
+import io.oopy.coding.domain.user.dao.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ public class TestService {
                 .name("테스트" + randomNumber())
                 .githubId(Integer.parseInt(randomNumber()))
                 .bio("소개")
-                .role("1")
+                .role(RoleType.USER)
                 .build();
         User save = userRepository.save(user);
         return save.getName();

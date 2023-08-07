@@ -1,10 +1,8 @@
-package io.oopy.coding.domain.entity;
+package io.oopy.coding.domain.user.domain;
 
+import io.oopy.coding.domain.model.Auditable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name="USER")
@@ -12,7 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User extends Auditable{
+@ToString(of = {"id", "name", "email", "role"})
+public class User extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,5 +32,5 @@ public class User extends Auditable{
     private String email;
 
     @Column(name = "role", nullable = false)
-    private String role;
+    private RoleType role;
 }

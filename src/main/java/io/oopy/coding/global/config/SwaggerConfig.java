@@ -1,4 +1,4 @@
-package io.oopy.coding.common.config;
+package io.oopy.coding.global.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

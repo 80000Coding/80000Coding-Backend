@@ -32,6 +32,9 @@ spring:
       max-lifetime: 1200000 # 20m (default 30m)
       connection-timeout: 3000 # 3s (default 30s)
     validation-timeout: 2000 # 2s (default 5s)
+  data.redis:
+    host: localhost
+    port: 6379
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
@@ -44,3 +47,9 @@ springdoc:
   api-docs:
     groups:
       enabled: true
+
+jwt:
+  secret: exampleSecretKeyForSpringBootProjectAtSubRepository # TODO 운영 환경에서 수정
+  token:
+    access-expiration-time: 7
+    refresh-expiration-time: 168

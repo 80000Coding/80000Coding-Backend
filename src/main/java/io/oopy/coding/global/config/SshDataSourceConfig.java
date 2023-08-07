@@ -1,4 +1,4 @@
-package io.oopy.coding.common.config;
+package io.oopy.coding.global.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

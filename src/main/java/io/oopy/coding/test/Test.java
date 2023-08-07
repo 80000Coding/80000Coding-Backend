@@ -1,8 +1,6 @@
-package io.oopy.coding.presentation;
+package io.oopy.coding.test;
 
-import io.oopy.coding.service.TestService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

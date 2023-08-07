@@ -1,4 +1,4 @@
-package io.oopy.coding.common.config;
+package io.oopy.coding.global.config;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -38,7 +38,6 @@ public class SshTunnelingInitializer {
     }
 
     public Integer buildSshConnection() {
-
         Integer forwardedPort = null;
 
         try {
