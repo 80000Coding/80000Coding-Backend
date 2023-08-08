@@ -2,45 +2,42 @@ package io.oopy.coding.domain.mark.service;
 
 import io.oopy.coding.domain.content.dao.ContentRepository;
 import io.oopy.coding.domain.content.entity.Content;
-import io.oopy.coding.domain.content.entity.ContentCategory;
 import io.oopy.coding.domain.mark.dao.ContentMarkRepository;
+import io.oopy.coding.domain.mark.dto.CountMarkDTO;
 import io.oopy.coding.domain.mark.entity.ContentMark;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Service
 public class ContentMarkService {
+    private final ContentRepository contentRepository;
     private final ContentMarkRepository contentMarkRepository;
 
-    @Autowired
-    public ContentMarkService(ContentMarkRepository contentMarkRepository) {
+    public ContentMarkService(ContentRepository contentRepository, ContentMarkRepository contentMarkRepository) {
+        this.contentRepository = contentRepository;
         this.contentMarkRepository = contentMarkRepository;
     }
 
-    public Map<String, Integer> getCountByType(Long contentId) {
-        Content content = contentMarkRepository.findById(contentId);
-        ContentMark contentMark = contentMarkRepository.findById(content.get);
-        if (contentMark == null) {
-            // 처리
-            return null;
+    public CountMarkDTO countMarks(Long contentId) {
+        long likeCount = 0;
+        long bookmarkCount = 0;
+
+        Content content = contentRepository.findById(contentId).orElse(null);
+
+        List<ContentMark> contentMarks = contentMarkRepository.findContentMarksByContentId(content.getId());
+        for (ContentMark contentMark : contentMarks) {
+            if (contentMark.getType() == "like") {
+                likeCount++;
+            }
+            else if (contentMark.getType() == "bookmark") {
+                bookmarkCount++;
+            }
         }
 
-        Map<String, Integer> countByType = new HashMap<>();
-        int likeCount = 0;
-        int bookmarkCount = 0;
-
-        if ("like".equals(contentMark.getType())) {
-            likeCount++;
-        } else if ("bookmark".equals(contentMark.getType())) {
-            bookmarkCount++;
-        }
-
-        countByType.put("like", likeCount);
-        countByType.put("bookmark", bookmarkCount);
-
-        return countByType;
+        return CountMarkDTO.builder()
+                .like(likeCount)
+                .bookmark(bookmarkCount)
+                .build();
     }
 }

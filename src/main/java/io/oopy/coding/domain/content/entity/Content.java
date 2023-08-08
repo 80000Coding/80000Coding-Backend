@@ -1,18 +1,19 @@
 package io.oopy.coding.domain.content.entity;
 
+import io.oopy.coding.domain.comment.entity.Comment;
 import io.oopy.coding.domain.entity.Auditable;
 import io.oopy.coding.domain.entity.User;
+import io.oopy.coding.domain.mark.entity.ContentMark;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name="CONTENT")
+@Setter
 @Getter
 @Builder
 @AllArgsConstructor
@@ -25,6 +26,18 @@ public class Content extends Auditable {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "content")
+    private List<ContentCategory> contentCategories = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "content")
+    private List<ContentMark> contentMarks = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "content")
+    private List<Comment> comments = new ArrayList<>();
 
     @Column(name = "type", nullable = false)
     private String type;

@@ -1,5 +1,7 @@
 package io.oopy.coding.domain.comment.entity;
 
+import io.oopy.coding.domain.content.entity.Content;
+import io.oopy.coding.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,8 +22,16 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "content_id")
+    private Content content;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Column(name = "content", nullable = false)
-    private String content;
+    private String commentBody;
 
     @Column(name = "parent_id")
     private Long parentId;

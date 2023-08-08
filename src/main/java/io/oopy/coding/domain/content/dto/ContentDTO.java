@@ -19,4 +19,3 @@ public class ContentDTO {
     private Long views;
     private LocalDateTime deleteAt;
 }
-

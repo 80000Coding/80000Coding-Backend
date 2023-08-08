@@ -9,7 +9,6 @@ import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.content.entity.ContentCategory;
 import io.oopy.coding.domain.entity.User;
 import io.oopy.coding.domain.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,8 +18,7 @@ public class ContentService {
     private final ContentCategoryRepository contentCategoryRepository;
     private final CategoryRepository categoryRepository;
 
-    @Autowired
-    public ContentService(ContentRepository contentRepository, UserRepository userRepository, ContentCategoryRepository contentCategoryRepository, ContentCategoryRepository contentCategoryRepository1, CategoryRepository categoryRepository) {
+    public ContentService(ContentRepository contentRepository, UserRepository userRepository, ContentCategoryRepository contentCategoryRepository, CategoryRepository categoryRepository) {
         this.contentRepository = contentRepository;
         this.userRepository = userRepository;
         this.contentCategoryRepository = contentCategoryRepository;
@@ -29,21 +27,10 @@ public class ContentService {
 
     public ContentDetailDTO getContentDetails(Long contentId) {
         Content content = contentRepository.findById(contentId).orElse(null);
-        if (content == null) {
-            return null;
-        }
-        User user = userRepository.findById(content.getUser().getId()).orElse(null);
-        if (user == null) {
-            return null;
-        }
-        ContentCategory contentCategory = contentCategoryRepository.findByContentId(content.getId());
-        if (contentCategory == null) {
-            return null;
-        }
-        Category category = categoryRepository.findById(contentCategory.getId()).orElse(null);
-        if (category == null) {
-            return null;
-        }
+        User user = contentRepository.findUserByUserId(contentId);
+        Category category = contentRepository.findCategoryById(contentId);
+        ContentCategory contentCategory = contentRepository.findContentCategoryById(contentId);
+
         return convertContentDetailDTO(content, user, contentCategory, category);
     }
 
