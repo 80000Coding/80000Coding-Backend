@@ -25,6 +25,7 @@ class JwtTokenProviderTest {
     private JwtTokenProvider JwtTokenProvider;
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
+
     private UserAuthenticateDto dto;
     private static final String jwtSecretKey = "exampleSecretKeyForSpringBootProjectAtSubRepository";
 
@@ -57,7 +58,7 @@ class JwtTokenProviderTest {
     @Test
     public void testIsTokenExpired() {
         // given
-        String header = "Bearer " + createExpiredToken(dto);
+        String header = "Bearer " + ExpiredTokenGenerator.generateExpiredToken(dto, jwtSecretKey);
 
         // when
         assertThrows(RuntimeException.class, () -> JwtTokenProvider.resolveToken(header));
@@ -66,7 +67,7 @@ class JwtTokenProviderTest {
     @Test
     public void testAccessTokenExpiredAndRefreshTokenValid() {
         // given
-        String header = "Bearer " + createExpiredToken(dto);
+        String header = "Bearer " + ExpiredTokenGenerator.generateExpiredToken(dto, jwtSecretKey);
         String refreshToken = JwtTokenProvider.generateRefreshToken(dto);
         ReflectionTestUtils.setField(JwtTokenProvider, "refreshTokenExpirationTime", 1000000);
 
@@ -81,39 +82,33 @@ class JwtTokenProviderTest {
     public void testAccessTokenExpiredAndRefreshTokenExpired() {
     }
 
+    @Test
+    public void testReceiveUserIdFromToken() {
+        // given
+        String token = JwtTokenProvider.generateAccessToken(dto);
+
+        // when
+        Long userId = ReflectionTestUtils.invokeMethod(JwtTokenProvider, "getUserIdFromToken", token);
+
+        // then
+        System.out.println("userId : " + userId);
+        assertEquals(dto.getId(), userId);
+    }
+
+    @Test
+    public void testReceiveGithubIdFromToken() {
+        // given
+        String token = JwtTokenProvider.generateAccessToken(dto);
+
+        // when
+        Integer githubId = ReflectionTestUtils.invokeMethod(JwtTokenProvider, "getGithubIdFromToken", token);
+
+        // then
+        System.out.println("githubId : " + githubId);
+        assertEquals(dto.getGithubId(), githubId);
+    }
+
     private UserAuthenticateDto createDto() {
-        return UserAuthenticateDto.of(1L);
-    }
-
-    private String createExpiredToken(UserAuthenticateDto dto) {
-        int expirationTime = -1;
-
-        return Jwts.builder()
-                .setHeader(createHeader())
-                .setClaims(createClaims(dto))
-                .signWith(SignatureAlgorithm.HS256, createSignature())
-                .setExpiration(createExpireDate(expirationTime))
-                .compact();
-    }
-
-    private static Map<String, Object> createHeader() {
-        return Map.of("typ", "JWT",
-                "alg", "HS256",
-                "regDate", System.currentTimeMillis());
-    }
-
-    private static Map<String, Object> createClaims(UserAuthenticateDto dto) {
-        return Map.of("userId", dto.getId());
-    }
-
-    private static Key createSignature() {
-        byte[] secretKeyBytes = Base64.getDecoder().decode(jwtSecretKey);
-        return new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS256.getJcaName());
-    }
-
-    private static Date createExpireDate(int expirationTime) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, expirationTime);
-        return calendar.getTime();
+        return UserAuthenticateDto.of(1L, 1);
     }
 }
