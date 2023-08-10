@@ -20,7 +20,9 @@ jobs:
           distribution: 'adopt'
       - name: set version from on push tags
         run: |
-          echo "VERSION=${{ github.event.inputs.tags }}" >> $GITHUB_ENV
+          TAG=${{ github.event.ref }}
+          VERSION=${TAG#refs/tags/}
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
       - name: create Github release
         uses: actions/create-release@v1
         with:
