@@ -5,8 +5,6 @@ on:
     tags:
       - 'v*.*.*'
 
-permissions: read-all|write-all
-
 jobs:
   docker:
     name: Deploy Docker Image
@@ -25,13 +23,6 @@ jobs:
           TAG=${{ github.event.ref }}
           VERSION=${TAG#refs/tags/}
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
-      - name: create Github release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ env.VERSION }}
-          release_name: ${{ env.VERSION }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: build docker
