@@ -1,9 +1,6 @@
 package io.oopy.coding.global.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.oopy.coding.domain.user.dto.UserAuthenticateDto;
 import io.oopy.coding.global.redis.refresh.RefreshToken;
 import io.oopy.coding.global.redis.refresh.RefreshTokenRepository;
@@ -13,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.security.SignatureException;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,18 +40,16 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
      * 헤더로부터 토큰을 추출하는 메서드
      * @param header : 메시지 헤더
      */
-    public void resolveToken(String header) {
+    public String resolveToken(String header) throws SignatureException, ExpiredJwtException {
         String token = getTokenFromHeader(header);
 
         if (!isValidToken(token))
-            throw new RuntimeException("JWT Token is invalid");
+            throw new SignatureException();
 
         if (isTokenExpired(token))
-            refreshTokenIfNeeded(getUserIdFromToken(token));
+            return refreshTokenIfNeeded(getUserIdFromToken(token));
 
-        Long userId = getUserIdFromToken(token);
-        if (userId == null)
-            throw new RuntimeException("userId is null or blank");
+        return token;
     }
 
     /**
@@ -94,6 +90,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     private boolean isValidToken(String token) {
         try {
             Claims claims = getClaimsFormToken(token);
+            long userId = getUserIdFromToken(token);
 
             log.info("expireTime: {}", claims.getExpiration());
             log.info("userId: {}", claims.get("userId", Long.class));
@@ -110,22 +107,19 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         }
     }
 
-    // TODO: generateAccessToken이 return하는 token을 받아와야 함
-    private void refreshTokenIfNeeded(Long userId) {
-        refreshTokenRepository.findById(userId).ifPresentOrElse(
+    private String refreshTokenIfNeeded(Long userId) {
+        return refreshTokenRepository.findById(userId).map(
                 refreshToken -> {
                     if (isTokenExpired(refreshToken.getToken())) {
-                        generateAccessToken(
-                                UserAuthenticateDto.of(refreshToken.getUserId())
+                        return generateAccessToken(
+                                UserAuthenticateDto.of(refreshToken.getUserId(),
+                                        getGithubIdFromToken(refreshToken.getToken()))
                         );
                     } else {
-                        throw new RuntimeException("Refresh Token is expired");
+                        return refreshToken.getToken();
                     }
-                },
-                () -> {
-                    throw new RuntimeException("Refresh Token is invalid");
                 }
-        );
+        ).orElseThrow(() -> new ExpiredJwtException(null, null, "Refresh Token is invalid"));
     }
 
     private boolean isTokenExpired(String token) {
@@ -139,7 +133,8 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     private static Map<String, Object> createClaims(UserAuthenticateDto dto) {
-        return Map.of("userId", dto.getId());
+
+        return Map.of("userId", dto.getId(), "githubId", dto.getGithubId());
     }
 
     private static Key createSignature() {
@@ -162,6 +157,11 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     private static Long getUserIdFromToken(String token) {
         Claims claims = getClaimsFormToken(token);
         return claims.get("userId", Long.class);
+    }
+
+    private Integer getGithubIdFromToken(String token) {
+        Claims claims = getClaimsFormToken(token);
+        return claims.get("githubId", Integer.class);
     }
 
     private static Claims getClaimsFormToken(String token) {

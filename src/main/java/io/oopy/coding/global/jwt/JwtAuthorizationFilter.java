@@ -2,6 +2,7 @@ package io.oopy.coding.global.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,64 +25,40 @@ import java.util.Map;
 @Slf4j
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
+    private List<String> jwtIgnoreUrls = List.of(
+            "/api/v1/users/login", "/api/v1/users/refresh"
+    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        List<String> jwtIgnoreUrls = List.of(
-                "/api/v1/users/login", "/api/v1/users/refresh"
-        );
-
         if (isIgnoreUrlOrOptionRequest(jwtIgnoreUrls, request.getRequestURI(), request)) {
             log.info("isIgnoreUrlOrOptionRequest: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
-            return;
         }
 
-        String jwtHeader = request.getHeader("Authorization");
-        log.info("jwtHeader: {}", jwtHeader);
+
         try {
-            jwtTokenProvider.resolveToken(jwtHeader);
+            String jwtHeader = request.getHeader("Authorization");
+            String token = jwtTokenProvider.resolveToken(jwtHeader);
+
+            // UserAuthentication 추가
+
+
             filterChain.doFilter(request, response);
+        } catch (SignatureException | MalformedJwtException e) {
+            log.error("SignatureException | MalformedJwtException: {}", e.getMessage());
+            response.sendError(401, "Token is invalid");
+        }
+        catch (ExpiredJwtException e) {
+            log.error("ExpiredJwtException: {}", e.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token Expired");
         } catch (Exception e) {
-            log.error("doFilterInternal error: {}", e.getMessage());
-            sendResponse(response, e);
+            log.error("Jwt Exception: {}", e.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unexpected error");
         }
     }
 
     private boolean isIgnoreUrlOrOptionRequest(List<?> jwtIgnoreUrls, String url, HttpServletRequest request) {
         return jwtIgnoreUrls.contains(url) || request.getMethod().equals("OPTIONS");
-    }
-
-    private void sendResponse(HttpServletResponse response, Exception e) throws IOException {
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(401);
-
-        PrintWriter out = response.getWriter();
-        out.print(getResponseJson(e));
-        out.flush();
-        out.close();
-    }
-
-    private JSONObject getResponseJson(Exception e) {
-        String msg;
-
-        if (e instanceof ExpiredJwtException) {
-            msg = "Token Expired";
-        } else if (e instanceof SignatureException) {
-            msg = "Token SignatureException";
-        } else if (e instanceof JwtException) {
-            msg = "Token Parsing JwtException";
-        } else {
-            msg = "Token is invalid";
-        }
-
-        Map<String, Object> jsonMap = Map.of(
-                "status", 401,
-                "code", 999,
-                "message", msg,
-                "detail", e.getMessage()
-        );
-        return new JSONObject(jsonMap);
     }
 }
