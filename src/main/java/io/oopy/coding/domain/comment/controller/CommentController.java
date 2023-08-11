@@ -4,8 +4,7 @@ import io.oopy.coding.domain.comment.dto.GetCommentDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
@@ -23,5 +22,23 @@ public class CommentController {
                 .userName("test user")
                 .userProfileImageUrl("test url")
                 .build();
+    }
+
+    @Operation(summary = "댓글 생성", description = "Request로 content_id, content, parent_id")
+    @PostMapping("")
+    public boolean createComment() {
+        return true;
+    }
+
+    @Operation(summary = "댓글 수정", description = "Request로 content_id, content")
+    @PatchMapping("")
+    public boolean updateComment() {
+        return true;
+    }
+
+    @Operation(summary = "댓글 삭제", description = "Request로 content_id")
+    @DeleteMapping("")
+    public boolean deleteComment() {
+        return true;
     }
 }

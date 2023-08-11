@@ -11,6 +11,7 @@ import io.oopy.coding.domain.entity.User;
 import io.oopy.coding.domain.mark.dao.ContentMarkRepository;
 import io.oopy.coding.domain.mark.dto.ContentMarkDTO;
 import io.oopy.coding.domain.mark.dto.CountMarkDTO;
+import io.oopy.coding.domain.mark.dto.IsPressDTO;
 import io.oopy.coding.domain.mark.entity.ContentMark;
 import io.oopy.coding.domain.mark.service.ContentMarkService;
 import io.oopy.coding.domain.repository.UserRepository;
@@ -172,6 +173,24 @@ public class ContentMarkTest {
         contentMarkService = new ContentMarkService(contentRepository, contentMarkRepository);
 
         CountMarkDTO result = contentMarkService.countMarks(testContent.getId());
+
+        System.out.println("=========================================");
+        System.out.println("result = " + result);
+        System.out.println("=========================================");
+    }
+
+    @DisplayName("유저 별 press 여부 test")
+    @Test
+    @Transactional
+    public void isPressByUserTest() {
+        userRepository.save(testUser);
+        contentRepository.save(testContent);
+        contentMarkRepository.save(testContentMark1);
+        contentMarkRepository.save(testContentMark2);
+
+        contentMarkService = new ContentMarkService(contentRepository, contentMarkRepository);
+
+        IsPressDTO result = contentMarkService.isPress(testContent.getId(), testUser.getId());
 
         System.out.println("=========================================");
         System.out.println("result = " + result);

@@ -1,12 +1,15 @@
 package io.oopy.coding.domain.mark.controller;
 
 import io.oopy.coding.domain.mark.dto.CountMarkDTO;
+import io.oopy.coding.domain.mark.dto.IsPressDTO;
 import io.oopy.coding.domain.mark.service.ContentMarkService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 
@@ -22,6 +25,15 @@ public class ContentMarkController {
         return CountMarkDTO.builder()
                 .like(3L)
                 .bookmark(24L)
+                .build();
+    }
+
+    @Operation(summary = "유저 Press 여부", description = "0일 시 Press, 1일 시 Not press")
+    @PostMapping("")
+    public IsPressDTO isPressDTO() {
+        return IsPressDTO.builder()
+                .like(0)
+                .bookmark(1)
                 .build();
     }
 

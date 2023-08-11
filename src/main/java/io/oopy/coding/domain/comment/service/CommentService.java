@@ -1,10 +1,8 @@
 package io.oopy.coding.domain.comment.service;
 
 import io.oopy.coding.domain.comment.dao.CommentRepository;
-import io.oopy.coding.domain.comment.dto.CommentDTO;
 import io.oopy.coding.domain.comment.dto.GetCommentDTO;
 import io.oopy.coding.domain.comment.entity.Comment;
-import io.oopy.coding.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -39,4 +37,6 @@ public class CommentService {
 
         return getCommentDTO;
     }
+
+
 }

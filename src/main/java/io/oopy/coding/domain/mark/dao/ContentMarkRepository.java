@@ -13,4 +13,7 @@ public interface ContentMarkRepository extends JpaRepository<ContentMark, Long> 
 
     @Query("select cm from ContentMark cm join fetch cm.content c where c.id = :contentId")
     List<ContentMark> findContentMarksByContentId(@Param("contentId") Long contentId);
+
+    @Query("select cm from ContentMark cm where cm.content.id = :contentId and cm.user.id = :userId")
+    List<ContentMark> findContentMarkPressByContentIdAndUserId(@Param("contentId") Long contentid, @Param("userId") Long userId);
 }
