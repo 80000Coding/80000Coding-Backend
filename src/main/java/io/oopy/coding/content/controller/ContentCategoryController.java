@@ -1,4 +1,4 @@
-package io.oopy.coding.domain.content.controller;
+package io.oopy.coding.content.controller;
 
 import org.springframework.stereotype.Controller;
 

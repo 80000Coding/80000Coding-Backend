@@ -10,7 +10,6 @@ import java.util.List;
 @Entity
 @Table(name="CATEGORY")
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

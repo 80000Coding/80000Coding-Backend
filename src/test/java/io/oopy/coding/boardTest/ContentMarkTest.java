@@ -1,20 +1,19 @@
 package io.oopy.coding.boardTest;
 
-import io.oopy.coding.domain.content.dao.CategoryRepository;
-import io.oopy.coding.domain.content.dao.ContentCategoryRepository;
-import io.oopy.coding.domain.content.dao.ContentRepository;
+import io.oopy.coding.domain.content.repository.CategoryRepository;
+import io.oopy.coding.domain.content.repository.ContentCategoryRepository;
+import io.oopy.coding.domain.content.repository.ContentRepository;
 import io.oopy.coding.domain.content.entity.Category;
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.content.entity.ContentCategory;
-import io.oopy.coding.domain.content.service.ContentService;
 import io.oopy.coding.domain.entity.User;
-import io.oopy.coding.domain.mark.dao.ContentMarkRepository;
-import io.oopy.coding.domain.mark.dto.ContentMarkDTO;
+import io.oopy.coding.domain.mark.repository.ContentMarkRepository;
 import io.oopy.coding.domain.mark.dto.CountMarkDTO;
 import io.oopy.coding.domain.mark.dto.IsPressDTO;
 import io.oopy.coding.domain.mark.entity.ContentMark;
-import io.oopy.coding.domain.mark.service.ContentMarkService;
+import io.oopy.coding.mark.service.countMarksService;
 import io.oopy.coding.domain.repository.UserRepository;
+import io.oopy.coding.mark.service.isPressService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +33,10 @@ import java.util.List;
 @TestPropertySource(locations = "classpath:application-test.yml")
 @ExtendWith(SpringExtension.class)
 public class ContentMarkTest {
-    private ContentMarkService contentMarkService;
+
+    private countMarksService countMarksService;
+
+    private isPressService isPressService;
 
     @Autowired
     private UserRepository userRepository;
@@ -170,9 +172,9 @@ public class ContentMarkTest {
         contentMarkRepository.save(testContentMark2);
         contentMarkRepository.save(testContentMark3);
 
-        contentMarkService = new ContentMarkService(contentRepository, contentMarkRepository);
+        countMarksService = new countMarksService(contentMarkRepository);
 
-        CountMarkDTO result = contentMarkService.countMarks(testContent.getId());
+        CountMarkDTO result = countMarksService.countMarks(testContent.getId());
 
         System.out.println("=========================================");
         System.out.println("result = " + result);
@@ -188,9 +190,9 @@ public class ContentMarkTest {
         contentMarkRepository.save(testContentMark1);
         contentMarkRepository.save(testContentMark2);
 
-        contentMarkService = new ContentMarkService(contentRepository, contentMarkRepository);
+        isPressService = new isPressService(contentMarkRepository);
 
-        IsPressDTO result = contentMarkService.isPress(testContent.getId(), testUser.getId());
+        IsPressDTO result = isPressService.isPress(testContent.getId(), testUser.getId());
 
         System.out.println("=========================================");
         System.out.println("result = " + result);

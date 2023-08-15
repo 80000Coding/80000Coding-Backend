@@ -1,8 +1,9 @@
-package io.oopy.coding.domain.comment.service;
+package io.oopy.coding.comment.service;
 
-import io.oopy.coding.domain.comment.dao.CommentRepository;
+import io.oopy.coding.domain.comment.repository.CommentRepository;
 import io.oopy.coding.domain.comment.dto.GetCommentDTO;
 import io.oopy.coding.domain.comment.entity.Comment;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -10,12 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class CommentService {
+@RequiredArgsConstructor
+public class getCommentService {
     private final CommentRepository commentRepository;
-
-    public CommentService(CommentRepository commentRepository) {
-        this.commentRepository = commentRepository;
-    }
 
     public List<GetCommentDTO> getComments(Long contentId) {
         List<GetCommentDTO> getCommentDTO = new ArrayList<>();
@@ -28,12 +26,12 @@ public class CommentService {
     }
 
     public GetCommentDTO convertGetCommemtDTO(Comment comment) {
-        GetCommentDTO getCommentDTO = new GetCommentDTO();
-
-        getCommentDTO.setCommentBody(comment.getCommentBody());
-        getCommentDTO.setCommentCreatedAt(LocalDateTime.now());
-        getCommentDTO.setUserName(comment.getUser().getName());
-        getCommentDTO.setUserProfileImageUrl(comment.getUser().getProfileImageUrl());
+        GetCommentDTO getCommentDTO = GetCommentDTO.builder()
+                .commentBody(comment.getCommentBody())
+                .commentCreatedAt(LocalDateTime.now())
+                .userName(comment.getUser().getName())
+                .userProfileImageUrl(comment.getUser().getProfileImageUrl())
+                .build();
 
         return getCommentDTO;
     }

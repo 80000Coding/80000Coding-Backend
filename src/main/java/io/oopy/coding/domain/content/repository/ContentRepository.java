@@ -1,4 +1,4 @@
-package io.oopy.coding.domain.content.dao;
+package io.oopy.coding.domain.content.repository;
 
 import io.oopy.coding.domain.content.entity.Category;
 import io.oopy.coding.domain.content.entity.Content;
@@ -8,11 +8,7 @@ import io.oopy.coding.domain.mark.entity.ContentMark;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-@Repository
 public interface ContentRepository extends JpaRepository<Content, Long> {
 
     @Query("select c.user from Content c where c.id = :contentId")

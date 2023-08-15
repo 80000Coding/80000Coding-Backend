@@ -1,15 +1,14 @@
 package io.oopy.coding.boardTest;
 
-import io.oopy.coding.domain.content.dao.CategoryRepository;
-import io.oopy.coding.domain.content.dao.ContentCategoryRepository;
-import io.oopy.coding.domain.content.dao.ContentRepository;
+import io.oopy.coding.content.service.getContentDetailService;
+import io.oopy.coding.domain.content.repository.CategoryRepository;
+import io.oopy.coding.domain.content.repository.ContentCategoryRepository;
+import io.oopy.coding.domain.content.repository.ContentRepository;
 import io.oopy.coding.domain.content.dto.ContentDetailDTO;
 import io.oopy.coding.domain.content.entity.Category;
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.content.entity.ContentCategory;
-import io.oopy.coding.domain.content.service.ContentService;
 import io.oopy.coding.domain.entity.User;
-import io.oopy.coding.domain.mark.dao.ContentMarkRepository;
 import io.oopy.coding.domain.mark.entity.ContentMark;
 import io.oopy.coding.domain.repository.UserRepository;
 import jakarta.persistence.EntityManager;
@@ -33,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SpringExtension.class)
 public class ContentTest {
 
-    private ContentService contentService;
+    private getContentDetailService getContentDetailService;
 
     @Autowired
     private UserRepository userRepository;
@@ -46,9 +45,6 @@ public class ContentTest {
 
     @Autowired
     private CategoryRepository categoryRepository;
-
-    @Autowired
-    private ContentMarkRepository contentMarkRepository;
 
     @Autowired
     private EntityManager em;
@@ -160,9 +156,9 @@ public class ContentTest {
         categoryRepository.save(testCategory);
         contentCategoryRepository.save(testContentCategory);
 
-        contentService = new ContentService(contentRepository, userRepository, contentCategoryRepository, categoryRepository);
+        getContentDetailService = new getContentDetailService(contentRepository);
 
-        ContentDetailDTO test = contentService.getContentDetails(testContent.getId());
+        ContentDetailDTO test = getContentDetailService.getContentDetails(testContent.getId());
 
         assertEquals(testContent.getId(), test.getContentId());
         assertEquals(testContent.getTitle(), test.getContentTitle());

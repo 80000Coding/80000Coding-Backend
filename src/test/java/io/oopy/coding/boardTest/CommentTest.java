@@ -1,10 +1,10 @@
 package io.oopy.coding.boardTest;
 
-import io.oopy.coding.domain.comment.dao.CommentRepository;
+import io.oopy.coding.domain.comment.repository.CommentRepository;
 import io.oopy.coding.domain.comment.dto.GetCommentDTO;
 import io.oopy.coding.domain.comment.entity.Comment;
-import io.oopy.coding.domain.comment.service.CommentService;
-import io.oopy.coding.domain.content.dao.ContentRepository;
+import io.oopy.coding.comment.service.getCommentService;
+import io.oopy.coding.domain.content.repository.ContentRepository;
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.entity.User;
 import io.oopy.coding.domain.repository.UserRepository;
@@ -27,7 +27,7 @@ import java.util.List;
 @ExtendWith(SpringExtension.class)
 public class CommentTest {
 
-    private CommentService commentService;
+    private getCommentService commentService;
 
     @Autowired
     private UserRepository userRepository;
@@ -109,7 +109,7 @@ public class CommentTest {
         commentRepository.save(testComment2);
         commentRepository.save(testComment3);
 
-        commentService = new CommentService(commentRepository);
+        commentService = new getCommentService(commentRepository);
 
         List<GetCommentDTO> result = commentService.getComments(testContent.getId());
 

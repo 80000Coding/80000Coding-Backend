@@ -8,7 +8,6 @@ import lombok.*;
 @Entity
 @Table(name="CONTENT_CATEGORY")
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

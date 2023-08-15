@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ContentDTO {
-    private Long Id;
+    private Long id;
     private User user;
     private String type;
     private String title;
