@@ -95,10 +95,10 @@ class JwtTokenProviderTest {
     @Test
     public void testReceiveGithubIdFromToken() {
         // given
-        String token = JwtTokenProvider.generateAccessToken(dto);
+        String token = jwtTokenProvider.generateAccessToken(dto);
 
         // when
-        Integer githubId = ReflectionTestUtils.invokeMethod(JwtTokenProvider, "getGithubIdFromToken", token);
+        Integer githubId = ReflectionTestUtils.invokeMethod(jwtTokenProvider, "getGithubIdFromToken", token);
 
         // then
         System.out.println("githubId : " + githubId);

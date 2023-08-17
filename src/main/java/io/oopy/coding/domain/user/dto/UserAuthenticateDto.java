@@ -10,6 +10,7 @@ import lombok.ToString;
 @ToString(of = {"id", "githubId"})
 public class UserAuthenticateDto {
     private Long id;
+    private Integer githubId;
     @JsonDeserialize(using = RoleTypeDeserializer.class)
     private RoleType role;
 
@@ -21,6 +22,4 @@ public class UserAuthenticateDto {
     public static UserAuthenticateDto of(Long id, RoleType role) {
         return new UserAuthenticateDto(id, role);
     }
-
-
 }

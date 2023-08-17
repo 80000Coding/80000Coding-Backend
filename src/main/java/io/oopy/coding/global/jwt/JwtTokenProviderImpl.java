@@ -105,6 +105,16 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         return RoleType.fromString(role);
     }
 
+    /**
+     * 토큰으로 부터 Github Id를 추출하는 메서드
+     * @param token String : 토큰
+     * @return Integer : 깃허브 아이디
+     */
+    public Integer getGithubIdFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        return claims.get("githubId", Integer.class);
+    }
+
     private String refreshTokenIfNeeded(Long userId) {
         log.info("refreshTokenIfNeeded : {}", userId);
         return refreshTokenRepository.findById(userId).map(
@@ -138,7 +148,9 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
 
     private Map<String, Object> createClaims(UserAuthenticateDto dto) {
 
-        return Map.of("userId", dto.getId(), "role", dto.getRole().getRole());
+        return Map.of("userId", dto.getId(),
+                "role", dto.getRole().getRole(),
+                "githubId", dto.getGithubId());
     }
 
     private Key createSignature() {

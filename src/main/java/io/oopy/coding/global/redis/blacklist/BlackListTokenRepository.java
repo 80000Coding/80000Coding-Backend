@@ -22,8 +22,4 @@ public class BlackListTokenRepository {
         valueOperation.set(key, userId);
         redisTemplate.expire(key, blackListToken.getTtl(), java.util.concurrent.TimeUnit.SECONDS);
     }
-
-
-
-
 }
