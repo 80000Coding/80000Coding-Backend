@@ -1,16 +1,19 @@
 package io.oopy.coding.global.jwt;
 
 import io.jsonwebtoken.*;
+import io.oopy.coding.domain.user.domain.RoleType;
 import io.oopy.coding.domain.user.dto.UserAuthenticateDto;
 import io.oopy.coding.global.redis.refresh.RefreshToken;
 import io.oopy.coding.global.redis.refresh.RefreshTokenRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
-import java.security.SignatureException;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
@@ -39,17 +42,16 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     /**
      * 헤더로부터 토큰을 추출하는 메서드
      * @param header : 메시지 헤더
+     * @return String : 토큰
      */
-    public String resolveToken(String header) throws SignatureException, ExpiredJwtException {
+    public String resolveToken(String header) throws JwtException {
         String token = getTokenFromHeader(header);
 
-        if (!isValidToken(token))
-            throw new SignatureException();
-
-        if (isTokenExpired(token))
-            return refreshTokenIfNeeded(getUserIdFromToken(token));
-
-        return token;
+        validateToken(token);
+        // 로그아웃된 토큰 여부 확인
+        return isTokenExpired(token)
+                ? refreshTokenIfNeeded(getUserIdFromToken(token))
+                : token;
     }
 
     /**
@@ -58,7 +60,6 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
      * @return String : 토큰
      */
     public String generateAccessToken(UserAuthenticateDto dto) {
-        log.info("generateAccessToken : {}", dto);
         return Jwts.builder()
                 .setHeader(createHeader())
                 .setClaims(createClaims(dto))
@@ -73,98 +74,98 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
      * @return String : 토큰
      */
     public String generateRefreshToken(UserAuthenticateDto dto) {
-        log.info("generateRefreshToken : {}", dto);
         String token = Jwts.builder()
                 .setHeader(createHeader())
                 .setClaims(createClaims(dto))
                 .signWith(SignatureAlgorithm.HS256, createSignature())
                 .setExpiration(createExpireDate(refreshTokenExpirationTime))
                 .compact();
-        log.info("generateRefreshToken : {}", token);
         RefreshToken refreshToken = RefreshToken.of(dto.getId(), token);
         refreshTokenRepository.save(refreshToken, refreshTokenExpirationTime);
 
         return token;
     }
 
-    private boolean isValidToken(String token) {
+    /**
+     * 토큰으로 부터 유저 아이디를 추출하는 메서드
+     * @param token String : 토큰
+     * @return Long : 유저 아이디
+     */
+    public Long getUserIdFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        return claims.get("userId", Long.class);
+    }
+
+    /**
+     * 토큰으로 부터 유저 권한을 추출하는 메서드
+     * @param token String : 토큰
+     * @return RoleType : 유저 권한
+     */
+    public RoleType getRoleFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        String role = claims.get("role", String.class);
+        return RoleType.fromString(role);
+    }
+
+    private void validateToken(String token) throws JwtException {
         try {
-            Claims claims = getClaimsFormToken(token);
-            long userId = getUserIdFromToken(token);
-
-            log.info("expireTime: {}", claims.getExpiration());
-            log.info("userId: {}", claims.get("userId", Long.class));
-            log.info("userName: {}", claims.get("userName", String.class));
-
-            return true;
-        } catch (JwtException e) {
+            getClaimsFromToken(token);
+            getUserIdFromToken(token);
+        } catch (JwtException | NullPointerException e) {
             log.error("error message: {}", e.getMessage());
-            log.error("Token Tampered");
-            return false;
-        } catch (NullPointerException e) {
-            log.error("Token is null");
-            return false;
+            throw new JwtException("Token validation failed", e);
         }
     }
 
     private String refreshTokenIfNeeded(Long userId) {
+        log.info("refreshTokenIfNeeded : {}", userId);
         return refreshTokenRepository.findById(userId).map(
                 refreshToken -> {
-                    if (isTokenExpired(refreshToken.getToken())) {
+                    if (!isTokenExpired(refreshToken.getToken())) {
                         return generateAccessToken(
                                 UserAuthenticateDto.of(refreshToken.getUserId(),
-                                        getGithubIdFromToken(refreshToken.getToken()))
+                                        getRoleFromToken(refreshToken.getToken()))
                         );
                     } else {
-                        return refreshToken.getToken();
+                        throw new ExpiredJwtException(null, null, "Refresh Token is expired");
                     }
                 }
-        ).orElseThrow(() -> new ExpiredJwtException(null, null, "Refresh Token is invalid"));
+        ).orElseThrow(() -> new JwtException("Refresh Token is not found"));
     }
 
     private boolean isTokenExpired(String token) {
-        return getClaimsFormToken(token).getExpiration().before(new Date());
+        return getClaimsFromToken(token).getExpiration().before(new Date());
     }
 
-    private static Map<String, Object> createHeader() {
+    private Map<String, Object> createHeader() {
         return Map.of("typ", "JWT",
                 "alg", "HS256",
                 "regDate", System.currentTimeMillis());
     }
 
-    private static Map<String, Object> createClaims(UserAuthenticateDto dto) {
+    private Map<String, Object> createClaims(UserAuthenticateDto dto) {
 
-        return Map.of("userId", dto.getId(), "githubId", dto.getGithubId());
+        return Map.of("userId", dto.getId(), "role", dto.getRole().getRole());
     }
 
-    private static Key createSignature() {
+    private Key createSignature() {
         byte[] secretKeyBytes = Base64.getDecoder().decode(jwtSecretKey);
         return new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS256.getJcaName());
     }
 
-    private static Date createExpireDate(int expirationTime) {
+    private Date createExpireDate(int expirationTime) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.HOUR, expirationTime);
         return calendar.getTime();
     }
 
-    private static String getTokenFromHeader(String header) {
+    private String getTokenFromHeader(String header) {
         if (header == null || !header.startsWith("Bearer "))
-            throw new RuntimeException("JWT Token is missing");
+            throw new JwtException("JWT Token is missing");
         return header.split(" ")[1];
     }
 
-    private static Long getUserIdFromToken(String token) {
-        Claims claims = getClaimsFormToken(token);
-        return claims.get("userId", Long.class);
-    }
-
-    private Integer getGithubIdFromToken(String token) {
-        Claims claims = getClaimsFormToken(token);
-        return claims.get("githubId", Integer.class);
-    }
-
-    private static Claims getClaimsFormToken(String token) {
+    private Claims getClaimsFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(Base64.getDecoder().decode(jwtSecretKey))
                 .parseClaimsJws(token)
