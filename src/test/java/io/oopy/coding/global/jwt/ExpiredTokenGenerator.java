@@ -35,11 +35,7 @@ public class ExpiredTokenGenerator {
 
     private static Map<String, Object> createClaims(UserAuthenticateDto dto) {
         return Map.of("userId", dto.getId(),
-<<<<<<< HEAD
                 "role", dto.getRole());
-=======
-                "githubId", dto.getGithubId());
->>>>>>> 8a5f59484d2874654ae23e99e710b447ae6ae0d6
     }
 
     private static Key createSignature(String jwtSecretKey) {

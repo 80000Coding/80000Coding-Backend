@@ -59,17 +59,11 @@ class JwtTokenProviderTest {
     @Test
     public void testAccessTokenRefresh() {
         // given
-<<<<<<< HEAD
         ReflectionTestUtils.setField(jwtTokenProvider, "accessTokenExpirationTime", -10);
         ReflectionTestUtils.setField(jwtTokenProvider, "refreshTokenExpirationTime", 10);
         String header = "Bearer " + jwtTokenProvider.generateAccessToken(dto);
         String refreshToken = jwtTokenProvider.generateRefreshToken(dto);
-=======
-        String header = "Bearer " + ExpiredTokenGenerator.generateExpiredToken(dto, jwtSecretKey);
-        String refreshToken = JwtTokenProvider.generateRefreshToken(dto);
-        ReflectionTestUtils.setField(JwtTokenProvider, "refreshTokenExpirationTime", 1000000);
->>>>>>> 8a5f59484d2874654ae23e99e710b447ae6ae0d6
-
+        
         // when
         System.out.println("=============== testAccessTokenRefresh ===============");
         String token = jwtTokenProvider.resolveToken(header);
@@ -99,32 +93,6 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    public void testReceiveRoleFromToken() {
-        // given
-        String token = jwtTokenProvider.generateAccessToken(dto);
-
-        // when
-        RoleType role = jwtTokenProvider.getRoleFromToken(token);
-
-        // then
-        System.out.println("role : " + role);
-        assertEquals(dto.getRole(), role);
-    }
-
-    @Test
-    public void testReceiveUserIdFromToken() {
-        // given
-        String token = JwtTokenProvider.generateAccessToken(dto);
-
-        // when
-        Long userId = ReflectionTestUtils.invokeMethod(JwtTokenProvider, "getUserIdFromToken", token);
-
-        // then
-        System.out.println("userId : " + userId);
-        assertEquals(dto.getId(), userId);
-    }
-
-    @Test
     public void testReceiveGithubIdFromToken() {
         // given
         String token = JwtTokenProvider.generateAccessToken(dto);
@@ -138,10 +106,6 @@ class JwtTokenProviderTest {
     }
 
     private UserAuthenticateDto createDto() {
-<<<<<<< HEAD
         return UserAuthenticateDto.of(1L, RoleType.USER);
-=======
-        return UserAuthenticateDto.of(1L, 1);
->>>>>>> 8a5f59484d2874654ae23e99e710b447ae6ae0d6
     }
 }
