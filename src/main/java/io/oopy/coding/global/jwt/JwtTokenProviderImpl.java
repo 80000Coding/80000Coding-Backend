@@ -47,8 +47,6 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     public String resolveToken(String header) throws JwtException {
         String token = getTokenFromHeader(header);
 
-        validateToken(token);
-        // 로그아웃된 토큰 여부 확인
         return isTokenExpired(token)
                 ? refreshTokenIfNeeded(getUserIdFromToken(token))
                 : token;
@@ -107,16 +105,6 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         return RoleType.fromString(role);
     }
 
-    private void validateToken(String token) throws JwtException {
-        try {
-            getClaimsFromToken(token);
-            getUserIdFromToken(token);
-        } catch (JwtException | NullPointerException e) {
-            log.error("error message: {}", e.getMessage());
-            throw new JwtException("Token validation failed", e);
-        }
-    }
-
     private String refreshTokenIfNeeded(Long userId) {
         log.info("refreshTokenIfNeeded : {}", userId);
         return refreshTokenRepository.findById(userId).map(
@@ -134,7 +122,12 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     private boolean isTokenExpired(String token) {
-        return getClaimsFromToken(token).getExpiration().before(new Date());
+        try {
+            return getClaimsFromToken(token).getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            log.error("isTokenExpired : {}", e.getMessage());
+            return true;
+        }
     }
 
     private Map<String, Object> createHeader() {

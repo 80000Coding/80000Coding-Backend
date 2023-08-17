@@ -3,6 +3,8 @@ package io.oopy.coding.global.config;
 import io.oopy.coding.global.jwt.JwtTokenProvider;
 import io.oopy.coding.global.jwt.handler.JwtAccessDeniedHandler;
 import io.oopy.coding.global.jwt.handler.JwtAuthenticationEntryPoint;
+import io.oopy.coding.global.jwt.handler.JwtExceptionFilter;
+import io.oopy.coding.global.security.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +31,7 @@ public class SecurityConfig {
     };
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final CustomUserDetailService customUserDetailService;
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
@@ -62,7 +65,7 @@ public class SecurityConfig {
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler())
                 .authenticationEntryPoint(authenticationEntryPoint());
-        httpSecurity.apply(new JwtSecurityConfig(jwtTokenProvider));
+        httpSecurity.apply(new JwtSecurityConfig(jwtTokenProvider, customUserDetailService));
         return httpSecurity.build();
     }
 }

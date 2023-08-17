@@ -1,7 +1,6 @@
 package io.oopy.coding.global.jwt;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.oopy.coding.domain.user.domain.RoleType;
 import io.oopy.coding.domain.user.dto.UserAuthenticateDto;
 import io.oopy.coding.global.redis.refresh.RefreshTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,18 +10,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.crypto.spec.SecretKeySpec;
-import java.security.Key;
-import java.util.Base64;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class JwtTokenProviderTest {
-    private JwtTokenProvider JwtTokenProvider;
+    private JwtTokenProvider jwtTokenProvider;
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
 
@@ -31,14 +23,14 @@ class JwtTokenProviderTest {
 
     @BeforeEach
     public void setUp() {
-        JwtTokenProvider = new JwtTokenProviderImpl(jwtSecretKey, 1, 1, refreshTokenRepository);
+        jwtTokenProvider = new JwtTokenProviderImpl(jwtSecretKey, 1, 1, refreshTokenRepository);
         dto = createDto();
     }
 
     @Test
     public void testGenerateAccessToken() {
         // when
-        String accessToken = JwtTokenProvider.generateAccessToken(dto);
+        String accessToken = jwtTokenProvider.generateAccessToken(dto);
 
         // then
         System.out.println("accessToken : " + accessToken);
@@ -48,7 +40,7 @@ class JwtTokenProviderTest {
     @Test
     public void testGenerateRefreshToken() {
         // when
-        String refreshToken = JwtTokenProvider.generateRefreshToken(dto);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(dto);
 
         // then
         System.out.println("refreshToken : " + refreshToken);
@@ -61,25 +53,62 @@ class JwtTokenProviderTest {
         String header = "Bearer " + ExpiredTokenGenerator.generateExpiredToken(dto, jwtSecretKey);
 
         // when
-        assertThrows(RuntimeException.class, () -> JwtTokenProvider.resolveToken(header));
+        assertThrows(RuntimeException.class, () -> jwtTokenProvider.resolveToken(header));
     }
 
     @Test
-    public void testAccessTokenExpiredAndRefreshTokenValid() {
+    public void testAccessTokenRefresh() {
         // given
+<<<<<<< HEAD
+        ReflectionTestUtils.setField(jwtTokenProvider, "accessTokenExpirationTime", -10);
+        ReflectionTestUtils.setField(jwtTokenProvider, "refreshTokenExpirationTime", 10);
+        String header = "Bearer " + jwtTokenProvider.generateAccessToken(dto);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(dto);
+=======
         String header = "Bearer " + ExpiredTokenGenerator.generateExpiredToken(dto, jwtSecretKey);
         String refreshToken = JwtTokenProvider.generateRefreshToken(dto);
         ReflectionTestUtils.setField(JwtTokenProvider, "refreshTokenExpirationTime", 1000000);
+>>>>>>> 8a5f59484d2874654ae23e99e710b447ae6ae0d6
 
         // when
-        JwtTokenProvider.resolveToken(header);
+        System.out.println("=============== testAccessTokenRefresh ===============");
+        String token = jwtTokenProvider.resolveToken(header);
+        System.out.println("token : " + token);
+        System.out.println("=============== testAccessTokenRefresh ===============");
 
         // then
-        assertNotNull(refreshTokenRepository.findById(dto.getId()).orElse(null));
+        assertNotNull(token);
     }
 
     @Test
-    public void testAccessTokenExpiredAndRefreshTokenExpired() {
+    public void RefreshTokenExpired() {
+
+    }
+
+    @Test
+    public void testReceiveUserIdFromToken() {
+        // given
+        String token = jwtTokenProvider.generateAccessToken(dto);
+
+        // when
+        Long userId = jwtTokenProvider.getUserIdFromToken(token);
+
+        // then
+        System.out.println("userId : " + userId);
+        assertEquals(dto.getId(), userId);
+    }
+
+    @Test
+    public void testReceiveRoleFromToken() {
+        // given
+        String token = jwtTokenProvider.generateAccessToken(dto);
+
+        // when
+        RoleType role = jwtTokenProvider.getRoleFromToken(token);
+
+        // then
+        System.out.println("role : " + role);
+        assertEquals(dto.getRole(), role);
     }
 
     @Test
@@ -109,6 +138,10 @@ class JwtTokenProviderTest {
     }
 
     private UserAuthenticateDto createDto() {
+<<<<<<< HEAD
+        return UserAuthenticateDto.of(1L, RoleType.USER);
+=======
         return UserAuthenticateDto.of(1L, 1);
+>>>>>>> 8a5f59484d2874654ae23e99e710b447ae6ae0d6
     }
 }

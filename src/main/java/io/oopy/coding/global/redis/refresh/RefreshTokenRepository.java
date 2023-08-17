@@ -13,9 +13,9 @@ import java.util.concurrent.TimeUnit;
 @Repository
 @EnableRedisRepositories
 public class RefreshTokenRepository {
-    private final RedisTemplate<Long, String> redisTemplate;
+    private final RedisTemplate<Object, Object> redisTemplate;
 
-    public RefreshTokenRepository(RedisTemplate<Long, String> redisTemplate) {
+    public RefreshTokenRepository(RedisTemplate<Object, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
@@ -23,14 +23,14 @@ public class RefreshTokenRepository {
         Long key = refreshToken.getUserId();
         String token = refreshToken.getToken();
 
-        ValueOperations<Long, String> valueOperation = redisTemplate.opsForValue();
+        ValueOperations<Object, Object> valueOperation = redisTemplate.opsForValue();
         valueOperation.set(key, token);
         redisTemplate.expire(key, refreshExpireTime, TimeUnit.HOURS);
     }
 
     public Optional<RefreshToken> findById(Long userId) {
-        ValueOperations<Long, String> valueOperation = redisTemplate.opsForValue();
-        String refreshToken = valueOperation.get(userId);
+        ValueOperations<Object, Object> valueOperation = redisTemplate.opsForValue();
+        String refreshToken = Objects.requireNonNull(valueOperation.get(userId)).toString();
 
         return (Objects.isNull(refreshToken))
                 ? Optional.empty()
