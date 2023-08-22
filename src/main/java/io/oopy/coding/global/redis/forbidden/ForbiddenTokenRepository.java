@@ -1,4 +1,4 @@
-package io.oopy.coding.global.redis.refresh;
+package io.oopy.coding.global.redis.forbidden;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -6,10 +6,5 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
-public interface RefreshTokenRepository extends CrudRepository<RefreshToken, String> {
+public interface ForbiddenTokenRepository extends CrudRepository<ForbiddenToken, String> {
 }

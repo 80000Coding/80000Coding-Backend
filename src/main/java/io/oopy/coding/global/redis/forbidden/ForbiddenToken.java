@@ -1,4 +1,4 @@
-package io.oopy.coding.global.redis.blacklist;
+package io.oopy.coding.global.redis.forbidden;
 
 import jakarta.persistence.Id;
 import lombok.Getter;
