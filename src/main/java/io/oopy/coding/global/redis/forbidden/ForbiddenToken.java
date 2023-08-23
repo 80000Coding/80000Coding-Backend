@@ -1,26 +1,41 @@
 package io.oopy.coding.global.redis.forbidden;
 
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 @Getter
-@RedisHash("blackListToken")
-public class BlackListToken {
+@RedisHash("forbiddenToken")
+public class ForbiddenToken {
     @Id
-    private String access;
-    private Integer userId;
+    private final String accessToken;
+    private final Long userId;
     @TimeToLive
-    private Long ttl;
+    private final long ttl;
 
-    private BlackListToken(String access, Integer userId, Long ttl) {
-        this.access = access;
+    @Builder
+    private ForbiddenToken(String accessToken, Long userId, long ttl) {
+        this.accessToken = accessToken;
         this.userId = userId;
         this.ttl = ttl;
     }
 
-    public static BlackListToken of(String access, Integer userId, Long ttl) {
-        return new BlackListToken(access, userId, ttl/1000);
+    public static ForbiddenToken of(String accessToken, Long userId, long ttl) {
+        return new ForbiddenToken(accessToken, userId, ttl);
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ForbiddenToken)) return false;
+        ForbiddenToken that = (ForbiddenToken) o;
+        return accessToken.equals(that.accessToken) && userId.equals(that.userId);
+    }
+
+    @Override public int hashCode() {
+        int result = accessToken.hashCode();
+        result = ((1 << 5) - 1) * result + userId.hashCode();
+        return result;
     }
 }

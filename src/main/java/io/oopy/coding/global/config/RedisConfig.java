@@ -1,29 +1,25 @@
 package io.oopy.coding.global.config;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-@RequiredArgsConstructor
 public class RedisConfig {
-    private final RedisProperties redisProperties;
+    @Value("${spring.data.redis.host}")
+    private String host;
+    @Value("${spring.data.redis.port}")
+    private int port;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
-    }
-
-    @Bean
-    public RedisTemplate<Object, Object> redisTemplate() {
-        RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory());
-
-        return redisTemplate;
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
+//        config.setPassword(); // redis 패스워드 설정 시, 주석 해제
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder().build();
+        return new LettuceConnectionFactory(config, clientConfig);
     }
 }

@@ -1,24 +1,28 @@
 package io.oopy.coding.global.redis.refresh;
 
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
 
 @RedisHash("refreshToken")
 @Getter
-@ToString(of = {"userId", "token"})
+@ToString(of = {"access", "refresh"})
 public class RefreshToken {
     @Id
+    private final String access;
+    private final String refresh;
     private final Long userId;
-    private final String token;
+    @TimeToLive
+    private final long ttl;
 
-    private RefreshToken(Long userId, String token) {
+    @Builder
+    private RefreshToken(String access, String refresh, Long userId, long ttl) {
+        this.access = access;
+        this.refresh = refresh;
         this.userId = userId;
-        this.token = token;
-    }
-
-    public static RefreshToken of(Long userId, String refreshToken) {
-        return new RefreshToken(userId, refreshToken);
+        this.ttl = ttl;
     }
 }

@@ -11,4 +11,8 @@ public enum AuthConstants {
     AuthConstants(String value) {
         this.value = value;
     }
+
+    @Override public String toString() {
+        return "AuthConstants{ value='" + value + "' }";
+    }
 }

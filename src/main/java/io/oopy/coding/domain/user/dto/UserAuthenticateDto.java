@@ -3,6 +3,7 @@ package io.oopy.coding.domain.user.dto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.oopy.coding.domain.user.domain.RoleType;
 import io.oopy.coding.domain.user.domain.RoleTypeDeserializer;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -14,12 +15,14 @@ public class UserAuthenticateDto {
     @JsonDeserialize(using = RoleTypeDeserializer.class)
     private RoleType role;
 
-    private UserAuthenticateDto(Long id, RoleType role) {
+    @Builder
+    private UserAuthenticateDto(Long id, Integer githubId, RoleType role) {
         this.id = id;
+        this.githubId = githubId;
         this.role = role;
     }
 
-    public static UserAuthenticateDto of(Long id, RoleType role) {
-        return new UserAuthenticateDto(id, role);
+    public static UserAuthenticateDto of(Long id, Integer githubId, RoleType role) {
+        return new UserAuthenticateDto(id, githubId, role);
     }
 }
