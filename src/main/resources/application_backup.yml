@@ -1,0 +1,46 @@
+ssh:
+  host: ${SSH_HOST}
+  user: ${SSH_USER}
+  port: ${SSH_PORT}
+  pem: ${SSH_PEM}
+  database-port: ${SSH_DATABASE_PORT}
+---
+spring.config.activate.on-profile: local
+
+server:
+  port: 8081
+spring:
+  jpa:
+    database: MYSQL
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER_NAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      maximum-pool-size: 1 # (default 10)
+      minimum-idle: 1 # (default 10)
+      idle-timeout: 60000 # 1m (default 10m)
+      max-lifetime: 1200000 # 20m (default 30m)
+      connection-timeout: 3000 # 3s (default 30s)
+    validation-timeout: 2000 # 2s (default 5s)
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /swagger
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
+  api-docs:
+    groups:
+      enabled: true

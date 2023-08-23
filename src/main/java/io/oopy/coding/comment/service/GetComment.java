@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class getCommentService {
+public class GetComment {
     private final CommentRepository commentRepository;
 
     public List<GetCommentDTO> getComments(Long contentId) {
