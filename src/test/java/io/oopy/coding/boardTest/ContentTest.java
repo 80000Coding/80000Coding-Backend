@@ -1,6 +1,6 @@
 package io.oopy.coding.boardTest;
 
-import io.oopy.coding.content.service.getContentDetailService;
+import io.oopy.coding.content.service.getContentDetail;
 import io.oopy.coding.domain.content.repository.CategoryRepository;
 import io.oopy.coding.domain.content.repository.ContentCategoryRepository;
 import io.oopy.coding.domain.content.repository.ContentRepository;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SpringExtension.class)
 public class ContentTest {
 
-    private getContentDetailService getContentDetailService;
+    private getContentDetail getContentDetailService;
 
     @Autowired
     private UserRepository userRepository;
@@ -156,7 +156,7 @@ public class ContentTest {
         categoryRepository.save(testCategory);
         contentCategoryRepository.save(testContentCategory);
 
-        getContentDetailService = new getContentDetailService(contentRepository);
+        getContentDetailService = new getContentDetail(contentRepository);
 
         ContentDetailDTO test = getContentDetailService.getContentDetails(testContent.getId());
 

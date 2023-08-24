@@ -41,6 +41,8 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'com.h2database:h2:'
 
+	runtimeOnly 'com.h2database:h2' // 작업 끝나면 삭제해야할 것
+
 }
 
 tasks.named('test') {

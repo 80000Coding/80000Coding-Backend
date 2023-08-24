@@ -20,7 +20,7 @@ public class CreateComment {
 
     private final CommentRepository commentRepository;
 
-    public CreateCommentDTO createComment(Long contentId, String commentBody, Long parentId) {
+    public CreateCommentDTO createComment(Long contentId, Long id, String commentBody, Long parentId) {
         Content content = contentRepository.findById(contentId).orElseThrow(() -> {
             return new EntityNotFoundException("Content " + contentId + " not found.");
         });

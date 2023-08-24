@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class ContentDetailDTO {
     private Long contentId;
     private String contentTitle;

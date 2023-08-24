@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class GetCommentDTO {
     private String commentBody;
     private LocalDateTime commentCreatedAt;

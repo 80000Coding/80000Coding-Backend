@@ -1,9 +1,13 @@
 package io.oopy.coding.boardTest;
 
+import io.oopy.coding.comment.service.CreateComment;
+import io.oopy.coding.comment.service.DeleteComment;
+import io.oopy.coding.comment.service.UpdateComment;
+import io.oopy.coding.domain.comment.dto.CreateCommentDTO;
 import io.oopy.coding.domain.comment.repository.CommentRepository;
 import io.oopy.coding.domain.comment.dto.GetCommentDTO;
 import io.oopy.coding.domain.comment.entity.Comment;
-import io.oopy.coding.comment.service.getCommentService;
+import io.oopy.coding.comment.service.GetComment;
 import io.oopy.coding.domain.content.repository.ContentRepository;
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.entity.User;
@@ -27,7 +31,10 @@ import java.util.List;
 @ExtendWith(SpringExtension.class)
 public class CommentTest {
 
-    private getCommentService commentService;
+    private GetComment getCommentService;
+    private CreateComment createCommentService;
+    private UpdateComment updateCommentService;
+    private DeleteComment deleteCommentService;
 
     @Autowired
     private UserRepository userRepository;
@@ -109,10 +116,69 @@ public class CommentTest {
         commentRepository.save(testComment2);
         commentRepository.save(testComment3);
 
-        commentService = new getCommentService(commentRepository);
+        getCommentService = new GetComment(commentRepository);
 
-        List<GetCommentDTO> result = commentService.getComments(testContent.getId());
+        List<GetCommentDTO> result = getCommentService.getComments(testContent.getId());
 
+        System.out.println("=========================================");
+        for (GetCommentDTO getCommentDTO : result) {
+            System.out.println("getCommentDTO = " + getCommentDTO);
+        }
+        System.out.println("=========================================");
+    }
+
+    /**
+     * user token으로 댓글을 생성한 user가 어떤 user인지 파악을 하지 못하는 문제로 인해 진행안되는중
+     */
+//    @DisplayName("댓글 생성 확인 test")
+//    @Test
+//    @Transactional
+//    public void postCommentTest() {
+//        userRepository.save(testUser);
+//        contentRepository.save(testContent);
+//
+//        createCommentService = new CreateComment(contentRepository, userRepository, commentRepository);
+//        CreateCommentDTO result = createCommentService.createComment(testContent.getId(), "This is test Comment", null);
+//        System.out.println("=========================================");
+//        System.out.println("result = " + result);
+//        System.out.println("=========================================");
+//    }
+
+    @DisplayName("댓글 수정 확인 test")
+    @Test
+    @Transactional
+    public void patchCommentTest() {
+        userRepository.save(testUser);
+        contentRepository.save(testContent);
+        commentRepository.save(testComment1);
+        commentRepository.save(testComment2);
+        commentRepository.save(testComment3);
+
+        updateCommentService = new UpdateComment(commentRepository);
+        getCommentService = new GetComment(commentRepository);
+        updateCommentService.updateComment(testComment1.getId(), "update test body!!");
+        List<GetCommentDTO> result = getCommentService.getComments(testContent.getId());
+        System.out.println("=========================================");
+        for (GetCommentDTO getCommentDTO : result) {
+            System.out.println("getCommentDTO = " + getCommentDTO);
+        }
+        System.out.println("=========================================");
+    }
+
+    @DisplayName("댓글 삭제 확인 test")
+    @Test
+    @Transactional
+    public void deleteCommentTest() {
+        userRepository.save(testUser);
+        contentRepository.save(testContent);
+        commentRepository.save(testComment1);
+        commentRepository.save(testComment2);
+        commentRepository.save(testComment3);
+
+        deleteCommentService = new DeleteComment(commentRepository);
+        getCommentService = new GetComment(commentRepository);
+        deleteCommentService.deleteComment(testComment1.getId());
+        List<GetCommentDTO> result = getCommentService.getComments(testContent.getId());
         System.out.println("=========================================");
         for (GetCommentDTO getCommentDTO : result) {
             System.out.println("getCommentDTO = " + getCommentDTO);
