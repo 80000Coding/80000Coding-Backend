@@ -32,6 +32,17 @@ spring:
       max-lifetime: 1200000 # 20m (default 30m)
       connection-timeout: 3000 # 3s (default 30s)
     validation-timeout: 2000 # 2s (default 5s)
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USER_NAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8

@@ -19,7 +19,8 @@ public class SecurityConfig {
             "/favicon.ico",
             "/api-docs/**",
             "/test/**",
-            "/v3/api-docs/**", "/swagger-ui/**", "/swagger"
+            "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
+            "/email/**" // todo - 삭제
     };
 
     @Bean
