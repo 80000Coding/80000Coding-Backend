@@ -21,6 +21,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+import static io.oopy.coding.global.jwt.AuthConstants.TOKEN_TYPE;
+
 @Slf4j
 public class JwtTokenProviderImpl implements JwtTokenProvider {
     private final String jwtSecretKey;
@@ -36,24 +38,23 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         this.accessTokenExpirationTime = accessTokenExpirationTime;
     }
 
-    /**
-     * 헤더로부터 토큰을 추출하는 메서드
-     * @param header : 메시지 헤더
-     * @return String : 토큰
-     */
+    @Override
     public String resolveToken(String header) throws AuthErrorException {
         String token = getTokenFromHeader(header);
         Claims claims = verifyAndGetClaims(token);
 
-        log.info("resolveToken : {}", token);
+        log.info("token verified. about claims : {}", claims.get("userId", String.class));
         return token;
     }
 
-    /**
-     * 사용자 정보 기반으로 액세스 토큰을 생성하는 메서드
-     * @param dto UserDto : 사용자 정보
-     * @return String : 토큰
-     */
+    @Override
+    public String getTokenFromHeader(String header) {
+        if (header == null || !header.startsWith(TOKEN_TYPE.getValue()))
+            throw new AuthErrorException(AuthErrorCode.INVALID_HEADER, "Invalid Header Format");
+        return header.substring(TOKEN_TYPE.getValue().length());
+    }
+
+    @Override
     public String generateAccessToken(UserAuthenticateDto dto) {
         return Jwts.builder()
                 .setHeader(createHeader())
@@ -63,76 +64,62 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
                 .compact();
     }
 
-    /**
-     * 토큰으로 부터 유저 아이디를 추출하는 메서드
-     * @param token String : 토큰
-     * @return Long : 유저 아이디
-     */
+    @Override
     public Long getUserIdFromToken(String token) {
         Claims claims = verifyAndGetClaims(token);
         return claims.get("userId", Long.class);
     }
 
-    /**
-     * 토큰으로 부터 유저 권한을 추출하는 메서드
-     * @param token String : 토큰
-     * @return RoleType : 유저 권한
-     */
+    @Override
     public RoleType getRoleFromToken(String token) {
         Claims claims = verifyAndGetClaims(token);
         String role = claims.get("role", String.class);
         return RoleType.fromString(role);
     }
 
-    /**
-     * 토큰으로 부터 Github Id를 추출하는 메서드
-     * @param token String : 토큰
-     * @return Integer : 깃허브 아이디
-     */
+    @Override
     public Integer getGithubIdFromToken(String token) {
         Claims claims = verifyAndGetClaims(token);
         return claims.get("githubId", Integer.class);
     }
 
-    /**
-     * 토큰의 만료일을 추출하는 메서드
-     * @param token String : 토큰
-     * @return Date : 만료일
-     */
+    @Override
     public Date getExpiryDate(String token) {
         Claims claims = verifyAndGetClaims(token);
         return claims.getExpiration();
     }
 
-    /**
-     * 토큰의 Claim을 추출하는 메서드
-     * @throws ExpiredJwtException : 토큰이 만료되었을 경우
-     * @throws MalformedJwtException : 토큰이 올바르지 않을 경우
-     * @throws SignatureException : 토큰의 서명이 올바르지 않을 경우
-     * @throws UnsupportedJwtException : 토큰의 형식이 올바르지 않을 경우
-     * @throws IllegalArgumentException : 토큰이 비어있을 경우
-     */
     private Claims verifyAndGetClaims(final String accessToken) {
-        Claims claims = null;
         try {
-            claims = getClaimsFromToken(accessToken);
-        } catch (ExpiredJwtException e) {
-            log.warn("JWT Expired Error : {}", e.getMessage());
-            throw new AuthErrorException(AuthErrorCode.EXPIRED_ACCESS_TOKEN, e.getMessage());
-        } catch (MalformedJwtException e) {
-            log.warn("JWT Malformed Error : {}", e.getMessage());
-            throw new AuthErrorException(AuthErrorCode.MALFORMED_ACCESS_TOKEN, e.getMessage());
-        } catch (SignatureException e) {
-            log.warn("JWT Signature Error : {}", e.getMessage());
-            throw new AuthErrorException(AuthErrorCode.TAMPERED_ACCESS_TOKEN, e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            log.warn("JWT Unsupported Error : {}", e.getMessage());
-            throw new AuthErrorException(AuthErrorCode.WRONG_JWT_TOKEN, e.getMessage());
-        } catch (IllegalArgumentException e) {
-            log.warn("JWT Illegal Argument Error : {}", e.getMessage());
-            throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, e.getMessage());
+            return getClaimsFromToken(accessToken);
+        } catch (JwtException e) {
+            handleJwtException(e);
         }
-        return claims;
+        throw new IllegalStateException("Unreachable code reached.");
+    }
+
+    private void handleJwtException(JwtException e) {
+        AuthErrorCode errorCode;
+        String errorMessage;
+        if (e instanceof ExpiredJwtException) {
+            errorCode = AuthErrorCode.EXPIRED_ACCESS_TOKEN;
+            errorMessage = "JWT Expired Error: " + e.getMessage();
+        } else if (e instanceof MalformedJwtException) {
+            errorCode = AuthErrorCode.MALFORMED_ACCESS_TOKEN;
+            errorMessage = "JWT Malformed Error: " + e.getMessage();
+        } else if (e instanceof SignatureException) {
+            errorCode = AuthErrorCode.TAMPERED_ACCESS_TOKEN;
+            errorMessage = "JWT Signature Error: " + e.getMessage();
+        } else if (e instanceof UnsupportedJwtException) {
+            errorCode = AuthErrorCode.WRONG_JWT_TOKEN;
+            errorMessage = "JWT Unsupported Error: " + e.getMessage();
+        } else {
+            errorCode = AuthErrorCode.EMPTY_ACCESS_TOKEN;
+            errorMessage = "JWT Illegal Argument Error: " + e.getMessage();
+        }
+
+        log.warn(errorMessage);
+        throw new AuthErrorException(errorCode, errorMessage);
     }
 
     private Map<String, Object> createHeader() {
@@ -156,12 +143,6 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.HOUR, expirationTime);
         return calendar.getTime();
-    }
-
-    private String getTokenFromHeader(String header) {
-        if (header == null || !header.startsWith("Bearer "))
-            throw new AuthErrorException(AuthErrorCode.INVALID_HEADER, "Invalid Header Format");
-        return header.substring(AuthConstants.TOKEN_TYPE.getValue().length());
     }
 
     private Claims getClaimsFromToken(String token) {

@@ -106,6 +106,10 @@ class JwtTokenProviderTest {
     }
 
     private UserAuthenticateDto createDto() {
-        return UserAuthenticateDto.of(1L, RoleType.USER);
+        return UserAuthenticateDto.builder()
+                .id(1L)
+                .githubId(1)
+                .role(RoleType.USER)
+                .build();
     }
 }

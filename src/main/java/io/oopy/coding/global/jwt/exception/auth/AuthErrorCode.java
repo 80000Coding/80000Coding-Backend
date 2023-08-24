@@ -21,6 +21,7 @@ public enum AuthErrorCode implements ErrorCode {
     MALFORMED_ACCESS_TOKEN(UNAUTHORIZED, "비정상적인 토큰입니다"),
     WRONG_JWT_TOKEN(UNAUTHORIZED, "잘못된 토큰입니다(default)"),
     REFRESH_TOKEN_NOT_FOUND(UNAUTHORIZED, "없거나 삭제된 리프래시 토큰입니다."),
+    USER_NOT_FOUND(UNAUTHORIZED, "존재하지 않는 유저입니다"),
 
     // 403 FORBIDDEN: 인증된 클라이언트가 권한이 없는 자원에 접근
     FORBIDDEN_ACCESS_TOKEN(FORBIDDEN, "해당 토큰에는 엑세스 권한이 없습니다"),

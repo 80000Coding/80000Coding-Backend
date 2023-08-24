@@ -1,6 +1,9 @@
 package io.oopy.coding.global.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import io.oopy.coding.global.redis.forbidden.ForbiddenTokenService;
+import io.oopy.coding.global.redis.refresh.RefreshTokenService;
 import io.oopy.coding.global.security.CustomUserDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +22,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
+import static io.oopy.coding.global.jwt.AuthConstants.AUTH_HEADER;
+
 /**
  * 지정한 URL 별로 JWT 유효성 검증을 수행하며, 직접적인 사용자 인증을 확인합니다.
  */
@@ -28,6 +32,9 @@ import java.util.Objects;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailService customUserDetailService;
+    private final RefreshTokenService refreshTokenService;
+    private final ForbiddenTokenService forbiddenTokenService;
+
     private List<String> jwtIgnoreUrls = List.of(
             "/api/v1/users/login", "/api/v1/users/refresh"
     );
@@ -40,16 +47,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String jwtHeader = request.getHeader("Authorization");
-        try {
-            String token = jwtTokenProvider.resolveToken(jwtHeader);
+        String jwtHeader = request.getHeader(AUTH_HEADER.getValue());
+        String accessToken = resolveAccessToken(jwtHeader);
 
-            // TODO: test
-            UserDetails userDetails = getUserDetails(jwtTokenProvider.getUserIdFromToken(token));
-            authenticateUser(userDetails, request);
-        } catch (JwtException e) {
-            throw new ServletException(e);
-        }
+        // TODO: test
+        UserDetails userDetails = getUserDetails(accessToken);
+        authenticateUser(userDetails, request);
 
         filterChain.doFilter(request, response);
     }
@@ -58,10 +61,22 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         return jwtIgnoreUrls.contains(url) || request.getMethod().equals("OPTIONS");
     }
 
-    private UserDetails getUserDetails(Long userId) {
-        if (Objects.isNull(userId)) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+    private String resolveAccessToken(String jwtHeader) throws ServletException {
+        try {
+            return jwtTokenProvider.resolveToken(jwtHeader);
+        } catch (ExpiredJwtException e) {
+            log.error("ExpiredJwtException: {}", e.getMessage());
+            String invalidToken = jwtTokenProvider.getTokenFromHeader(jwtHeader);
+
+            // TODO: refresh Token이 만료되었을 경우 테스트 필요
+            return refreshTokenService.refresh(invalidToken);
+        } catch (JwtException e) {
+            throw new ServletException(e);
         }
+    }
+
+    private UserDetails getUserDetails(String accessToken) {
+        Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);
 
         try {
             return customUserDetailService.loadUserByUsername(userId.toString());

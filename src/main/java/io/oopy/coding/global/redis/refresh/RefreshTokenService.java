@@ -20,7 +20,6 @@ import java.util.UUID;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
@@ -29,16 +28,29 @@ public class RefreshTokenService {
 
     public RefreshTokenService(
             RefreshTokenRepository refreshTokenRepository,
-            ForbiddenTokenRepository forbiddenTokenRepository,
+            UserRepository userRepository,
+            JwtTokenProvider jwtTokenProvider,
             @Value("${jwt.token.refresh-expiration-time}") Duration refreshTokenExpireTime)
     {
         this.refreshTokenRepository = refreshTokenRepository;
-        this.forbiddenTokenRepository = forbiddenTokenRepository;
+        this.userRepository = userRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
         this.refreshTokenExpireTime = refreshTokenExpireTime;
     }
 
     public String refresh(String accessToken) {
+        final RefreshToken refreshToken = findOrThrow(accessToken);
+        final Long userId = refreshToken.getUserId();
 
+        final User user = userRepository.findById(userId).orElseThrow(
+                () -> new AuthErrorException(AuthErrorCode.USER_NOT_FOUND, "can't find user"));
+
+        final var dto = UserAuthenticateDto.newInstance(user);
+        final String newAccessToken = jwtTokenProvider.generateAccessToken(dto);
+        refreshToken.updateAccessToken(newAccessToken);
+
+        log.info("refresh token issued. about access Token : {}", accessToken);
+        return newAccessToken;
     }
 
     /**
@@ -47,17 +59,15 @@ public class RefreshTokenService {
      * @param accessToken
      * @return String : Refresh Token
      */
-    public String issueRefreshToken(String accessToken) {
+    public void issueRefreshToken(String accessToken) {
         final var refreshToken = RefreshToken.builder()
-                .access(accessToken)
-                .refresh(makeRefreshToken())
+                .accessToken(accessToken)
+                .refreshToken(makeRefreshToken())
                 .ttl(getExpireTime())
                 .build();
 
         refreshTokenRepository.save(refreshToken);
-
         log.info("refresh token issued. about access Token : {}", accessToken);
-        return refreshToken.getRefresh();
     }
 
 
