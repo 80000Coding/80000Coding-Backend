@@ -4,12 +4,13 @@ import io.oopy.coding.domain.user.application.UserAuthService;
 import io.oopy.coding.domain.user.application.UserSearchService;
 import io.oopy.coding.domain.user.dto.TokenDto;
 import io.oopy.coding.domain.user.dto.UserAuthenticateDto;
-import io.oopy.coding.global.jwt.JwtTokenProviderImpl;
+import io.oopy.coding.global.cookie.CookieUtil;
+import io.oopy.coding.global.jwt.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,28 +20,22 @@ import org.springframework.web.bind.annotation.*;
 public class UserAPI {
     private final UserAuthService userAuthService;
     private final UserSearchService userSearchService;
-    private final JwtTokenProviderImpl jwtTokenProviderImpl;
-    private static RedisTemplate<String, String> redisTemplate;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final CookieUtil cookieUtil;
+
 
     @PostMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody UserAuthenticateDto dto) {
-        TokenDto tokenDto = TokenDto.of(
-                jwtTokenProviderImpl.generateAccessToken(dto),
-                jwtTokenProviderImpl.generateRefreshToken(dto)
-        );
+        TokenDto tokenDto = TokenDto.of(jwtTokenProvider.generateAccessToken(dto));
         log.info("access token: {}", tokenDto.getAccess());
-        log.info("refresh token: {}", tokenDto.getRefresh());
 
         return ResponseEntity.ok(tokenDto);
     }
 
-    @GetMapping("/test")
-    @Secured("ROLE_USER")
-    public ResponseEntity<?> test(@RequestHeader("Authorization") String header) {
-        log.info("header : {}", header);
-        String refreshToken = redisTemplate.opsForValue().get("1");
-        log.info("refresh token : {}", refreshToken);
-
-        return ResponseEntity.ok("성공");
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@CookieValue("accessToken") String accessToken, HttpServletRequest request, HttpServletResponse response) {
+        userAuthService.logout(accessToken);
+        cookieUtil.deleteCookie(request, response, "accessToken");
+        return ResponseEntity.ok().build();
     }
 }

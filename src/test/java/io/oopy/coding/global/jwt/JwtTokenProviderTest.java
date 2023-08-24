@@ -23,7 +23,7 @@ class JwtTokenProviderTest {
 
     @BeforeEach
     public void setUp() {
-        jwtTokenProvider = new JwtTokenProviderImpl(jwtSecretKey, 1, 1, refreshTokenRepository);
+        jwtTokenProvider = new JwtTokenProviderImpl(jwtSecretKey, 1);
         dto = createDto();
     }
 

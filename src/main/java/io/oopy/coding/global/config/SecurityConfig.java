@@ -1,10 +1,10 @@
 package io.oopy.coding.global.config;
 
+import io.oopy.coding.global.cookie.CookieUtil;
 import io.oopy.coding.global.jwt.JwtTokenProvider;
 import io.oopy.coding.global.jwt.handler.JwtAccessDeniedHandler;
 import io.oopy.coding.global.jwt.handler.JwtAuthenticationEntryPoint;
-import io.oopy.coding.global.jwt.handler.JwtExceptionFilter;
-import io.oopy.coding.global.jwt.resolver.LoginUserIdArgumentResolver;
+import io.oopy.coding.global.redis.refresh.RefreshTokenService;
 import io.oopy.coding.global.security.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -17,9 +17,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -36,6 +33,8 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailService customUserDetailService;
+    private final RefreshTokenService refreshTokenService;
+    private final CookieUtil cookieUtil;
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
@@ -45,11 +44,6 @@ public class SecurityConfig {
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return new JwtAuthenticationEntryPoint();
-    }
-
-    @Bean
-    public void addArgumentResolvers(final List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(new LoginUserIdArgumentResolver(jwtTokenProvider));
     }
 
     @Bean
@@ -74,7 +68,7 @@ public class SecurityConfig {
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler())
                 .authenticationEntryPoint(authenticationEntryPoint());
-        httpSecurity.apply(new JwtSecurityConfig(jwtTokenProvider, customUserDetailService));
+        httpSecurity.apply(new JwtSecurityConfig(jwtTokenProvider, customUserDetailService, refreshTokenService, cookieUtil));
         return httpSecurity.build();
     }
 }

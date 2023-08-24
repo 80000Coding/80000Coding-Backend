@@ -2,11 +2,15 @@ package io.oopy.coding.global.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import io.oopy.coding.global.cookie.CookieUtil;
+import io.oopy.coding.global.jwt.exception.auth.AuthErrorCode;
+import io.oopy.coding.global.jwt.exception.auth.AuthErrorException;
 import io.oopy.coding.global.redis.forbidden.ForbiddenTokenService;
 import io.oopy.coding.global.redis.refresh.RefreshTokenService;
 import io.oopy.coding.global.security.CustomUserDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +26,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
+import static io.oopy.coding.global.jwt.AuthConstants.ACCESS_TOKEN;
 import static io.oopy.coding.global.jwt.AuthConstants.AUTH_HEADER;
 
 /**
@@ -33,22 +38,21 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailService customUserDetailService;
     private final RefreshTokenService refreshTokenService;
-    private final ForbiddenTokenService forbiddenTokenService;
+    private final CookieUtil cookieUtil;
 
-    private List<String> jwtIgnoreUrls = List.of(
-            "/api/v1/users/login", "/api/v1/users/refresh"
+    private final List<String> jwtIgnoreUrls = List.of(
+            "/api/v1/users/login"
     );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (isIgnoreUrlOrOptionRequest(jwtIgnoreUrls, request.getRequestURI(), request)) {
-            log.info("isIgnoreUrlOrOptionRequest: {}", request.getRequestURI());
+        if (shouldIgnoreRequest(request)) {
+            log.info("Ignoring request: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
 
-        String jwtHeader = request.getHeader(AUTH_HEADER.getValue());
-        String accessToken = resolveAccessToken(jwtHeader);
+        String accessToken = resolveAccessToken(request);
 
         // TODO: test
         UserDetails userDetails = getUserDetails(accessToken);
@@ -57,19 +61,24 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isIgnoreUrlOrOptionRequest(List<?> jwtIgnoreUrls, String url, HttpServletRequest request) {
-        return jwtIgnoreUrls.contains(url) || request.getMethod().equals("OPTIONS");
+    private boolean shouldIgnoreRequest(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        String method = request.getMethod();
+        return jwtIgnoreUrls.contains(uri) || "OPTIONS".equals(method);
     }
 
-    private String resolveAccessToken(String jwtHeader) throws ServletException {
+    private String resolveAccessToken(HttpServletRequest request) throws ServletException {
+        Cookie cookie = cookieUtil.getCookie(request, ACCESS_TOKEN.getValue()).orElseThrow(
+                () -> new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "Access Token is empty")
+        );
+
         try {
-            return jwtTokenProvider.resolveToken(jwtHeader);
+            return jwtTokenProvider.resolveToken(cookie.getValue());
         } catch (ExpiredJwtException e) {
             log.error("ExpiredJwtException: {}", e.getMessage());
-            String invalidToken = jwtTokenProvider.getTokenFromHeader(jwtHeader);
 
             // TODO: refresh Token이 만료되었을 경우 테스트 필요
-            return refreshTokenService.refresh(invalidToken);
+            return refreshTokenService.refresh(cookie.getValue());
         } catch (JwtException e) {
             throw new ServletException(e);
         }

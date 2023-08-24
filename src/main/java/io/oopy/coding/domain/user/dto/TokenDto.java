@@ -7,12 +7,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public class TokenDto {
     private String access;
-    private String refresh;
 
-    public static TokenDto of(String access, String refresh) {
-        return new TokenDto(access, refresh);
+    public static TokenDto of(String access) {
+        return new TokenDto(access);
     }
     public static TokenDto empty() {
-        return new TokenDto("", "");
+        return new TokenDto("");
     }
 }

@@ -1,9 +1,9 @@
 package io.oopy.coding.global.redis.refresh;
 
-import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 

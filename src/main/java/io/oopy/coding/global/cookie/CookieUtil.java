@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Component
-public class CookieUtils {
+public class CookieUtil {
     public Optional<Cookie> getCookie(HttpServletRequest request, String cookieName) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {

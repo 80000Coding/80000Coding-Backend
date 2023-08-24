@@ -9,5 +9,4 @@ import org.springframework.stereotype.Service;
 @Transactional
 @RequiredArgsConstructor
 public class UserSearchService {
-    private final UserRepository userRepository;
 }

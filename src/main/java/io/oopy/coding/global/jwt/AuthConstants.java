@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum AuthConstants {
-    AUTH_HEADER("Authorization"), TOKEN_TYPE("Bearer ");
+    AUTH_HEADER("Authorization"), TOKEN_TYPE("Bearer "),
+    ACCESS_TOKEN("accessToken"), REFRESH_TOKEN("refreshToken");
 
     private String value;
 
@@ -13,6 +14,6 @@ public enum AuthConstants {
     }
 
     @Override public String toString() {
-        return "AuthConstants{ value='" + value + "' }";
+        return String.format("AuthConstants(value=%s)", this.value);
     }
 }

@@ -1,8 +1,10 @@
 package io.oopy.coding.global.config;
 
+import io.oopy.coding.global.cookie.CookieUtil;
 import io.oopy.coding.global.jwt.JwtAuthorizationFilter;
 import io.oopy.coding.global.jwt.JwtTokenProvider;
 import io.oopy.coding.global.jwt.handler.JwtExceptionFilter;
+import io.oopy.coding.global.redis.refresh.RefreshTokenService;
 import io.oopy.coding.global.security.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -16,11 +18,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class JwtSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailService customUserDetailService;
+    private final RefreshTokenService refreshTokenService;
+    private final CookieUtil cookieUtil;
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
         JwtAuthorizationFilter jwtAuthorizationFilter
-                = new JwtAuthorizationFilter(jwtTokenProvider, customUserDetailService);
+                = new JwtAuthorizationFilter(jwtTokenProvider, customUserDetailService, refreshTokenService, cookieUtil);
         JwtExceptionFilter jwtExceptionFilter = new JwtExceptionFilter();
 
         // TODO: test

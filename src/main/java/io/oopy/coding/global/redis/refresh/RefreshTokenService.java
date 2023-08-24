@@ -6,14 +6,9 @@ import io.oopy.coding.domain.user.dto.UserAuthenticateDto;
 import io.oopy.coding.global.jwt.JwtTokenProvider;
 import io.oopy.coding.global.jwt.exception.auth.AuthErrorCode;
 import io.oopy.coding.global.jwt.exception.auth.AuthErrorException;
-import io.oopy.coding.global.redis.forbidden.ForbiddenToken;
-import io.oopy.coding.global.redis.forbidden.ForbiddenTokenRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -69,7 +64,6 @@ public class RefreshTokenService {
         refreshTokenRepository.save(refreshToken);
         log.info("refresh token issued. about access Token : {}", accessToken);
     }
-
 
     /**
      * access token 으로 refresh token을 찾아서 제거 (로그아웃)

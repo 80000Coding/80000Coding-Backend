@@ -24,34 +24,25 @@ import java.util.Map;
 import static io.oopy.coding.global.jwt.AuthConstants.TOKEN_TYPE;
 
 @Slf4j
+@Component
 public class JwtTokenProviderImpl implements JwtTokenProvider {
     private final String jwtSecretKey;
     private final int accessTokenExpirationTime;
 
     public JwtTokenProviderImpl(
             @Value("${jwt.secret}") String jwtSecretKey,
-            @Value("${jwt.token.access-expiration-time}") int accessTokenExpirationTime,
-            @Value("${jwt.token.refresh-expiration-time}") int refreshTokenExpirationTime,
-            RefreshTokenRepository refreshTokenRepository
+            @Value("${jwt.token.access-expiration-time}") int accessTokenExpirationTime
     ) {
         this.jwtSecretKey = jwtSecretKey;
         this.accessTokenExpirationTime = accessTokenExpirationTime;
     }
 
     @Override
-    public String resolveToken(String header) throws AuthErrorException {
-        String token = getTokenFromHeader(header);
+    public String resolveToken(String token) throws AuthErrorException {
         Claims claims = verifyAndGetClaims(token);
 
         log.info("token verified. about claims : {}", claims.get("userId", String.class));
         return token;
-    }
-
-    @Override
-    public String getTokenFromHeader(String header) {
-        if (header == null || !header.startsWith(TOKEN_TYPE.getValue()))
-            throw new AuthErrorException(AuthErrorCode.INVALID_HEADER, "Invalid Header Format");
-        return header.substring(TOKEN_TYPE.getValue().length());
     }
 
     @Override
