@@ -13,7 +13,6 @@ import lombok.ToString;
 public class UserAuthenticateReq {
     private Long id;
     private Integer githubId;
-    @JsonDeserialize(using = RoleTypeDeserializer.class)
     private RoleType role;
 
     @Builder

@@ -7,7 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,15 +32,18 @@ public class UserAPI {
     @PostMapping("/login")
     public ResponseEntity<?> loginTest(@RequestBody UserAuthenticateReq dto) {
         Map<String, String> tokens = userAuthService.login(dto);
-        cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
+        log.debug("access token: {}", tokens.get(ACCESS_TOKEN.getValue()));
+        log.debug("refresh token: {}", tokens.get(REFRESH_TOKEN.getValue()));
+        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
 
         return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
                 .build();
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<?> logout(@CookieValue("refreshToken") String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> logoutTest(@CookieValue("refreshToken") String refreshToken, HttpServletRequest request, HttpServletResponse response) {
         userAuthService.logout(request.getHeader(AUTH_HEADER.getValue()), refreshToken);
         cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue());
 
@@ -46,7 +51,7 @@ public class UserAPI {
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<?> refresh(@CookieValue("refreshToken") String refreshToken) {
+    public ResponseEntity<?> refreshTest(@CookieValue("refreshToken") String refreshToken) {
         Map<String, String> tokens = userAuthService.refresh(refreshToken);
         cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
 

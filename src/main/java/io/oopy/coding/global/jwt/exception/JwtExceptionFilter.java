@@ -1,6 +1,7 @@
 package io.oopy.coding.global.jwt.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.oopy.coding.global.jwt.exception.auth.AuthErrorResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +24,8 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            log.error("Exception caught in JwtExceptionFilter: {}", e);
+            log.error("Exception caught in JwtExceptionFilter: {}", e.getMessage());
+            e.getStackTrace();
             sendError(response, e);
         }
     }
@@ -32,17 +34,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        ErrorResponse errorResponse = new ErrorResponse(UNAUTHORIZED.getReasonPhrase(), e.getMessage());
+        AuthErrorResponse errorResponse = new AuthErrorResponse(UNAUTHORIZED.getReasonPhrase(), e.getMessage());
         objectMapper.writeValue(response.getWriter(), errorResponse);
-    }
-
-    class ErrorResponse {
-        private String code;
-        private String message;
-
-        public ErrorResponse(String code, String message) {
-            this.code = code;
-            this.message = message;
-        }
     }
 }

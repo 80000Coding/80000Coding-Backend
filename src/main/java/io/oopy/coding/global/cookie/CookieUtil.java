@@ -3,6 +3,7 @@ package io.oopy.coding.global.cookie;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -21,12 +22,21 @@ public class CookieUtil {
                 .findAny();
     }
 
-    public Cookie createCookie(String cookieName, String value, int maxAge) {
-        Cookie cookie = new Cookie(cookieName, value);
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(maxAge);
-        cookie.setPath("/");
-        return cookie;
+    public static Optional<String> readServletCookie(HttpServletRequest request, String cookieName) {
+        return Arrays.stream(request.getCookies())
+                .filter(cookie -> cookieName.equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findAny();
+    }
+
+    public ResponseCookie createCookie(String cookieName, String value, int maxAge) {
+        return ResponseCookie.from(cookieName, value)
+                .path("/")
+                .httpOnly(true)
+                .maxAge(maxAge)
+                .secure(true)
+                .sameSite("None")
+                .build();
     }
 
     public void deleteCookie(HttpServletRequest request, HttpServletResponse response, String cookieName) {
