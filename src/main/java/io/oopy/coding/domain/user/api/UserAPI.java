@@ -1,17 +1,19 @@
 package io.oopy.coding.domain.user.api;
 
 import io.oopy.coding.domain.user.application.UserAuthService;
-import io.oopy.coding.domain.user.application.UserSearchService;
-import io.oopy.coding.domain.user.dto.TokenDto;
-import io.oopy.coding.domain.user.dto.UserAuthenticateDto;
+import io.oopy.coding.domain.user.dto.UserAuthenticateReq;
 import io.oopy.coding.global.cookie.CookieUtil;
-import io.oopy.coding.global.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+import static io.oopy.coding.global.jwt.AuthConstants.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -19,23 +21,37 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class UserAPI {
     private final UserAuthService userAuthService;
-    private final UserSearchService userSearchService;
-    private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
 
-
+    /**
+     * OAuth2.0 인증을 통해 로그인을 진행하는 시나리오
+     * 추가 정보 입력받는 단계 이전 (JWT 첫 발급 단계)
+     */
     @PostMapping("/login")
-    public ResponseEntity<TokenDto> login(@RequestBody UserAuthenticateDto dto) {
-        TokenDto tokenDto = TokenDto.of(jwtTokenProvider.generateAccessToken(dto));
-        log.info("access token: {}", tokenDto.getAccess());
+    public ResponseEntity<?> loginTest(@RequestBody UserAuthenticateReq dto) {
+        Map<String, String> tokens = userAuthService.login(dto);
+        cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
 
-        return ResponseEntity.ok(tokenDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+                .build();
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(@CookieValue("accessToken") String accessToken, HttpServletRequest request, HttpServletResponse response) {
-        userAuthService.logout(accessToken);
-        cookieUtil.deleteCookie(request, response, "accessToken");
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout(@CookieValue("refreshToken") String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+        userAuthService.logout(request.getHeader(AUTH_HEADER.getValue()), refreshToken);
+        cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue());
+
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/refresh")
+    public ResponseEntity<?> refresh(@CookieValue("refreshToken") String refreshToken) {
+        Map<String, String> tokens = userAuthService.refresh(refreshToken);
+        cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
+
+        return ResponseEntity.ok()
+                .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+                .build();
     }
 }

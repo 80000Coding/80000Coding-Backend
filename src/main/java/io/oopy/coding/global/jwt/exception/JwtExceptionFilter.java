@@ -1,4 +1,4 @@
-package io.oopy.coding.global.jwt.handler;
+package io.oopy.coding.global.jwt.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;

@@ -2,56 +2,55 @@ package io.oopy.coding.global.jwt;
 
 import io.jsonwebtoken.*;
 import io.oopy.coding.domain.user.domain.RoleType;
-import io.oopy.coding.domain.user.dto.UserAuthenticateDto;
+import io.oopy.coding.domain.user.dto.UserAuthenticateReq;
 import io.oopy.coding.global.jwt.exception.auth.AuthErrorCode;
 import io.oopy.coding.global.jwt.exception.auth.AuthErrorException;
-import io.oopy.coding.global.redis.refresh.RefreshToken;
-import io.oopy.coding.global.redis.refresh.RefreshTokenRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-import static io.oopy.coding.global.jwt.AuthConstants.TOKEN_TYPE;
-
 @Slf4j
 @Component
 public class JwtTokenProviderImpl implements JwtTokenProvider {
     private final String jwtSecretKey;
-    private final int accessTokenExpirationTime;
+    private final Duration accessTokenExpirationTime;
 
     public JwtTokenProviderImpl(
             @Value("${jwt.secret}") String jwtSecretKey,
-            @Value("${jwt.token.access-expiration-time}") int accessTokenExpirationTime
+            @Value("${jwt.token.access-expiration-time}") Duration accessTokenExpirationTime
     ) {
         this.jwtSecretKey = jwtSecretKey;
         this.accessTokenExpirationTime = accessTokenExpirationTime;
     }
 
     @Override
-    public String resolveToken(String token) throws AuthErrorException {
-        Claims claims = verifyAndGetClaims(token);
-
-        log.info("token verified. about claims : {}", claims.get("userId", String.class));
-        return token;
+    public String resolveToken(String authHeader) throws AuthErrorException {
+        if (StringUtils.hasText(authHeader) && authHeader.startsWith(AuthConstants.TOKEN_TYPE.getValue())) {
+            return authHeader.substring(AuthConstants.TOKEN_TYPE.getValue().length());
+        }
+        throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "Access Token is empty.");
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public String generateAccessToken(UserAuthenticateDto dto) {
+    public String generateAccessToken(UserAuthenticateReq dto) {
+        final Date now = new Date();
+
         return Jwts.builder()
                 .setHeader(createHeader())
                 .setClaims(createClaims(dto))
                 .signWith(SignatureAlgorithm.HS256, createSignature())
-                .setExpiration(createExpireDate(accessTokenExpirationTime))
+                .setExpiration(createExpireDate(now))
                 .compact();
     }
 
@@ -80,7 +79,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         return claims.getExpiration();
     }
 
-    private Claims verifyAndGetClaims(final String accessToken) {
+    private Claims verifyAndGetClaims(final String accessToken) throws AuthErrorException {
         try {
             return getClaimsFromToken(accessToken);
         } catch (JwtException e) {
@@ -91,26 +90,26 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
 
     private void handleJwtException(JwtException e) {
         AuthErrorCode errorCode;
-        String errorMessage;
+        String causedBy;
         if (e instanceof ExpiredJwtException) {
             errorCode = AuthErrorCode.EXPIRED_ACCESS_TOKEN;
-            errorMessage = "JWT Expired Error: " + e.getMessage();
+            causedBy = e.toString();
         } else if (e instanceof MalformedJwtException) {
             errorCode = AuthErrorCode.MALFORMED_ACCESS_TOKEN;
-            errorMessage = "JWT Malformed Error: " + e.getMessage();
+            causedBy = e.toString();
         } else if (e instanceof SignatureException) {
             errorCode = AuthErrorCode.TAMPERED_ACCESS_TOKEN;
-            errorMessage = "JWT Signature Error: " + e.getMessage();
+            causedBy = e.toString();
         } else if (e instanceof UnsupportedJwtException) {
             errorCode = AuthErrorCode.WRONG_JWT_TOKEN;
-            errorMessage = "JWT Unsupported Error: " + e.getMessage();
+            causedBy = e.toString();
         } else {
             errorCode = AuthErrorCode.EMPTY_ACCESS_TOKEN;
-            errorMessage = "JWT Illegal Argument Error: " + e.getMessage();
+            causedBy = e.toString();
         }
 
-        log.warn(errorMessage);
-        throw new AuthErrorException(errorCode, errorMessage);
+        log.warn(causedBy);
+        throw new AuthErrorException(errorCode, causedBy);
     }
 
     private Map<String, Object> createHeader() {
@@ -119,7 +118,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
                 "regDate", System.currentTimeMillis());
     }
 
-    private Map<String, Object> createClaims(UserAuthenticateDto dto) {
+    private Map<String, Object> createClaims(UserAuthenticateReq dto) {
         return Map.of("userId", dto.getId(),
                 "role", dto.getRole().getRole(),
                 "githubId", dto.getGithubId());
@@ -130,12 +129,11 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         return new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS256.getJcaName());
     }
 
-    private Date createExpireDate(int expirationTime) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, expirationTime);
-        return calendar.getTime();
+    private Date createExpireDate(final Date now) {
+        return new Date(now.getTime() + accessTokenExpirationTime.toMillis());
     }
 
+    @SuppressWarnings("deprecation")
     private Claims getClaimsFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(Base64.getDecoder().decode(jwtSecretKey))

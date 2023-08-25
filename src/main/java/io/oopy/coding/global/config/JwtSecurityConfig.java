@@ -3,7 +3,7 @@ package io.oopy.coding.global.config;
 import io.oopy.coding.global.cookie.CookieUtil;
 import io.oopy.coding.global.jwt.JwtAuthorizationFilter;
 import io.oopy.coding.global.jwt.JwtTokenProvider;
-import io.oopy.coding.global.jwt.handler.JwtExceptionFilter;
+import io.oopy.coding.global.jwt.exception.JwtExceptionFilter;
 import io.oopy.coding.global.redis.refresh.RefreshTokenService;
 import io.oopy.coding.global.security.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;

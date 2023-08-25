@@ -26,6 +26,7 @@ public class ForbiddenTokenService {
                 .accessToken(accessToken)
                 .userId(userId)
                 .build();
+
         forbiddenTokenRepository.save(forbiddenToken);
         log.info("forbidden token registered. about access Token : {}", accessToken);
     }

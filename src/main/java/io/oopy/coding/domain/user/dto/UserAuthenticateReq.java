@@ -10,25 +10,25 @@ import lombok.ToString;
 
 @Getter
 @ToString(of = {"id", "githubId"})
-public class UserAuthenticateDto {
+public class UserAuthenticateReq {
     private Long id;
     private Integer githubId;
     @JsonDeserialize(using = RoleTypeDeserializer.class)
     private RoleType role;
 
     @Builder
-    private UserAuthenticateDto(Long id, Integer githubId, RoleType role) {
+    private UserAuthenticateReq(Long id, Integer githubId, RoleType role) {
         this.id = id;
         this.githubId = githubId;
         this.role = role;
     }
 
-    public static UserAuthenticateDto of(Long id, Integer githubId, RoleType role) {
-        return new UserAuthenticateDto(id, githubId, role);
+    public static UserAuthenticateReq of(Long id, Integer githubId, RoleType role) {
+        return new UserAuthenticateReq(id, githubId, role);
     }
 
-    public static UserAuthenticateDto newInstance(User user) {
-        return UserAuthenticateDto.builder()
+    public static UserAuthenticateReq from(User user) {
+        return UserAuthenticateReq.builder()
                 .id(user.getId())
                 .githubId(user.getGithubId())
                 .role(user.getRole())

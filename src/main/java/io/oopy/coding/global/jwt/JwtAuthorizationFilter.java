@@ -5,7 +5,6 @@ import io.jsonwebtoken.JwtException;
 import io.oopy.coding.global.cookie.CookieUtil;
 import io.oopy.coding.global.jwt.exception.auth.AuthErrorCode;
 import io.oopy.coding.global.jwt.exception.auth.AuthErrorException;
-import io.oopy.coding.global.redis.forbidden.ForbiddenTokenService;
 import io.oopy.coding.global.redis.refresh.RefreshTokenService;
 import io.oopy.coding.global.security.CustomUserDetailService;
 import jakarta.servlet.FilterChain;
@@ -24,7 +23,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 import static io.oopy.coding.global.jwt.AuthConstants.ACCESS_TOKEN;
 import static io.oopy.coding.global.jwt.AuthConstants.AUTH_HEADER;
@@ -68,17 +66,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     private String resolveAccessToken(HttpServletRequest request) throws ServletException {
-        Cookie cookie = cookieUtil.getCookie(request, ACCESS_TOKEN.getValue()).orElseThrow(
-                () -> new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "Access Token is empty")
-        );
-
+        String authHeader = request.getHeader(AUTH_HEADER.getValue());
         try {
-            return jwtTokenProvider.resolveToken(cookie.getValue());
-        } catch (ExpiredJwtException e) {
-            log.error("ExpiredJwtException: {}", e.getMessage());
-
-            // TODO: refresh Token이 만료되었을 경우 테스트 필요
-            return refreshTokenService.refresh(cookie.getValue());
+            return jwtTokenProvider.resolveToken(authHeader);
         } catch (JwtException e) {
             throw new ServletException(e);
         }
