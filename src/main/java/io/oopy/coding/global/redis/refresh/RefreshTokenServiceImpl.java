@@ -1,6 +1,7 @@
 package io.oopy.coding.global.redis.refresh;
 
-import io.oopy.coding.global.jwt.JwtTokenProvider;
+import io.oopy.coding.global.jwt.entity.JwtUserInfo;
+import io.oopy.coding.global.jwt.util.JwtTokenProvider;
 import io.oopy.coding.global.jwt.exception.auth.AuthErrorCode;
 import io.oopy.coding.global.jwt.exception.auth.AuthErrorException;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.util.UUID;
 
 @Slf4j
 @Component
@@ -28,10 +28,12 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
-    public String issueRefreshToken(Long userId) {
+    public String issueRefreshToken(String accessToken) throws AuthErrorException {
+        final var user = jwtTokenProvider.getUserInfoFromToken(accessToken);
+
         final var refreshToken = RefreshToken.builder()
-                .token(makeRefreshToken())
-                .userId(userId)
+                .token(makeRefreshToken(user))
+                .userId(user.getId())
                 .ttl(getExpireTime())
                 .build();
 
@@ -41,9 +43,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
-    public RefreshToken refresh(String requestRefreshToken) {
+    public RefreshToken refresh(String requestRefreshToken) throws AuthErrorException {
         final var refreshToken = findOrThrow(requestRefreshToken);
-        refreshToken.rotation(makeRefreshToken());
+        final var user = jwtTokenProvider.getUserInfoFromToken(requestRefreshToken);
+        refreshToken.rotation(makeRefreshToken(user));
 
         log.debug("refresh token issued. : {}", refreshToken);
         return refreshToken;
@@ -65,8 +68,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         log.info("refresh token deleted. : {}", refreshToken);
     }
 
-    private String makeRefreshToken() {
-        return UUID.randomUUID().toString();
+    private String makeRefreshToken(JwtUserInfo user) {
+        return jwtTokenProvider.generateRefreshToken(user);
     }
 
     private long getExpireTime() {

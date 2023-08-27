@@ -2,7 +2,7 @@ package io.oopy.coding.global.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.oopy.coding.domain.user.dto.UserAuthenticateReq;
+import io.oopy.coding.global.jwt.entity.JwtUserInfo;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
@@ -12,11 +12,11 @@ import java.util.Date;
 import java.util.Map;
 
 public class ExpiredTokenGenerator {
-    public static String generateExpiredToken(UserAuthenticateReq dto, String jwtSecretKey) {
+    public static String generateExpiredToken(JwtUserInfo dto, String jwtSecretKey) {
         return createExpiredToken(dto, jwtSecretKey);
     }
 
-    private static String createExpiredToken(UserAuthenticateReq dto, String jwtSecretKey) {
+    private static String createExpiredToken(JwtUserInfo dto, String jwtSecretKey) {
         int expirationTime = -1;
 
         return Jwts.builder()
@@ -33,7 +33,7 @@ public class ExpiredTokenGenerator {
                 "regDate", System.currentTimeMillis());
     }
 
-    private static Map<String, Object> createClaims(UserAuthenticateReq dto) {
+    private static Map<String, Object> createClaims(JwtUserInfo dto) {
         return Map.of("userId", dto.getId(),
                 "role", dto.getRole());
     }

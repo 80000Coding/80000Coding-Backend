@@ -1,9 +1,7 @@
 package io.oopy.coding.domain.user.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.oopy.coding.domain.user.domain.RoleType;
-import io.oopy.coding.domain.user.domain.RoleTypeDeserializer;
-import io.oopy.coding.domain.user.domain.User;
+import io.oopy.coding.domain.user.entity.RoleType;
+import io.oopy.coding.domain.user.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -16,7 +14,6 @@ public class UserDto {
     private String name;
     private String email;
     private Integer githubId;
-    @JsonDeserialize(using = RoleTypeDeserializer.class)
     private RoleType role;
 
     public UserDto(User user) {

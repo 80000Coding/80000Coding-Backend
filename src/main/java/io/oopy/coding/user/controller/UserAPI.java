@@ -1,7 +1,7 @@
-package io.oopy.coding.domain.user.api;
+package io.oopy.coding.user.controller;
 
-import io.oopy.coding.domain.user.application.UserAuthService;
-import io.oopy.coding.domain.user.dto.UserAuthenticateReq;
+import io.oopy.coding.user.service.UserAuthService;
+import io.oopy.coding.global.jwt.entity.JwtUserInfo;
 import io.oopy.coding.global.cookie.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +30,7 @@ public class UserAPI {
      * 추가 정보 입력받는 단계 이전 (JWT 첫 발급 단계)
      */
     @PostMapping("/login")
-    public ResponseEntity<?> loginTest(@RequestBody UserAuthenticateReq dto) {
+    public ResponseEntity<?> loginTest(@RequestBody JwtUserInfo dto) {
         Map<String, String> tokens = userAuthService.login(dto);
         log.debug("access token: {}", tokens.get(ACCESS_TOKEN.getValue()));
         log.debug("refresh token: {}", tokens.get(REFRESH_TOKEN.getValue()));
@@ -45,9 +45,10 @@ public class UserAPI {
     @GetMapping("/logout")
     public ResponseEntity<?> logoutTest(@CookieValue("refreshToken") String refreshToken, HttpServletRequest request, HttpServletResponse response) {
         userAuthService.logout(request.getHeader(AUTH_HEADER.getValue()), refreshToken);
-        cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue());
+        ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 쿠키입니다."));
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).build();
     }
 
     @GetMapping("/refresh")

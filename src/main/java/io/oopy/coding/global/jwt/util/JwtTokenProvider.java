@@ -1,9 +1,8 @@
-package io.oopy.coding.global.jwt;
+package io.oopy.coding.global.jwt.util;
 
-import io.oopy.coding.domain.user.domain.RoleType;
-import io.oopy.coding.domain.user.dto.UserAuthenticateReq;
+import io.oopy.coding.domain.user.entity.RoleType;
+import io.oopy.coding.global.jwt.entity.JwtUserInfo;
 import io.oopy.coding.global.jwt.exception.auth.AuthErrorException;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Date;
 
@@ -18,10 +17,25 @@ public interface JwtTokenProvider {
 
     /**
      * 사용자 정보 기반으로 액세스 토큰을 생성하는 메서드
-     * @param dto UserDto : 사용자 정보
+     * @param user UserDto : 사용자 정보
      * @return String : 토큰
      */
-    String generateAccessToken(UserAuthenticateReq dto);
+    String generateAccessToken(JwtUserInfo user);
+
+    /**
+     * 사용자 정보 기반으로 리프레시 토큰을 생성하는 메서드
+     * @param user UserDto : 사용자 정보
+     * @return String : 토큰
+     */
+    String generateRefreshToken(JwtUserInfo user);
+
+    /**
+     * token으로 부터 사용자 정보를 추출하는 메서드
+     * @param token String : 토큰
+     * @return UserAuthenticateReq : 사용자 정보
+     * @throws AuthErrorException : 토큰이 유효하지 않을 경우
+     */
+    JwtUserInfo getUserInfoFromToken(String token) throws AuthErrorException;
 
     /**
      * 토큰으로 부터 유저 아이디를 추출하는 메서드

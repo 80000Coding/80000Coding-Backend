@@ -1,7 +1,9 @@
 package io.oopy.coding.global.jwt;
 
-import io.oopy.coding.domain.user.domain.RoleType;
-import io.oopy.coding.domain.user.dto.UserAuthenticateReq;
+import io.oopy.coding.domain.user.entity.RoleType;
+import io.oopy.coding.global.jwt.entity.JwtUserInfo;
+import io.oopy.coding.global.jwt.util.JwtTokenProvider;
+import io.oopy.coding.global.jwt.util.JwtTokenProviderImpl;
 import io.oopy.coding.global.redis.refresh.RefreshTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +20,7 @@ class JwtTokenProviderTest {
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
 
-    private UserAuthenticateReq dto;
+    private JwtUserInfo dto;
     private static final String jwtSecretKey = "exampleSecretKeyForSpringBootProjectAtSubRepository";
 
     @BeforeEach
@@ -105,8 +107,8 @@ class JwtTokenProviderTest {
         assertEquals(dto.getGithubId(), githubId);
     }
 
-    private UserAuthenticateReq createDto() {
-        return UserAuthenticateReq.builder()
+    private JwtUserInfo createDto() {
+        return JwtUserInfo.builder()
                 .id(1L)
                 .githubId(1)
                 .role(RoleType.USER)

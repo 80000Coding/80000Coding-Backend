@@ -1,12 +1,10 @@
-package io.oopy.coding.domain.user.domain;
+package io.oopy.coding.domain.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
@@ -17,6 +15,8 @@ public enum RoleType {
     USER("ROLE_USER");
 
     private final String role;
+    private static final Map<String, RoleType> stringToEnum =
+            Stream.of(values()).collect(toMap(Object::toString, e -> e));
 
     @JsonValue
     public String getRole() { return role; }
@@ -27,7 +27,4 @@ public enum RoleType {
     }
 
     @Override public String toString() { return role; }
-
-    private static final Map<String, RoleType> stringToEnum =
-            Stream.of(values()).collect(toMap(Object::toString, e -> e));
 }

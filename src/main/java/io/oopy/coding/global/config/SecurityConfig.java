@@ -1,7 +1,7 @@
 package io.oopy.coding.global.config;
 
 import io.oopy.coding.global.cookie.CookieUtil;
-import io.oopy.coding.global.jwt.JwtTokenProvider;
+import io.oopy.coding.global.jwt.util.JwtTokenProvider;
 import io.oopy.coding.global.jwt.handler.JwtAccessDeniedHandler;
 import io.oopy.coding.global.jwt.handler.JwtAuthenticationEntryPoint;
 import io.oopy.coding.global.redis.refresh.RefreshTokenService;
@@ -17,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 @Configuration
 @EnableWebSecurity

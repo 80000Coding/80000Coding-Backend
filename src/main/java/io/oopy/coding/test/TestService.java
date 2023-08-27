@@ -1,8 +1,8 @@
 package io.oopy.coding.test;
 
-import io.oopy.coding.domain.user.domain.RoleType;
-import io.oopy.coding.domain.user.domain.User;
-import io.oopy.coding.domain.user.dao.UserRepository;
+import io.oopy.coding.domain.user.entity.RoleType;
+import io.oopy.coding.domain.user.entity.User;
+import io.oopy.coding.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

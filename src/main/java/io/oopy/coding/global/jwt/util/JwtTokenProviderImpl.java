@@ -1,11 +1,11 @@
-package io.oopy.coding.global.jwt;
+package io.oopy.coding.global.jwt.util;
 
 import io.jsonwebtoken.*;
-import io.oopy.coding.domain.user.domain.RoleType;
-import io.oopy.coding.domain.user.dto.UserAuthenticateReq;
+import io.oopy.coding.domain.user.entity.RoleType;
+import io.oopy.coding.global.jwt.entity.JwtUserInfo;
+import io.oopy.coding.global.jwt.AuthConstants;
 import io.oopy.coding.global.jwt.exception.auth.AuthErrorCode;
 import io.oopy.coding.global.jwt.exception.auth.AuthErrorException;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -15,22 +15,31 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.time.Duration;
 import java.util.Base64;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * JWT 토큰 생성 및 검증을 담당하는 클래스
+ */
 @Slf4j
 @Component
 public class JwtTokenProviderImpl implements JwtTokenProvider {
+    private static final String USER_ID = "userId";
+    private static final String ROLE = "role";
+    private static final String GITHUB_ID = "githubId";
+
     private final String jwtSecretKey;
     private final Duration accessTokenExpirationTime;
+    private final Duration refreshTokenExpirationTime;
 
     public JwtTokenProviderImpl(
             @Value("${jwt.secret}") String jwtSecretKey,
-            @Value("${jwt.token.access-expiration-time}") Duration accessTokenExpirationTime
+            @Value("${jwt.token.access-expiration-time}") Duration accessTokenExpirationTime,
+            @Value("${jwt.token.refresh-expiration-time}") Duration refreshTokenExpirationTime
     ) {
         this.jwtSecretKey = jwtSecretKey;
         this.accessTokenExpirationTime = accessTokenExpirationTime;
+        this.refreshTokenExpirationTime = refreshTokenExpirationTime;
     }
 
     @Override
@@ -43,34 +52,56 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
 
     @SuppressWarnings("deprecation")
     @Override
-    public String generateAccessToken(UserAuthenticateReq dto) {
+    public String generateAccessToken(JwtUserInfo user) {
         final Date now = new Date();
 
         return Jwts.builder()
                 .setHeader(createHeader())
-                .setClaims(createClaims(dto))
+                .setClaims(createClaims(user))
                 .signWith(SignatureAlgorithm.HS256, createSignature())
-                .setExpiration(createExpireDate(now))
+                .setExpiration(createExpireDate(now, accessTokenExpirationTime.toMillis()))
                 .compact();
     }
 
     @Override
-    public Long getUserIdFromToken(String token) {
-        Claims claims = verifyAndGetClaims(token);
-        return claims.get("userId", Long.class);
+    public String generateRefreshToken(JwtUserInfo user) {
+        final Date now = new Date();
+
+        return Jwts.builder()
+                .setHeader(createHeader())
+                .setClaims(createClaims(user))
+                .signWith(SignatureAlgorithm.HS256, createSignature())
+                .setExpiration(createExpireDate(now, refreshTokenExpirationTime.toMillis()))
+                .compact();
     }
 
     @Override
-    public RoleType getRoleFromToken(String token) {
+    public JwtUserInfo getUserInfoFromToken(String token) throws AuthErrorException {
         Claims claims = verifyAndGetClaims(token);
-        String role = claims.get("role", String.class);
+        return JwtUserInfo.builder()
+                .id(claims.get(USER_ID, Long.class))
+                .role(RoleType.fromString(claims.get(ROLE, String.class)))
+                .githubId(claims.get(GITHUB_ID, Integer.class))
+                .build();
+    }
+
+    @Override
+    public Long getUserIdFromToken(String token) throws AuthErrorException {
+        Claims claims = verifyAndGetClaims(token);
+        return claims.get(USER_ID, Long.class);
+    }
+
+    @Override
+    public RoleType getRoleFromToken(String token) throws AuthErrorException {
+        Claims claims = verifyAndGetClaims(token);
+        String role = claims.get(ROLE, String.class);
         return RoleType.fromString(role);
     }
 
     @Override
-    public Integer getGithubIdFromToken(String token) {
+    public Integer getGithubIdFromToken(String token) throws AuthErrorException {
         Claims claims = verifyAndGetClaims(token);
-        return claims.get("githubId", Integer.class);
+        return claims.get(GITHUB_ID, Integer.class);
     }
 
     @Override
@@ -118,10 +149,10 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
                 "regDate", System.currentTimeMillis());
     }
 
-    private Map<String, Object> createClaims(UserAuthenticateReq dto) {
-        return Map.of("userId", dto.getId(),
-                "role", dto.getRole().getRole(),
-                "githubId", dto.getGithubId());
+    private Map<String, Object> createClaims(JwtUserInfo dto) {
+        return Map.of(USER_ID, dto.getId(),
+                ROLE, dto.getRole().getRole(),
+                GITHUB_ID, dto.getGithubId());
     }
 
     private Key createSignature() {
@@ -129,8 +160,8 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         return new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS256.getJcaName());
     }
 
-    private Date createExpireDate(final Date now) {
-        return new Date(now.getTime() + accessTokenExpirationTime.toMillis());
+    private Date createExpireDate(final Date now, long expirationTime) {
+        return new Date(now.getTime() + expirationTime);
     }
 
     @SuppressWarnings("deprecation")

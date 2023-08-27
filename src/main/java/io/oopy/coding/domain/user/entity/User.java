@@ -1,4 +1,4 @@
-package io.oopy.coding.domain.user.domain;
+package io.oopy.coding.domain.user.entity;
 
 import io.oopy.coding.domain.model.Auditable;
 import jakarta.persistence.*;

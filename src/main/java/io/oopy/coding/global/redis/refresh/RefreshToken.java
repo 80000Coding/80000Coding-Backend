@@ -1,5 +1,6 @@
 package io.oopy.coding.global.redis.refresh;
 
+import io.oopy.coding.global.jwt.entity.JwtUserInfo;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

@@ -1,7 +1,7 @@
-package io.oopy.coding.domain.user.application;
+package io.oopy.coding.user.service;
 
-import io.oopy.coding.domain.user.dao.UserRepository;
-import io.oopy.coding.domain.user.domain.User;
+import io.oopy.coding.domain.user.repository.UserRepository;
+import io.oopy.coding.domain.user.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

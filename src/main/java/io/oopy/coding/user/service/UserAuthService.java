@@ -1,7 +1,7 @@
-package io.oopy.coding.domain.user.application;
+package io.oopy.coding.user.service;
 
-import io.oopy.coding.domain.user.dto.UserAuthenticateReq;
-import io.oopy.coding.global.jwt.JwtTokenProvider;
+import io.oopy.coding.global.jwt.entity.JwtUserInfo;
+import io.oopy.coding.global.jwt.util.JwtTokenProvider;
 import io.oopy.coding.global.redis.forbidden.ForbiddenTokenService;
 import io.oopy.coding.global.redis.refresh.RefreshToken;
 import io.oopy.coding.global.redis.refresh.RefreshTokenService;
@@ -26,10 +26,10 @@ public class UserAuthService {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    public Map<String, String> login(UserAuthenticateReq dto) {
+    public Map<String, String> login(JwtUserInfo dto) {
         log.debug("login dto : {}", dto);
         String accessToken = jwtTokenProvider.generateAccessToken(dto);
-        String refreshToken = refreshTokenService.issueRefreshToken(dto.getId());
+        String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
         log.debug("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
 
         return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken);
@@ -47,7 +47,7 @@ public class UserAuthService {
         RefreshToken refreshToken = refreshTokenService.refresh(requestRefreshToken);
 
         Long userId = refreshToken.getUserId();
-        UserAuthenticateReq dto = UserAuthenticateReq.from(userSearchService.findById(userId));
+        JwtUserInfo dto = JwtUserInfo.from(userSearchService.findById(userId));
         String accessToken = jwtTokenProvider.generateAccessToken(dto);
 
         return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken.getToken());

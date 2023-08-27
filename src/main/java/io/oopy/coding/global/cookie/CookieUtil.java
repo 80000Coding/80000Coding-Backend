@@ -22,7 +22,7 @@ public class CookieUtil {
                 .findAny();
     }
 
-    public static Optional<String> readServletCookie(HttpServletRequest request, String cookieName) {
+    public Optional<String> readServletCookie(HttpServletRequest request, String cookieName) {
         return Arrays.stream(request.getCookies())
                 .filter(cookie -> cookieName.equals(cookie.getName()))
                 .map(Cookie::getValue)
@@ -37,21 +37,18 @@ public class CookieUtil {
                 .secure(true)
                 .sameSite("None")
                 .build();
+
     }
 
-    public void deleteCookie(HttpServletRequest request, HttpServletResponse response, String cookieName) {
+    public Optional<ResponseCookie> deleteCookie(HttpServletRequest request, HttpServletResponse response, String cookieName) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
-            return;
+            return Optional.empty();
         }
 
-        Arrays.stream(cookies)
+        return Arrays.stream(cookies)
                 .filter(cookie -> cookieName.equals(cookie.getName()))
-                .forEach(cookie -> {
-                    cookie.setValue("");
-                    cookie.setMaxAge(0);
-                    cookie.setPath("/");
-                    response.addCookie(cookie);
-                });
+                .findAny()
+                .map(cookie -> createCookie(cookieName, "", 0));
     }
 }

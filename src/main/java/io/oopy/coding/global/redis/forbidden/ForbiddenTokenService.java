@@ -1,11 +1,10 @@
 package io.oopy.coding.global.redis.forbidden;
 
-import io.oopy.coding.global.jwt.JwtTokenProvider;
+import io.oopy.coding.global.jwt.util.JwtTokenProvider;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
