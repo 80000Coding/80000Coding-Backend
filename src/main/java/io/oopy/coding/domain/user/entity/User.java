@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"id", "name", "email", "role"})
 public class User extends Auditable {
     @Id
@@ -31,6 +31,7 @@ public class User extends Auditable {
     @Column(name = "email")
     private String email;
 
+    @Convert(converter = RoleTypeConverter.class)
     @Column(name = "role", nullable = false)
     private RoleType role;
 }

@@ -1,5 +1,7 @@
 package io.oopy.coding.user.service;
 
+import io.oopy.coding.domain.user.dto.UserAuthReq;
+import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.global.jwt.entity.JwtUserInfo;
 import io.oopy.coding.global.jwt.util.JwtTokenProvider;
 import io.oopy.coding.global.redis.forbidden.ForbiddenTokenService;
@@ -26,9 +28,11 @@ public class UserAuthService {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    public Map<String, String> login(JwtUserInfo dto) {
-        log.debug("login dto : {}", dto);
-        String accessToken = jwtTokenProvider.generateAccessToken(dto);
+    public Map<String, String> login(UserAuthReq dto) {
+        User user = userSearchService.findById(dto.getId());
+        JwtUserInfo jwtUserInfo = JwtUserInfo.from(user);
+
+        String accessToken = jwtTokenProvider.generateAccessToken(jwtUserInfo);
         String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
         log.debug("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
 

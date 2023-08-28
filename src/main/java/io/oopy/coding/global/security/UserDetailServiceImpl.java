@@ -12,12 +12,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailService implements UserDetailsService {
+public class UserDetailServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
     @Cacheable(value = "user", key = "#userId", unless = "#result == null")
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        log.debug("loadUserByUsername userId : {}", userId);
         return userRepository.findById(Long.parseLong(userId))
                 .map(CustomUserDetails::of)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));

@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
-@ToString(of = {"id", "githubId"})
+@ToString(of = {"id", "githubId", "role"})
 public final class JwtUserInfo {
     @NotBlank(message = "id는 필수 입력 값입니다.")
     private Long id;

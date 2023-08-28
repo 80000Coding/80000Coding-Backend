@@ -5,7 +5,7 @@ import io.oopy.coding.global.jwt.util.JwtTokenProvider;
 import io.oopy.coding.global.jwt.handler.JwtAccessDeniedHandler;
 import io.oopy.coding.global.jwt.handler.JwtAuthenticationEntryPoint;
 import io.oopy.coding.global.redis.refresh.RefreshTokenService;
-import io.oopy.coding.global.security.CustomUserDetailService;
+import io.oopy.coding.global.security.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -17,10 +17,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.web.servlet.HandlerInterceptor;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final String[] webSecurityIgnoring = {
@@ -33,7 +32,7 @@ public class SecurityConfig {
     };
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final CustomUserDetailService customUserDetailService;
+    private final UserDetailServiceImpl userDetailServiceImpl;
     private final RefreshTokenService refreshTokenService;
     private final CookieUtil cookieUtil;
 
@@ -69,7 +68,7 @@ public class SecurityConfig {
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler())
                 .authenticationEntryPoint(authenticationEntryPoint());
-        httpSecurity.apply(new JwtSecurityConfig(jwtTokenProvider, customUserDetailService, refreshTokenService, cookieUtil));
+        httpSecurity.apply(new JwtSecurityConfig(jwtTokenProvider, userDetailServiceImpl, refreshTokenService, cookieUtil));
         return httpSecurity.build();
     }
 }
