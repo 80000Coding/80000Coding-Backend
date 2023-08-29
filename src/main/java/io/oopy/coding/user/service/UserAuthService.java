@@ -2,11 +2,11 @@ package io.oopy.coding.user.service;
 
 import io.oopy.coding.domain.user.dto.UserAuthReq;
 import io.oopy.coding.domain.user.entity.User;
-import io.oopy.coding.global.jwt.entity.JwtUserInfo;
-import io.oopy.coding.global.jwt.util.JwtTokenProvider;
-import io.oopy.coding.global.redis.forbidden.ForbiddenTokenService;
-import io.oopy.coding.global.redis.refresh.RefreshToken;
-import io.oopy.coding.global.redis.refresh.RefreshTokenService;
+import io.oopy.coding.common.jwt.entity.JwtUserInfo;
+import io.oopy.coding.common.jwt.util.JwtTokenProvider;
+import io.oopy.coding.common.redis.forbidden.ForbiddenTokenService;
+import io.oopy.coding.common.redis.refresh.RefreshToken;
+import io.oopy.coding.common.redis.refresh.RefreshTokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static io.oopy.coding.global.jwt.AuthConstants.ACCESS_TOKEN;
-import static io.oopy.coding.global.jwt.AuthConstants.REFRESH_TOKEN;
+import static io.oopy.coding.common.jwt.AuthConstants.ACCESS_TOKEN;
+import static io.oopy.coding.common.jwt.AuthConstants.REFRESH_TOKEN;
 
 @Slf4j
 @Service
@@ -39,16 +39,17 @@ public class UserAuthService {
         return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken);
     }
 
-    public void logout(String authHeader, String refreshToken) {
+    public void logout(String authHeader, String requestRefreshToken) {
         String accessToken = jwtTokenProvider.resolveToken(authHeader);
         Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);
 
-        refreshTokenService.logout(userId, refreshToken);
+        refreshTokenService.logout(requestRefreshToken);
         forbiddenTokenService.register(accessToken, userId);
     }
 
     public Map<String, String> refresh(String requestRefreshToken) {
         RefreshToken refreshToken = refreshTokenService.refresh(requestRefreshToken);
+        forbiddenTokenService.register(refreshToken.getToken(), refreshToken.getUserId());
 
         Long userId = refreshToken.getUserId();
         JwtUserInfo dto = JwtUserInfo.from(userSearchService.findById(userId));

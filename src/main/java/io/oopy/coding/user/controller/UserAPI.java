@@ -1,16 +1,15 @@
 package io.oopy.coding.user.controller;
 
 import io.oopy.coding.domain.user.dto.UserAuthReq;
-import io.oopy.coding.global.security.CustomUserDetails;
+import io.oopy.coding.common.cookie.CookieUtil;
+import io.oopy.coding.common.jwt.entity.JwtUserInfo;
+import io.oopy.coding.common.security.CustomUserDetails;
 import io.oopy.coding.user.service.UserAuthService;
-import io.oopy.coding.global.jwt.entity.JwtUserInfo;
-import io.oopy.coding.global.cookie.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static io.oopy.coding.global.jwt.AuthConstants.*;
+import static io.oopy.coding.common.jwt.AuthConstants.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -62,9 +61,10 @@ public class UserAPI {
             throw new IllegalArgumentException("존재하지 않는 쿠키입니다."); // TODO : 공통 예외로 변경
         }
         Map<String, String> tokens = userAuthService.refresh(refreshToken);
-        cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
+        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
 
         return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
                 .build();
     }

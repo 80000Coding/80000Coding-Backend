@@ -1,10 +1,10 @@
 package io.oopy.coding.global.jwt;
 
 import io.oopy.coding.domain.user.entity.RoleType;
-import io.oopy.coding.global.jwt.entity.JwtUserInfo;
-import io.oopy.coding.global.jwt.util.JwtTokenProvider;
-import io.oopy.coding.global.jwt.util.JwtTokenProviderImpl;
-import io.oopy.coding.global.redis.refresh.RefreshTokenRepository;
+import io.oopy.coding.common.jwt.entity.JwtUserInfo;
+import io.oopy.coding.common.jwt.util.JwtTokenProvider;
+import io.oopy.coding.common.jwt.util.JwtTokenProviderImpl;
+import io.oopy.coding.common.redis.refresh.RefreshTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

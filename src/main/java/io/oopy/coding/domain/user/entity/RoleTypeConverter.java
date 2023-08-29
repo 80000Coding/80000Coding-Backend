@@ -1,9 +1,7 @@
 package io.oopy.coding.domain.user.entity;
 
-import io.oopy.coding.global.common.utils.converter.AbstractLegacyEnumAttributeConverter;
-import jakarta.persistence.AttributeConverter;
+import io.oopy.coding.common.utils.converter.AbstractLegacyEnumAttributeConverter;
 import jakarta.persistence.Convert;
-import jakarta.persistence.Converter;
 
 @Convert
 public class RoleTypeConverter extends AbstractLegacyEnumAttributeConverter<RoleType> {
