@@ -1,6 +1,7 @@
 package io.oopy.coding.common.security;
 
 import io.oopy.coding.domain.user.repository.UserRepository;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -16,7 +17,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    @Cacheable(value = "user", key = "#userId", unless = "#result == null")
+    @Cacheable(value = "securityUser", key = "#userId", unless = "#result == null")
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         log.debug("loadUserByUsername userId : {}", userId);
         return userRepository.findById(Long.parseLong(userId))

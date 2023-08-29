@@ -1,9 +1,9 @@
 package io.oopy.coding.common.redis.refresh;
 
 import io.oopy.coding.common.jwt.entity.JwtUserInfo;
-import io.oopy.coding.common.jwt.util.JwtTokenProvider;
 import io.oopy.coding.common.jwt.exception.auth.AuthErrorCode;
 import io.oopy.coding.common.jwt.exception.auth.AuthErrorException;
+import io.oopy.coding.common.jwt.util.JwtTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         final var user = jwtTokenProvider.getUserInfoFromToken(accessToken);
 
         final var refreshToken = RefreshToken.builder()
-                .userId(user.getId())
+                .userId(user.id())
                 .token(makeRefreshToken(user))
                 .ttl(getExpireTime())
                 .build();
@@ -51,8 +51,9 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         final var user = jwtTokenProvider.getUserInfoFromToken(requestRefreshToken);
         refreshToken.rotation(makeRefreshToken(user));
+        refreshTokenRepository.save(refreshToken);
 
-        log.debug("refresh token issued. : {}", refreshToken);
+        log.debug("refresh token reissued. : {}", refreshToken);
         return refreshToken;
     }
 
@@ -86,6 +87,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
             final String errorMessage = String.format("mismatched refresh token. expected : %s, actual : %s", requestRefreshToken, expectedRequestRefreshToken);
             log.warn(errorMessage);
+            log.info("refresh token deleted. : {}", refreshToken);
             throw new AuthErrorException(AuthErrorCode.MISMATCHED_REFRESH_TOKEN, errorMessage);
         }
     }

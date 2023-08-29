@@ -8,12 +8,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Slf4j
 @Component
@@ -38,7 +40,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
 
     private void sendAuthError(HttpServletResponse response, AuthErrorException e) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(e.getErrorCode().getHttpStatus().value());
 
         AuthErrorResponse errorResponse = new AuthErrorResponse(e.getErrorCode().name(), e.getErrorCode().getMessage());
         objectMapper.writeValue(response.getWriter(), errorResponse);
@@ -48,7 +50,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
-        AuthErrorResponse errorResponse = new AuthErrorResponse(BAD_REQUEST.getReasonPhrase(), e.getMessage());
+        AuthErrorResponse errorResponse = new AuthErrorResponse(INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage());
         objectMapper.writeValue(response.getWriter(), errorResponse);
     }
 }

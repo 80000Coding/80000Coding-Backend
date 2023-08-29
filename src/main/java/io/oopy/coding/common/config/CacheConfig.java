@@ -32,7 +32,7 @@ public class CacheConfig {
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())
                 );
-        Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = Map.of("user", config);
+        Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = Map.of("sercurityConfig", config);
 
         return RedisCacheManager.RedisCacheManagerBuilder
                 .fromConnectionFactory(redisConnectionFactory)

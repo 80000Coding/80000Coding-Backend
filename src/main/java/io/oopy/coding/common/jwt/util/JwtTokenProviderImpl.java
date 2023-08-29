@@ -92,19 +92,6 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     @Override
-    public RoleType getRoleFromToken(String token) throws AuthErrorException {
-        Claims claims = verifyAndGetClaims(token);
-        String role = claims.get(ROLE, String.class);
-        return RoleType.fromString(role);
-    }
-
-    @Override
-    public Integer getGithubIdFromToken(String token) throws AuthErrorException {
-        Claims claims = verifyAndGetClaims(token);
-        return claims.get(GITHUB_ID, Integer.class);
-    }
-
-    @Override
     public Date getExpiryDate(String token) {
         Claims claims = verifyAndGetClaims(token);
         return claims.getExpiration();
@@ -150,9 +137,9 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     private Map<String, Object> createClaims(JwtUserInfo dto) {
-        return Map.of(USER_ID, dto.getId(),
-                ROLE, dto.getRole().getRole(),
-                GITHUB_ID, dto.getGithubId());
+        return Map.of(USER_ID, dto.id(),
+                ROLE, dto.role().getRole(),
+                GITHUB_ID, dto.githubId());
     }
 
     private Key createSignature() {

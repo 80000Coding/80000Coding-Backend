@@ -49,7 +49,6 @@ public class UserAuthService {
 
     public Map<String, String> refresh(String requestRefreshToken) {
         RefreshToken refreshToken = refreshTokenService.refresh(requestRefreshToken);
-        forbiddenTokenService.register(refreshToken.getToken(), refreshToken.getUserId());
 
         Long userId = refreshToken.getUserId();
         JwtUserInfo dto = JwtUserInfo.from(userSearchService.findById(userId));

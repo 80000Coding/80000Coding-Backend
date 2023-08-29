@@ -15,6 +15,11 @@ public class ForbiddenTokenService {
     private final ForbiddenTokenRepository forbiddenTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
+    /**
+     * 토큰을 블랙 리스트에 등록합니다.
+     * @param accessToken : 블랙 리스트에 등록할 토큰
+     * @param userId : 블랙 리스트에 등록할 사용자 ID
+     */
     public void register(String accessToken, Long userId) {
         final Date now = new Date();
         final Date expireDate = jwtTokenProvider.getExpiryDate(accessToken);
@@ -27,6 +32,11 @@ public class ForbiddenTokenService {
         log.info("forbidden token registered. about Token : {}", accessToken);
     }
 
+    /**
+     * 토큰이 블랙 리스트에 등록되어 있는지 확인합니다.
+     * @param accessToken : 확인할 토큰
+     * @return : 블랙 리스트에 등록되어 있으면 true, 아니면 false
+     */
     public boolean isForbidden(String accessToken) {
         return forbiddenTokenRepository.existsById(accessToken);
     }
