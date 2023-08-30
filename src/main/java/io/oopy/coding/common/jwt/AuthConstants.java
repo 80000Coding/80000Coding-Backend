@@ -7,7 +7,7 @@ public enum AuthConstants {
     AUTH_HEADER("Authorization"), TOKEN_TYPE("Bearer "),
     ACCESS_TOKEN("accessToken"), REFRESH_TOKEN("refreshToken");
 
-    private String value;
+    private final String value;
 
     AuthConstants(String value) {
         this.value = value;

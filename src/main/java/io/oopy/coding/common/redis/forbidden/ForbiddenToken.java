@@ -28,8 +28,7 @@ public class ForbiddenToken {
 
     @Override public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ForbiddenToken)) return false;
-        ForbiddenToken that = (ForbiddenToken) o;
+        if (!(o instanceof ForbiddenToken that)) return false;
         return accessToken.equals(that.accessToken) && userId.equals(that.userId);
     }
 
