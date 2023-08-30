@@ -4,6 +4,17 @@ spring.config.activate.on-profile: local
 server:
   port: 8081
 spring:
+  datasource:
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: ${DB_URL}
+      username: ${DB_USER_NAME}
+      password: ${DB_PASSWORD}
+      maximum-pool-size: 5 # (default 10)
+      minimum-idle: 5 # (default 10)
+      max-lifetime: 1200000 # 20m (default 30m)
+      connection-timeout: 3000 # 3s (default 30s)
+      validation-timeout: 2000 # 2s (default 5s)
   jpa:
     database: MYSQL
     database-platform: org.hibernate.dialect.MySQL8Dialect
@@ -14,18 +25,10 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
-  datasource:
-    url: ${DB_URL}
-    username: ${DB_USER_NAME}
-    password: ${DB_PASSWORD}
-    hikari:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      maximum-pool-size: 1 # (default 10)
-      minimum-idle: 1 # (default 10)
-      idle-timeout: 60000 # 1m (default 10m)
-      max-lifetime: 1200000 # 20m (default 30m)
-      connection-timeout: 3000 # 3s (default 30s)
-    validation-timeout: 2000 # 2s (default 5s)
+logging:
+  level:
+    com.zaxxer.hikari.HikariConfig: DEBUG
+#    com.zaxxer.hikari: TRACE
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
@@ -64,17 +67,19 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
   datasource:
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: ${DB_URL}
+      username: ${DB_USER_NAME}
+      password: ${DB_PASSWORD}
+      maximum-pool-size: 15 # (default 10)
+      minimum-idle: 15 # (default 10)
+      max-lifetime: 1200000 # 20m (default 30m)
+      connection-timeout: 10000 # 10s (default 30s)
+      validation-timeout: 2000 # 2s (default 5s)
     url: ${DB_URL}
     username: ${DB_USER_NAME}
     password: ${DB_PASSWORD}
-    hikari:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      maximum-pool-size: 1 # (default 10)
-      minimum-idle: 1 # (default 10)
-      idle-timeout: 60000 # 1m (default 10m)
-      max-lifetime: 1200000 # 20m (default 30m)
-      connection-timeout: 3000 # 3s (default 30s)
-    validation-timeout: 2000 # 2s (default 5s)
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8

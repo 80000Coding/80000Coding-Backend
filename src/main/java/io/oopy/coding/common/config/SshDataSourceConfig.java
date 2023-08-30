@@ -2,7 +2,8 @@ package io.oopy.coding.common.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,18 +19,25 @@ import javax.sql.DataSource;
 public class SshDataSourceConfig {
     private final SshTunnelingInitializer initializer;
 
-    @Bean("dataSource")
-    @Primary
-    public DataSource dataSource(DataSourceProperties properties) {
+    @Value("${DB_URL}")
+    private String url;
 
+    @Value("${DB_USER_NAME}")
+    private String username;
+
+    @Value("${DB_PASSWORD}")
+    private String password;
+
+    @Bean(name="dataSource")
+    @Primary
+    @ConfigurationProperties("spring.datasource.hikari")
+    public DataSource dataSource() {
         Integer forwardedPort = initializer.buildSshConnection();  // ssh 연결 및 터널링 설정
-        String url = properties.getUrl().replace("[forwardedPort]", Integer.toString(forwardedPort));
-        log.info(url);
         return DataSourceBuilder.create()
                 .url(url)
-                .username(properties.getUsername())
-                .password(properties.getPassword())
-                .driverClassName(properties.getDriverClassName())
+                .username(username)
+                .password(password)
+                .driverClassName("com.mysql.cj.jdbc.Driver") // todo - env
                 .build();
     }
 
