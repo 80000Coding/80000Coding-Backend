@@ -1,4 +1,4 @@
-package io.oopy.coding.domain.entity;
+package io.oopy.coding.domain.user.entity;
 
 import io.oopy.coding.domain.content.entity.Content;
 import jakarta.persistence.*;
@@ -6,15 +6,17 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import io.oopy.coding.domain.model.Auditable;
 
 @Entity
-@Table(name="USERS") // 테이블 생성이 되지 않아 일시적으로 USERS로 변경(기존: USER)
+@Table(name="USER")
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class User extends Auditable{
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(of = {"id", "name", "email", "role"})
+public class User extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,6 +40,7 @@ public class User extends Auditable{
     @Column(name = "email")
     private String email;
 
+    @Convert(converter = RoleTypeConverter.class)
     @Column(name = "role", nullable = false)
-    private String role;
+    private RoleType role;
 }
