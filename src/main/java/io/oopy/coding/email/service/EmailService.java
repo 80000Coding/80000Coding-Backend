@@ -1,7 +1,6 @@
 package io.oopy.coding.email.service;
 
-import io.oopy.coding.domain.email.entity.EmailCertification;
-import io.oopy.coding.domain.email.repository.EmailCertificationRepository;
+import io.oopy.coding.common.redis.email.EmailCertificationService;
 import io.oopy.coding.email.service.dto.EmailSend;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -10,23 +9,21 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
-import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class EmailService{
 
     private final JavaMailSender javaMailSender;
-    private final EmailCertificationRepository emailCertificationRepository;
+    private final EmailCertificationService emailCertificationService;
 
     @Transactional
     public void sendCertMail(EmailSend emailSend) throws MessagingException {
         checkSendValid(emailSend);
-        EmailCertification emailCertification =
-                EmailCertification.of(emailSend.getTargetEmail(), emailSend.getGithubId());
-        // persist first
-        emailCertificationRepository.save(emailCertification);
+        emailCertificationService.register(UUID.randomUUID().toString(), emailSend.getGithubId());
         sendMail(emailSend);
     }
 
@@ -39,8 +36,8 @@ public class EmailService{
     }
 
     private void checkSendValid(EmailSend emailSend) {
-        Optional<EmailCertification> email = emailCertificationRepository.findFirstByGithubIdOrderByExpiredAtDesc(emailSend.getGithubId());
-        if (email.isPresent() && !email.get().isExpired())
+        String githubId = emailCertificationService.getGithubId(emailSend.getGithubId());
+        if (!ObjectUtils.isEmpty(githubId))
             throw new RuntimeException("인증 진행중");
     }
 }

@@ -1,4 +1,4 @@
-package io.oopy.coding.email.controller.dto;
+package io.oopy.coding.email.dto;
 
 import io.oopy.coding.common.constant.EmailConstant;
 import io.oopy.coding.email.service.dto.EmailSend;

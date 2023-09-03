@@ -1,6 +1,6 @@
 package io.oopy.coding.email.controller;
 
-import io.oopy.coding.email.controller.dto.EmailRequest;
+import io.oopy.coding.email.dto.EmailRequest;
 import io.oopy.coding.email.service.EmailService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;

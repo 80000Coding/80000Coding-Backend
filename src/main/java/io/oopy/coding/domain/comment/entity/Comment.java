@@ -1,7 +1,8 @@
 package io.oopy.coding.domain.comment.entity;
 
 import io.oopy.coding.domain.content.entity.Content;
-import io.oopy.coding.domain.entity.User;
+import io.oopy.coding.domain.user.entity.User;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
