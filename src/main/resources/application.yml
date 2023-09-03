@@ -65,3 +65,8 @@ jwt:
     # milliseconds 단위
     access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
     refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)
+
+mail:
+  cert:
+    domain: ${MAIL_CERT_DOMAIN}
+    success-redirect-url: ${MAIL_CERT_SUCCESS_URL:http://www.naver.com}
