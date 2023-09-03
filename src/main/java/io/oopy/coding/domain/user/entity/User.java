@@ -1,18 +1,17 @@
-package io.oopy.coding.domain.entity;
+package io.oopy.coding.domain.user.entity;
 
+import io.oopy.coding.domain.model.Auditable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name="USER")
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class User extends Auditable{
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(of = {"id", "name", "email", "role"})
+public class User extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,15 +31,7 @@ public class User extends Auditable{
     @Column(name = "email")
     private String email;
 
+    @Convert(converter = RoleTypeConverter.class)
     @Column(name = "role", nullable = false)
-    private String role;
-
-    private User(String name, String email) {
-        this.name = name;
-        this.email = email;
-    }
-
-    public static User of(String name, String email) {
-        return new User(name, email);
-    }
+    private RoleType role;
 }

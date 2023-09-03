@@ -38,7 +38,6 @@ public class SshTunnelingInitializer {
     }
 
     public Integer buildSshConnection() {
-
         Integer forwardedPort = null;
 
         try {

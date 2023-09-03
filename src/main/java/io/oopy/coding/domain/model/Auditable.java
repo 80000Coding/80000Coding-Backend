@@ -1,4 +1,4 @@
-package io.oopy.coding.domain.entity;
+package io.oopy.coding.domain.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
