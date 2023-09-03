@@ -40,6 +40,13 @@ spring:
           github:
             client-id: Iv1.d984c2b9e76e6dc8
             client-secret: 057b0e172d21143af883b385a1a1e5434024977a
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600 # 데이터 유지 시간(sec)
+      cache-null-values: true # null 캐싱 여부
+      host: localhost
+      port: 6379
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8

@@ -34,4 +34,13 @@ public class User extends Auditable{
 
     @Column(name = "role", nullable = false)
     private String role;
+
+    private User(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
+    public static User of(String name, String email) {
+        return new User(name, email);
+    }
 }
