@@ -29,7 +29,8 @@ public class SecurityConfig {
             "/api-docs/**",
             "/test/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
-            "/api/v1/users/login", "/api/v1/users/refresh"
+            "/api/v1/users/login", "/api/v1/users/refresh",
+            "/email/**"
     };
 
     private final UserDetailServiceImpl userDetailServiceImpl;
