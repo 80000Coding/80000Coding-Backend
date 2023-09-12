@@ -48,7 +48,8 @@ public class UserAPI {
 
     @GetMapping("/logout")
     public ResponseEntity<?> logoutTest(@CookieValue("refreshToken") String refreshToken, HttpServletRequest request, HttpServletResponse response) {
-        userAuthService.logout(request.getHeader(AUTH_HEADER.getValue()), refreshToken);
+        String authHeader = request.getHeader(AUTH_HEADER.getValue());
+        userAuthService.logout(authHeader, refreshToken);
         ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 쿠키입니다."));
 
