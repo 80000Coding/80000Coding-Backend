@@ -1,6 +1,7 @@
-package io.oopy.coding.domain.entity;
+package io.oopy.coding.domain.user.entity;
 
 import io.oopy.coding.domain.content.entity.Content;
+import io.oopy.coding.domain.model.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,8 +14,9 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class User extends Auditable{
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(of = {"id", "name", "email", "role"})
+public class User extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,6 +40,7 @@ public class User extends Auditable{
     @Column(name = "email")
     private String email;
 
+    @Convert(converter = RoleTypeConverter.class)
     @Column(name = "role", nullable = false)
-    private String role;
+    private RoleType role;
 }
