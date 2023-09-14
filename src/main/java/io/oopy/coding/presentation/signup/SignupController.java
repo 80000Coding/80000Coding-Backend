@@ -1,64 +1,54 @@
 package io.oopy.coding.presentation.signup;
 
+import io.oopy.coding.common.cookie.CookieUtil;
 import io.oopy.coding.domain.dto.ResponseDTO;
-import io.oopy.coding.domain.user.dto.UserAuthenticateDto;
-import io.oopy.coding.global.jwt.JwtTokenProvider;
-import io.oopy.coding.presentation.oauth2.ResponseDto;
+import io.oopy.coding.domain.user.dto.UserSignupReq;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import static io.oopy.coding.common.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
 @RequiredArgsConstructor
 public class SignupController {
 
     private final SignupService signupService;
+    private final CookieUtil cookieUtil;
 
     @Operation(summary = "새로운 회원에 대한 가입진행", description = "회원가입 후 제대로 추가되었다면 OK, 아니라면 BAD_REQUEST를 반환한다.")
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody SignupRequest request,
-                                 @RequestHeader("Authorization") String authorizationHeader) {
-        boolean success = signupService.signup(request.getName(), request.getEmail(), authorizationHeader);
+    public ResponseEntity<ResponseDTO> signup(@CookieValue("refreshToken") String refreshToken,
+                                              @RequestHeader("Authorization") String authorizationHeader,
+                                              @RequestBody UserSignupReq dto,
+                                              HttpServletRequest request, HttpServletResponse response) {
 
-        //어떤 경우든 해당 토큰을 블랙리스트로 관리한다
-        //BlackListToken blackListToken = BlackListToken.of(signUpJwt, userId, ttl);
-        //blackListTokenRepository.save(blackListToken);
+        Map<String, String> tokens = signupService.signup(dto, refreshToken, authorizationHeader);
 
-        //clear cookie
+        ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 쿠키입니다."));
 
-        if (success) {
-            return new ResponseEntity<>("Signup Successful", HttpStatus.OK);
-            //User 정보로 jwt 생성 후 header에 적용
-//        UserAuthenticateDto userAuthenticateDto = UserAuthenticateDto.of(Long.parseLong(githubId));
-//
-//        String userAccessToken = jwtTokenProvider.generateAccessToken(userAuthenticateDto);
-//        String userRefreshToken = jwtTokenProvider.generateRefreshToken(userAuthenticateDto);
-//
-//        HttpHeaders responseHeaders = new HttpHeaders();
-//        responseHeaders.add("Access-Token", userAccessToken);
-//        responseHeaders.add("Refresh-Token", userRefreshToken);
+        if (!tokens.isEmpty()) {
+            ResponseDTO responseDto = new ResponseDTO("Signup Successful", null);
+            cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(responseDto);
         }
         else {
-            return new ResponseEntity<>("Signup Failed", HttpStatus.BAD_REQUEST);
+            ResponseDTO responseDto = new ResponseDTO("Signup Failed", null);
+
+            return ResponseEntity.badRequest()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(responseDto);
         }
-    }
-
-    @GetMapping("/testDTO")
-    public ResponseEntity<ResponseDTO> testDTO() {
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("post", 1);
-        responseData.put("title", "test title");
-
-        ResponseDTO responseDTO= new ResponseDTO("test", responseData);
-
-        return ResponseEntity.ok()
-                .body(responseDTO);
     }
 }

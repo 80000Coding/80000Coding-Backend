@@ -1,10 +1,8 @@
-package io.oopy.coding.presentation.oauth2;
+package io.oopy.coding.presentation.login;
 
-import io.oopy.coding.domain.repository.UserRepository;
-import io.oopy.coding.domain.user.dto.UserAuthenticateDto;
-import io.oopy.coding.global.jwt.JwtTokenProvider;
-import io.oopy.coding.global.redis.blacklist.BlackListToken;
-import io.oopy.coding.global.redis.blacklist.BlackListTokenRepository;
+import io.oopy.coding.common.cookie.CookieUtil;
+import io.oopy.coding.domain.dto.ResponseDTO;
+import io.oopy.coding.user.service.UserSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,22 +15,20 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 
-
 import java.io.IOException;
 import java.util.Map;
+
+import static io.oopy.coding.common.jwt.AuthConstants.ACCESS_TOKEN;
+import static io.oopy.coding.common.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
 @RequestMapping("/login/oauth2")
 @RequiredArgsConstructor
 @Slf4j
-public class OAuth2Controller {
-
-    //private final
-
-    private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
-
-    private final BlackListTokenRepository blackListTokenRepository;
+public class LoginController {
+    private final UserSearchService userSearchService;
+    private final OauthService oauthService;
+    private final CookieUtil cookieUtil;
 
     @Value("${spring.security.oauth2.client.registration.github.client-id}")
     private String clientId;
@@ -40,6 +36,7 @@ public class OAuth2Controller {
     @Value("${spring.security.oauth2.client.registration.github.client-secret}")
     private String clientSecret;
 
+    //TODO : 프론트에서 진행 예정
     @Operation(summary = "OAuth 로그인", description = "github으로 로그인 합니다.")
     @GetMapping("/github")
     public void oauth2Login(HttpServletResponse response) throws IOException {
@@ -49,45 +46,36 @@ public class OAuth2Controller {
     }
 
     // TODO : 실제로는 다른 uri로 요청예정, 프론트와 협의 필요
-    @Operation(summary = "OAuth2 로그인 후 로그인 및 회원가입인지 분기 안내", description = "githubId 존재유무에 따라 로그인 및 회원가입 인지를 알려주고 githubId로 JWT를 생성합니다.")
+    @Operation(summary = "OAuth2 로그인 후 로그인/회원가입 분기 조회", description = "githubId 존재유무에 따라 로그인 및 회원가입 인지를 알려주고 로그인의 경우 사용자 정보로 jwt를 생성하고, 회원가입의 경우 githubId로 jwt를 생성합니다.")
     @GetMapping("/code/github")
-    public ResponseEntity<ResponseDto> oauth2Redirected(@RequestParam("code") String authorizationCode,
+    public ResponseEntity<ResponseDTO> oauth2Redirected(@RequestParam("code") String authorizationCode,
                                                         HttpServletResponse response) throws Exception {
-        try {
-            String accessToken = getAccessToken(authorizationCode);
-            log.warn("Access Token {}", accessToken);
-            String githubId = getOauthUserId(accessToken);
-            log.warn("Github Id {}", githubId);
+        String accessToken = getAccessToken(authorizationCode);
+        Integer githubId = getOauthUserId(accessToken);
 
-            ResponseDto responseDto = new ResponseDto();
+        if (userSearchService.checkByGithubId(githubId)) {
+            Map<String, String> tokens = oauthService.login(githubId);
+            ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
+            Map<String, String> data = Map.of("action", "login");
 
-            String code = userRepository.existsByGithubId(Integer.parseInt(githubId)) ? "log-in" : "sign-up";
-            responseDto.setCode(code);
-            // TODO : User가 존재하지 않을 시 githubId로 JWT 생성 return
-            // TODO : User가 존재할 시 User로 JWT 생성 후 return
-            // String jwt = userRepository.existsByGithubId(Integer.parseInt(githubId)) ? userJWT : githubJWT;
-
-            //임시로 github Id로만 만드는걸로 구성
-            UserAuthenticateDto userAuthenticateDto = UserAuthenticateDto.of(Long.parseLong(githubId));
-
-            String userAccessToken = jwtTokenProvider.generateAccessToken(userAuthenticateDto);
-            String userRefreshToken = jwtTokenProvider.generateRefreshToken(userAuthenticateDto);
-
-            //cookie에 담아서 보낸다
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add("Access-Token", userAccessToken);
-            responseHeaders.add("Refresh-Token", userRefreshToken);
+            ResponseDTO responseDto = new ResponseDTO("success", data);
 
             return ResponseEntity.ok()
-                    .headers(responseHeaders)
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
                     .body(responseDto);
         }
-        catch (Exception e) {
-            ResponseDto badResponseDto = new ResponseDto();
-            badResponseDto.setCode(e.getMessage());
+        else {
+            Map<String, String> tokens = oauthService.signup(githubId);
+            ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
+            Map<String, String> data = Map.of("action", "signup");
 
-            return ResponseEntity.badRequest()
-                    .body(badResponseDto);
+            ResponseDTO responseDto = new ResponseDTO("success", data);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+                    .body(responseDto);
         }
     }
 
@@ -120,14 +108,10 @@ public class OAuth2Controller {
         Map<String, String> response = responseEntity.getBody();
         String accessToken = response.get("access_token");
 
-        if (accessToken == null)
-            throw new Exception("No Access Token returned");
-        else
-            return accessToken;
+        return accessToken;
     }
 
-    private String getOauthUserId(String accessToken) throws Exception {
-        log.warn("OAuth User 정보 요청");
+    private Integer getOauthUserId(String accessToken) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
 
         String accessTokenUrl = "https://api.github.com/user";
@@ -147,23 +131,9 @@ public class OAuth2Controller {
                 Map.class
         );
 
-        // TODO : response가 문제가 있을 시 예외 처리
-
         Map<String, String> response = responseEntity.getBody();
-        String githubId = String.valueOf(response.get("id"));
+        Integer githubId = Integer.valueOf(response.get("id"));
 
-        if (githubId == null)
-            throw new Exception("No User Info returned");
-        else
-            return githubId;
+        return githubId;
     }
-
-//discussion front jwt, request
-//responsedBody + responseEntity
 }
-
-// exception 일어나면 그냥 error 라고 return 하기
-
-
-//정적팩토리  of
-//블랙리스트 토큰 관리 redis

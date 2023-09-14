@@ -1,4 +1,4 @@
-package io.oopy.coding.presentation.oauth2;
+package io.oopy.coding.presentation.login;
 
 public class ResponseDto {
     private String code;

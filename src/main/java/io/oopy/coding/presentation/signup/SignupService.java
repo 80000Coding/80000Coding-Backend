@@ -1,38 +1,44 @@
 package io.oopy.coding.presentation.signup;
 
-import io.oopy.coding.domain.entity.User;
-import io.oopy.coding.domain.repository.UserRepository;
-import io.oopy.coding.global.jwt.JwtTokenProvider;
+import io.oopy.coding.common.jwt.util.JwtTokenProvider;
+import io.oopy.coding.common.redis.forbidden.ForbiddenTokenService;
+import io.oopy.coding.common.redis.refresh.RefreshTokenService;
+import io.oopy.coding.domain.user.dto.UserAuthReq;
+import io.oopy.coding.domain.user.dto.UserSignupReq;
+import io.oopy.coding.domain.user.entity.User;
+import io.oopy.coding.user.service.UserAuthService;
+import io.oopy.coding.user.service.UserSearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class SignupService {
-
-    private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserSearchService userSearchService;
+    private final SignupSaveService signupSaveService;
+    private final UserAuthService userAuthService;
+    private final RefreshTokenService refreshTokenService;
+    private final ForbiddenTokenService forbiddenTokenService;
 
-    public boolean signup(String name, String email, String authorizationHeader) {
-        try {
-            Long githubId = jwtTokenProvider.resolveToken(authorizationHeader);
+    public Map<String, String> signup(UserSignupReq dto, String refreshToken, String authHeader) {
+        String accessToken = jwtTokenProvider.resolveToken(authHeader);
+        Integer githubId = jwtTokenProvider.getGithubIdFromToken(accessToken);
 
-            User user = User.builder()
-                    .githubId(githubId.intValue())
-                    .name(name)
-                    .email(email)
-                    .role("ROLE_USER")
-                    .build();
-
-            //userRepository.existsByGithubId(githubId);
-            userRepository.save(user);
-        }
-        catch (Exception e) {
-            return false;
-            //runtimeException Enum으로 처리
+        if (userSearchService.checkByGithubId(githubId)) {
+            return null;
         }
 
-        return true;
+        User user = signupSaveService.save(githubId, dto);
+        refreshTokenService.signupDone(refreshToken);
+        forbiddenTokenService.register(accessToken, githubId);
+
+        UserAuthReq loginDto = new UserAuthReq(user.getId(), user.getGithubId(), user.getRole());
+        Map<String, String> tokens = userAuthService.login(loginDto);
+
+        return tokens;
     }
 
 }
