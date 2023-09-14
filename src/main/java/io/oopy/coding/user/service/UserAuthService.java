@@ -25,26 +25,34 @@ public class UserAuthService {
     private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
     private final UserSearchService userSearchService;
-
     private final JwtTokenProvider jwtTokenProvider;
 
     public Map<String, String> login(UserAuthReq dto) {
         User user = userSearchService.findById(dto.getId());
         JwtUserInfo jwtUserInfo = JwtUserInfo.from(user);
+        String accessToken = jwtTokenProvider.generateAccessToken(jwtUserInfo);
+        String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
+        log.warn("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
+
+        return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken);
+    }
+
+    public Map<String, String> signup(Integer githubId) {
+        JwtUserInfo jwtUserInfo = JwtUserInfo.createByGithubId(githubId);
 
         String accessToken = jwtTokenProvider.generateAccessToken(jwtUserInfo);
         String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
-        log.debug("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
+        log.warn("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
 
         return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken);
     }
 
     public void logout(String authHeader, String requestRefreshToken) {
         String accessToken = jwtTokenProvider.resolveToken(authHeader);
-        Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        Integer githubId = jwtTokenProvider.getGithubIdFromToken(accessToken);
 
         refreshTokenService.logout(requestRefreshToken);
-        forbiddenTokenService.register(accessToken, userId);
+        forbiddenTokenService.register(accessToken, githubId);
     }
 
     public Map<String, String> refresh(String requestRefreshToken) {

@@ -46,6 +46,14 @@ public interface JwtTokenProvider {
     Long getUserIdFromToken(String token) throws AuthErrorException;
 
     /**
+     * 토큰으로 부터 유저 아이디를 추출하는 메서드
+     * @param token String : 토큰
+     * @return Integer : 깃허브 유저 아이디
+     * @throws AuthErrorException : 토큰이 유효하지 않을 경우
+     */
+    Integer getGithubIdFromToken(String token) throws AuthErrorException;
+
+    /**
      * 토큰의 만료일을 추출하는 메서드
      * @param token String : 토큰
      * @return Date : 만료일

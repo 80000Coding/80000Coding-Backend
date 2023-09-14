@@ -17,4 +17,14 @@ public class UserSearchService {
                 () -> new IllegalArgumentException("존재하지 않는 유저입니다.")
         );
     }
+
+    public User findByGithubId(Integer githubId) {
+        return userRepository.findByGithubId(githubId).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 유저입니다.")
+        );
+    }
+
+    public boolean checkByGithubId(Integer githubId) {
+        return userRepository.existsByGithubId(githubId);
+    }
 }

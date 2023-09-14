@@ -5,6 +5,8 @@ import io.oopy.coding.domain.user.entity.User;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import static io.oopy.coding.domain.user.entity.RoleType.USER;
+
 @Builder
 public record JwtUserInfo(
         Long id,
@@ -13,6 +15,11 @@ public record JwtUserInfo(
 ) {
     public static JwtUserInfo of(Long id, Integer githubId, RoleType role) {
         return new JwtUserInfo(id, githubId, role);
+    }
+
+    // TODO : createByGithubId
+    public static JwtUserInfo createByGithubId(Integer githubId) {
+        return new JwtUserInfo(System.currentTimeMillis(), githubId, USER);
     }
 
     public static JwtUserInfo from(User user) {

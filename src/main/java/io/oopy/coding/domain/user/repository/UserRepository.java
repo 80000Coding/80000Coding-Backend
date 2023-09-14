@@ -8,5 +8,4 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     public Optional<User> findByGithubId(Integer githubId);
     public boolean existsByGithubId(Integer githubId);
-
 }

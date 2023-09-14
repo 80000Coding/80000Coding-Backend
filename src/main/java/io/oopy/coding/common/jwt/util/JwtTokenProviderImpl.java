@@ -92,6 +92,12 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     @Override
+    public Integer getGithubIdFromToken(String token) throws AuthErrorException {
+        Claims claims = verifyAndGetClaims(token);
+        return claims.get(GITHUB_ID, Integer.class);
+    }
+
+    @Override
     public Date getExpiryDate(String token) {
         Claims claims = verifyAndGetClaims(token);
         return claims.getExpiration();
