@@ -1,6 +1,6 @@
 package io.oopy.coding.mark.service;
 
-import io.oopy.coding.domain.mark.dto.IsPressDTO;
+import io.oopy.coding.mark.dto.IsPressDTO;
 import io.oopy.coding.domain.mark.entity.ContentMark;
 import io.oopy.coding.domain.mark.repository.ContentMarkRepository;
 import lombok.RequiredArgsConstructor;

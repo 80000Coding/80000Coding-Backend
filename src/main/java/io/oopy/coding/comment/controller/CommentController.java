@@ -1,13 +1,10 @@
 package io.oopy.coding.comment.controller;
 
+import io.oopy.coding.comment.dto.*;
 import io.oopy.coding.comment.service.CreateComment;
 import io.oopy.coding.comment.service.DeleteComment;
 import io.oopy.coding.comment.service.GetComment;
 import io.oopy.coding.comment.service.UpdateComment;
-import io.oopy.coding.domain.comment.dto.CreateCommentDTO;
-import io.oopy.coding.domain.comment.dto.DeleteCommentDTO;
-import io.oopy.coding.domain.comment.dto.GetCommentDTO;
-import io.oopy.coding.domain.comment.dto.UpdateCommentDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -24,43 +21,42 @@ public class CommentController {
     private final UpdateComment updateCommentService;
     private final DeleteComment deleteCommentService;
 
-    @Operation(summary = "댓글 정보", description = "댓글 정보")
+    @Operation(summary = "댓글 정보", description = "Request로 content_id")
     @GetMapping("")
     @ResponseBody
-    public List<GetCommentDTO> getComment(
-            @RequestParam Long contentId
-    ) {
-        return getCommentService.getComments(contentId);
+    public GetCommentDTO.Res getComment(@RequestParam Long contentId) {
+
+        GetCommentDTO.Req requestDTO = GetCommentDTO.Req.builder()
+                .contentId(contentId)
+                .build();
+        return getCommentService.getComments(requestDTO);
     }
 
-    @Operation(summary = "댓글 생성", description = "Request로 content_id, content, parent_id")
+    @Operation(summary = "댓글 생성", description = "Request로 user_id, content_id, content, parent_id")
     @PostMapping("")
     @ResponseBody
-    public CreateCommentDTO createComment(
-            @RequestParam Long userId,
-            @RequestParam Long contentId,
-            @RequestParam String commentBody,
-            @RequestParam(required = false) Long parentId
-    ) {
-        return createCommentService.createComment(userId, contentId, commentBody, parentId);
+    public CreateCommentDTO.Res createComment(@RequestBody CreateCommentDTO.Req requestDTO) {
+
+        return createCommentService.createComment(requestDTO);
     }
 
-    @Operation(summary = "댓글 수정", description = "Request로 content_id, content")
+    @Operation(summary = "댓글 수정", description = "Request로 user_id, comment_id, content")
     @PatchMapping("")
     @ResponseBody
-    public UpdateCommentDTO updateComment(
-            @RequestParam Long commentId,
-            @RequestParam String commentBody
-    ) {
-        return updateCommentService.updateComment(commentId, commentBody);
+    public UpdateCommentDTO.Res updateComment(@RequestBody UpdateCommentDTO.Req requestDTO) {
+        return updateCommentService.updateComment(requestDTO);
     }
 
-    @Operation(summary = "댓글 삭제", description = "Request로 content_id")
+    @Operation(summary = "댓글 삭제(Soft Delete)", description = "Request로 comment_id")
     @DeleteMapping("")
     @ResponseBody
-    public DeleteCommentDTO deleteComment(
-            @RequestParam Long commentId
-    ) {
-        return deleteCommentService.deleteComment(commentId);
+    public DeleteCommentDTO.Res deleteComment(@RequestParam Long commentId) {
+
+        DeleteCommentDTO.Req requestDTO = DeleteCommentDTO.Req.builder()
+                .comment_id(commentId)
+                .build();
+
+        return deleteCommentService.deleteComment(requestDTO);
     }
+
 }

@@ -1,4 +1,4 @@
-package io.oopy.coding.domain.mark.dto;
+package io.oopy.coding.mark.dto;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @ToString
-public class IsPressDTO {
+public class CountMarkDTO {
     private long like;
     private long bookmark;
 }

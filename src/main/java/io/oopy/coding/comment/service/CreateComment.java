@@ -1,13 +1,13 @@
 package io.oopy.coding.comment.service;
 
-import io.oopy.coding.domain.comment.dto.CreateCommentDTO;
+import io.oopy.coding.comment.dto.CommentDTO;
+import io.oopy.coding.comment.dto.CreateCommentDTO;
 import io.oopy.coding.domain.comment.entity.Comment;
 import io.oopy.coding.domain.comment.repository.CommentRepository;
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.content.repository.ContentRepository;
 import io.oopy.coding.domain.entity.User;
 import io.oopy.coding.domain.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,39 +20,80 @@ public class CreateComment {
 
     private final CommentRepository commentRepository;
 
-    public CreateCommentDTO createComment(Long contentId, Long id, String commentBody, Long parentId) {
-        Content content = contentRepository.findById(contentId).orElseThrow(() -> {
-            return new EntityNotFoundException("Content " + contentId + " not found.");
-        });
+    public CreateCommentDTO.Res createComment(CreateCommentDTO.Req request) {
 
-        User user = userRepository.findById(parentId).orElse(null);
+        Content content = contentRepository.findById(request.getContent_id()).orElse(null);
+        if (content == null) {
+            return CreateCommentDTO.Res.builder()
+                    .status("fail")
+                    .message("Content does not exist")
+                    .build();
+        } else if (content.getDeleteAt() != null) {
+            CreateCommentDTO.Res.DeletedContent failureData = CreateCommentDTO.Res.DeletedContent.builder()
+                    .content_id(request.getContent_id())
+                    .deleted_at(content.getDeleteAt())
+                    .build();
+
+            return CreateCommentDTO.Res.builder()
+                    .status("fail")
+                    .data(failureData)
+                    .message("Deleted Content")
+                    .build();
+        }
+
+        User user = userRepository.findById(request.getUser_id()).orElse(null);
+        if (user == null) {
+            return CreateCommentDTO.Res.builder()
+                    .status("fail")
+                    .data(null)
+                    .message("User does not exist")
+                    .build();
+        }
+
+        if (request.getParent_id() != null) {
+            Comment parentComment = commentRepository.findById(request.getParent_id()).orElse(null);
+            if (parentComment == null) {
+                return CreateCommentDTO.Res.builder()
+                        .status("fail")
+                        .data(null)
+                        .message("ParentComment does not exist")
+                        .build();
+            }
+        }
 
         Comment newComment = Comment.builder()
                 .content(content)
                 .user(user)
-                .parentId(parentId)
-                .commentBody(commentBody)
+                .parentId(request.getParent_id() != null ? request.getParent_id() : null)
+                .commentBody(request.getContent())
                 .deleteAt(null)
                 .build();
 
-        Comment save;
-        try {
-            save = commentRepository.save(newComment);
-        } catch (Exception e) {
-            save = null;
-        }
+        Comment save = commentRepository.save(newComment);
 
-        CreateCommentDTO result;
         if (save != null) {
-            result = CreateCommentDTO.builder()
-                    .code("success")
+            CreateCommentDTO.Res.successResponse successResponse = CreateCommentDTO.Res.successResponse.builder()
+                    .comment_id(newComment.getId())
+                    .content_id(request.getContent_id())
+                    .comment_body(newComment.getCommentBody())
+                    .parent_id(newComment.getParentId())
+                    .created_at(newComment.getCreatedAt())
+                    .updated_at(newComment.getUpdatedAt())
+                    .deleted_at(newComment.getDeleteAt())
+                    .build();
+
+            return CreateCommentDTO.Res.builder()
+                    .status("success")
+                    .message("Comment created")
+                    .data(successResponse)
                     .build();
         } else {
-            result = CreateCommentDTO.builder()
-                    .code("fail")
+            return CreateCommentDTO.Res.builder()
+                    .status("fail")
+                    .message("Create Comment fail")
                     .build();
         }
-
-        return result;
     }
+
+
 }

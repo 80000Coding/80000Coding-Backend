@@ -1,8 +1,7 @@
 package io.oopy.coding.mark.service;
 
 import io.oopy.coding.domain.mark.repository.ContentMarkRepository;
-import io.oopy.coding.domain.mark.dto.CountMarkDTO;
-import io.oopy.coding.domain.mark.dto.IsPressDTO;
+import io.oopy.coding.mark.dto.CountMarkDTO;
 import io.oopy.coding.domain.mark.entity.ContentMark;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

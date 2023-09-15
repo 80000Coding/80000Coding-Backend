@@ -1,4 +1,4 @@
-package io.oopy.coding.domain.content.dto;
+package io.oopy.coding.content.dto;
 
 import io.oopy.coding.domain.entity.User;
 import lombok.*;

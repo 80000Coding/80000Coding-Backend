@@ -6,6 +6,7 @@ import io.oopy.coding.domain.entity.User;
 import io.oopy.coding.domain.mark.entity.ContentMark;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -56,6 +57,13 @@ public class Content extends Auditable {
     @Column(name = "views", nullable = false)
     private Long views;
 
-    @Column(name = "delete_dt", nullable = false)
+    @Column(name = "complete", nullable = false)
+    private boolean complete;
+
+    @Column(name = "content_image_url")
+    private String contentImageUrl;
+
+    @Column(name = "delete_dt")
     private LocalDateTime deleteAt;
+
 }

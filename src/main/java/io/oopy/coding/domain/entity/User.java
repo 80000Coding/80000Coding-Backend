@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="USERS") // 테이블 생성이 되지 않아 일시적으로 USERS로 변경(기존: USER)
+@Table(name="USER")
 @Getter
 @Setter
 @Builder

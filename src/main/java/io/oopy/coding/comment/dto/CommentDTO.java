@@ -1,4 +1,4 @@
-package io.oopy.coding.domain.comment.dto;
+package io.oopy.coding.comment.dto;
 
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.entity.User;
