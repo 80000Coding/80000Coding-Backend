@@ -34,7 +34,7 @@ public class EmailConstant {
             "</style>\n" +
             "</head>\n" +
             "<body>\n" +
-            "<a href=%s/email/cert/%s/%s target=\"_blank\" class=\"link-button\"><div class=\"text-color\">인증하기</div></a>\n" +
+            "<a href=%s/email/cert/%s/%s/%s target=\"_blank\" class=\"link-button\"><div class=\"text-color\">인증하기</div></a>\n" +
             "\n" +
             "</body>\n" +
             "</html>";

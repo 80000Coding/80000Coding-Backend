@@ -1,4 +1,4 @@
-package io.oopy.coding.email.service.dto;
+package io.oopy.coding.common.email.dto;
 
 import lombok.*;
 

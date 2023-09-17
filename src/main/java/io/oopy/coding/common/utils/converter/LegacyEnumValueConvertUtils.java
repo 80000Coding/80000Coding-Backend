@@ -14,7 +14,9 @@ public class LegacyEnumValueConvertUtils {
     public static <T extends Enum<T> & LegacyCommonType> T ofLegacyCode(Class<T> enumClass, String code) {
         if (!StringUtils.hasText(code)) return null;
         return EnumSet.allOf(enumClass).stream()
-                .filter(e -> e.getCode().equals(code))
+                // fixme 확인 필요
+//                .filter(e -> e.getCode().equals(code))
+                .filter(e -> e.name().equals(code))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
                         String.format("enum=[%s], code=[%s]가 존재하지 않습니다.", enumClass.getName(), code))); // TODO : 공통 예외로 변경

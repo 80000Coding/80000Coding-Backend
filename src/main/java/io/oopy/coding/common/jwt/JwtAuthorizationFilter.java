@@ -51,7 +51,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             "/api/v1/users/refresh",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
             "/favicon.ico",
-            "/email/**"
+            "/email-cert/**", "/organization/**"
     );
 
     @Override
