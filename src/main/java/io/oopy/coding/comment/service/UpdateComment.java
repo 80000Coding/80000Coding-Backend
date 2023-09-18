@@ -32,7 +32,7 @@ public class UpdateComment {
                     .build();
         }
 
-        User user = userRepository.findById(request.getUser_id()).orElse(null);
+        User user = comment.getUser();
 
         if (user == null) {
             return UpdateCommentDTO.Res.builder()

@@ -25,12 +25,10 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     @Query("select cm from Content c join c.contentMarks cm where c.id = :contentId")
     ContentMark findContentMarkById(@Param("contentId") Long contentId);
 
-    @Transactional
     @Modifying(clearAutomatically = true)
     @Query("update Content c set c.title = :title, c.body = :body, c.updatedAt = current_timestamp where c.id = :contentId")
     int updateContentById(@Param("contentId") Long contentId, @Param("title") String title, @Param("body") String body);
 
-    @Transactional
     @Modifying(clearAutomatically = true)
     @Query("update Content c set c.deleteAt = current_timestamp where c.id = :contentId")
     int softDeleteById(@Param("contentId") Long contentId);

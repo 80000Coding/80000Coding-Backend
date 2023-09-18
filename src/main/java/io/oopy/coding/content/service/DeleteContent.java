@@ -5,12 +5,14 @@ import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.content.repository.ContentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class DeleteContent {
     private final ContentRepository contentRepository;
 
+    @Transactional
     public DeleteContentDTO.Res deleteContent(DeleteContentDTO.Req request) {
 
         Content content = contentRepository.findById(request.getContentId()).orElse(null);

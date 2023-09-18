@@ -39,7 +39,7 @@ public class Content extends Auditable {
     @OneToMany(mappedBy = "content")
     private List<Comment> comments = new ArrayList<>();
 
-    @Column(name = "type", nullable = false)
+    @Column(name = "content_type", nullable = false)
     private String type;
 
     @Column(name = "title", nullable = false)

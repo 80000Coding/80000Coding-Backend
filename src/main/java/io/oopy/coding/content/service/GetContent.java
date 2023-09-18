@@ -43,7 +43,7 @@ public class GetContent {
                     .build();
         }
 
-        User user = contentRepository.findUserById(request.getContent_id());
+        User user = content.getUser();
         if (user == null) {
             GetContentDTO.Res.UserEmpty failureData = GetContentDTO.Res.UserEmpty.builder()
                     .user_id(user.getId())
@@ -55,14 +55,17 @@ public class GetContent {
                     .message("User does not exist")
                     .build();
         }
-        Category category = contentRepository.findCategoryById(request.getContent_id());
-//        if (category == null) {
-//
-//        }
+
         ContentCategory contentCategory = contentRepository.findContentCategoryById(request.getContent_id());
 //        if (contentCategory == null) {
 //
 //        }
+
+        Category category = contentRepository.findCategoryById(request.getContent_id());
+//        if (category == null) {
+//
+//        }
+
 
         updateViews(request.getContent_id());
 
