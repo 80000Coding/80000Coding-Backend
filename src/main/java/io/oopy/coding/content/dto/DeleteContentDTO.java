@@ -16,7 +16,7 @@ public class DeleteContentDTO {
     @Getter
     @Builder
     public static class Req {
-        private Long contentId;
+        private Long content_id;
     }
 
     @Getter

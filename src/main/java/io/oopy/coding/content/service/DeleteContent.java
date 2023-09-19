@@ -15,11 +15,11 @@ public class DeleteContent {
     @Transactional
     public DeleteContentDTO.Res deleteContent(DeleteContentDTO.Req request) {
 
-        Content content = contentRepository.findById(request.getContentId()).orElse(null);
+        Content content = contentRepository.findById(request.getContent_id()).orElse(null);
 
         if (content == null) {
             DeleteContentDTO.Res.ContentEmpty failureData = DeleteContentDTO.Res.ContentEmpty.builder()
-                    .content_id(request.getContentId())
+                    .content_id(request.getContent_id())
                     .build();
 
             return DeleteContentDTO.Res.builder()
@@ -35,9 +35,9 @@ public class DeleteContent {
                     .build();
         }
 
-        softDeleteContent(request.getContentId());
+        softDeleteContent(request.getContent_id());
 
-        Content deleted = contentRepository.findById(request.getContentId()).orElse(null);
+        Content deleted = contentRepository.findById(request.getContent_id()).orElse(null);
 
         DeleteContentDTO.Res.Data data = DeleteContentDTO.Res.Data.builder()
                 .content_id(deleted.getId())

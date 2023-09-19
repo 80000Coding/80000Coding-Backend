@@ -7,6 +7,7 @@ import io.oopy.coding.domain.entity.User;
 import io.oopy.coding.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +16,7 @@ public class UpdateComment {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public UpdateCommentDTO.Res updateComment(UpdateCommentDTO.Req request) {
 
         Comment comment = commentRepository.findById(request.getComment_id()).orElse(null);

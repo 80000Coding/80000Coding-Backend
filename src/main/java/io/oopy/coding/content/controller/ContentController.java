@@ -53,7 +53,7 @@ public class ContentController {
     public DeleteContentDTO.Res deleteContent(@RequestParam Long contentId) {
 
         DeleteContentDTO.Req request = DeleteContentDTO.Req.builder()
-                .contentId(contentId)
+                .content_id(contentId)
                 .build();
 
         return deleteContentService.deleteContent(request);

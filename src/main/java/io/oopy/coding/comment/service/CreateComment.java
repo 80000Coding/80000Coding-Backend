@@ -52,7 +52,7 @@ public class CreateComment {
 
         if (request.getParent_id() != null) {
             Comment parentComment = commentRepository.findById(request.getParent_id()).orElse(null);
-            if (parentComment == null) {
+            if (parentComment.getDeleteAt() != null) {
                 return CreateCommentDTO.Res.builder()
                         .status("fail")
                         .data(null)

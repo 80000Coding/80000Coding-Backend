@@ -37,5 +37,11 @@ public class DeleteCommentDTO {
         public static class CommentEmpty {
             private Long comment_id;
         }
+
+        @Builder
+        @Getter
+        public static class AlreadyDeleted {
+            private Long comment_id;
+        }
     }
 }

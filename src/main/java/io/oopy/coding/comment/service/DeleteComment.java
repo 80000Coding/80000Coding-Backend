@@ -5,6 +5,7 @@ import io.oopy.coding.domain.comment.entity.Comment;
 import io.oopy.coding.domain.comment.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -12,6 +13,7 @@ public class DeleteComment {
 
     private final CommentRepository commentRepository;
 
+    @Transactional
     public DeleteCommentDTO.Res deleteComment(DeleteCommentDTO.Req request) {
 
         Comment comment = commentRepository.findById(request.getComment_id()).orElse(null);
@@ -24,6 +26,16 @@ public class DeleteComment {
                     .status("error")
                     .data(failureData)
                     .message("Comment does not exist")
+                    .build();
+        } else if (comment.getDeleteAt() != null) {
+            DeleteCommentDTO.Res.AlreadyDeleted failureData = DeleteCommentDTO.Res.AlreadyDeleted.builder()
+                    .comment_id(request.getComment_id())
+                    .build();
+
+            return DeleteCommentDTO.Res.builder()
+                    .status("error")
+                    .data(failureData)
+                    .message("Comment already deleted")
                     .build();
         }
 
