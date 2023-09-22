@@ -11,7 +11,6 @@ public class OrganizationCertificationDto {
 
     public record Register(String userId, String token, String code,
                            String organizationName, String userEmail) implements OrganizationCertKey {
-
         @Override
         public String getKey() {
             return KEY_PREFIX + userId;

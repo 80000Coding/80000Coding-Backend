@@ -49,11 +49,6 @@ public class EmailCertService {
     }
 
     @Transactional
-    public void deleteCert(String githubId, String code) {
-        organizationCertificationService.delete(OrganizationCertificationDto.Delete.of(githubId, code));
-    }
-
-    @Transactional
     public void cert(String userId, String token, String code) {
         Optional<OrganizationCertification> emailCertification = organizationCertificationService.getOrganizationCertification(
                 OrganizationCertificationDto.Cert.of(userId, token, code));

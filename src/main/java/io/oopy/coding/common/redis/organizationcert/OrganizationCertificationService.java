@@ -69,8 +69,8 @@ public class OrganizationCertificationService {
         );
         listOperations.rightPush(register.getKey(), organizationCertification);
         ZoneId zoneId = ZoneId.systemDefault();
-        redisTemplate.expireAt(register.getKey(), organizationCertification.getExpiredAt().atZone(zoneId)
-                .toInstant());
+        redisTemplate.expireAt(register.getKey(),
+                organizationCertification.getExpiredAt().atZone(zoneId).toInstant());
     }
 
     @Transactional

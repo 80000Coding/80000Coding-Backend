@@ -14,9 +14,9 @@ public class EmailCertRequest {
         private String targetEmail;
         private String organizationCode;
 
-        public EmailCertificateDto.Send toCertificateEmailSend(String githubId) {
+        public EmailCertificateDto.Send toCertificateEmailSend(String userId) {
             return EmailCertificateDto.Send.of(this.targetEmail,
-                    githubId,
+                    userId,
                     CERT_TITLE,
                     null,
                     this.organizationCode

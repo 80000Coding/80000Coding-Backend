@@ -55,8 +55,7 @@ public class OrganizationService {
         Organization organization = organizationRepository.findByCode(cert.getOrganizationCode()).orElseThrow(()-> new RuntimeException("없는 조직입니다."));
         UserOrganization userOrganization = UserOrganization.of(organization,
                 User.builder()
-                        .id(cert.getUserId()).build(),
-                cert.getUserEmail());
+                    .id(cert.getUserId()).build(), cert.getUserEmail());
         userOrganizationRepository.save(userOrganization);
     }
 
