@@ -1,3 +1,6 @@
+palco:
+  domain:
+    backend: ${PALCO_DOMAIN_BACKEND}
 ---
 spring.config.activate.on-profile: local
 
