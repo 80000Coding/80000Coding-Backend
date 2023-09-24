@@ -5,6 +5,7 @@ import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.content.entity.ContentCategory;
 import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.domain.mark.entity.ContentMark;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
