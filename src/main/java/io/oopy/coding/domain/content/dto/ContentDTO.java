@@ -1,6 +1,6 @@
 package io.oopy.coding.domain.content.dto;
 
-import io.oopy.coding.domain.entity.User;
+import io.oopy.coding.domain.user.entity.User;
 import lombok.*;
 
 import java.time.LocalDateTime;
