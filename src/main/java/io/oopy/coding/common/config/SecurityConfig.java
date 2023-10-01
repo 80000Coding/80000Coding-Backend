@@ -30,7 +30,7 @@ public class SecurityConfig {
             "/test/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
             "/api/v1/users/login", "/api/v1/users/refresh",
-            "/login/oauth2/**"
+            "/api/v1/login/oauth2/**", "/api/v1/signup"
     };
 
     private final UserDetailServiceImpl userDetailServiceImpl;

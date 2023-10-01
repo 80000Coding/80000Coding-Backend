@@ -1,7 +1,8 @@
-package io.oopy.coding.presentation.signup;
+package io.oopy.coding.auth.controller;
 
+import io.oopy.coding.auth.service.SignupService;
 import io.oopy.coding.common.cookie.CookieUtil;
-import io.oopy.coding.domain.dto.ResponseDTO;
+import io.oopy.coding.common.dto.ResponseDTO;
 import io.oopy.coding.domain.user.dto.UserSignupReq;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,8 +19,8 @@ import static io.oopy.coding.common.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class SignupController {
-
     private final SignupService signupService;
     private final CookieUtil cookieUtil;
 

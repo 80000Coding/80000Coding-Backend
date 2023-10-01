@@ -66,15 +66,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         log.info("refresh token deleted. : {}", refreshToken);
     }
 
-    @Override
-    public void signupDone(String requestRefreshToken) {
-        final Integer githubId = jwtTokenProvider.getGithubIdFromToken(requestRefreshToken);
-        final RefreshToken refreshToken = findOrThrowGithubId(githubId);
-
-        refreshTokenRepository.delete(refreshToken);
-        log.info("refresh token deleted. : {}", refreshToken);
-    }
-
     private String makeRefreshToken(JwtUserInfo user) {
         return jwtTokenProvider.generateRefreshToken(user);
     }
@@ -85,11 +76,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private RefreshToken findOrThrow(Long userId) {
         return refreshTokenRepository.findById(userId)
-                .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "can't find refresh token"));
-    }
-
-    private RefreshToken findOrThrowGithubId(Integer githubId) {
-        return refreshTokenRepository.findByGithubId(githubId)
                 .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "can't find refresh token"));
     }
 

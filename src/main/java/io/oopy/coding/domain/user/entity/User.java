@@ -1,11 +1,12 @@
 package io.oopy.coding.domain.user.entity;
 
+import io.oopy.coding.common.redis.forbidden.ForbiddenToken;
 import io.oopy.coding.domain.model.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name="USER")
+@Table(name="USERS")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -34,4 +35,14 @@ public class User extends Auditable {
     @Convert(converter = RoleTypeConverter.class)
     @Column(name = "role", nullable = false)
     private RoleType role;
+
+    private User(Integer githubId, String name) {
+        this.githubId = githubId;
+        this.name = name;
+        this.role = RoleType.USER;
+    }
+
+    public static User of(Integer githubId, String name) {
+        return new User(githubId, name);
+    }
 }

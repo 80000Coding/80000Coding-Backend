@@ -24,11 +24,4 @@ public interface RefreshTokenService {
      * @param requestRefreshToken : String
      */
     void logout(String requestRefreshToken);
-
-    //TODO : 이름을 회원가입 완료 / 회원가입 어떤걸로 할지
-    /**
-     * access token 으로 refresh token을 찾아서 제거 (회원가입 완료)
-     * @param requestRefreshToken : String
-     */
-    void signupDone(String requestRefreshToken);
 }

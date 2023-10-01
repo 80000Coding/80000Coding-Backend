@@ -17,7 +17,6 @@ public record JwtUserInfo(
         return new JwtUserInfo(id, githubId, role);
     }
 
-    // TODO : createByGithubId
     public static JwtUserInfo createByGithubId(Integer githubId) {
         return new JwtUserInfo(System.currentTimeMillis(), githubId, USER);
     }

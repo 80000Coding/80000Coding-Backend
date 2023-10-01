@@ -1,4 +1,4 @@
-package io.oopy.coding.domain.dto;
+package io.oopy.coding.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -11,6 +11,11 @@ public class ResponseDTO<T> {
     private T data;
     private Map<String, Object> additionalData;
 
+    public ResponseDTO(String status, T data) {
+        this.status = status;
+        this.data = data;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -21,12 +26,6 @@ public class ResponseDTO<T> {
 
     public Map<String, Object> getAdditionalData() {
         return additionalData;
-    }
-
-    public ResponseDTO(String status, T data) {
-        this.status = status;
-        this.data = data;
-        //this.additionalData = new HashMap<>();
     }
 
     public void addField(String fieldName, Object value) {

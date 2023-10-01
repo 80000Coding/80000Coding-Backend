@@ -32,17 +32,7 @@ public class UserAuthService {
         JwtUserInfo jwtUserInfo = JwtUserInfo.from(user);
         String accessToken = jwtTokenProvider.generateAccessToken(jwtUserInfo);
         String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
-        log.warn("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
-
-        return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken);
-    }
-
-    public Map<String, String> signup(Integer githubId) {
-        JwtUserInfo jwtUserInfo = JwtUserInfo.createByGithubId(githubId);
-
-        String accessToken = jwtTokenProvider.generateAccessToken(jwtUserInfo);
-        String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
-        log.warn("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
+        log.info("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
 
         return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken);
     }

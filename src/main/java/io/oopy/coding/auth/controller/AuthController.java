@@ -1,9 +1,12 @@
-package io.oopy.coding.presentation.login;
+package io.oopy.coding.auth.controller;
 
+import io.oopy.coding.auth.service.LoginService;
+import io.oopy.coding.auth.service.SignupService;
 import io.oopy.coding.common.cookie.CookieUtil;
-import io.oopy.coding.domain.dto.ResponseDTO;
+import io.oopy.coding.common.dto.ResponseDTO;
 import io.oopy.coding.user.service.UserSearchService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +14,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.util.Map;
@@ -22,12 +27,13 @@ import static io.oopy.coding.common.jwt.AuthConstants.ACCESS_TOKEN;
 import static io.oopy.coding.common.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
-@RequestMapping("/login/oauth2")
+@RequestMapping("/api/v1/login/oauth2")
 @RequiredArgsConstructor
 @Slf4j
-public class LoginController {
+public class AuthController {
+    private final LoginService loginService;
+    private final SignupService signupService;
     private final UserSearchService userSearchService;
-    private final OauthService oauthService;
     private final CookieUtil cookieUtil;
 
     @Value("${spring.security.oauth2.client.registration.github.client-id}")
@@ -49,46 +55,44 @@ public class LoginController {
     @Operation(summary = "OAuth2 로그인 후 로그인/회원가입 분기 조회", description = "githubId 존재유무에 따라 로그인 및 회원가입 인지를 알려주고 로그인의 경우 사용자 정보로 jwt를 생성하고, 회원가입의 경우 githubId로 jwt를 생성합니다.")
     @GetMapping("/code/github")
     public ResponseEntity<ResponseDTO> oauth2Redirected(@RequestParam("code") String authorizationCode,
-                                                        HttpServletResponse response) throws Exception {
-        String accessToken = getAccessToken(authorizationCode);
+                                                        HttpServletRequest request) throws Exception {
+
+        String redirectUri = request.getRequestURL().toString();
+        String accessToken = getAccessToken(authorizationCode, redirectUri);
         Integer githubId = getOauthUserId(accessToken);
 
-        if (userSearchService.checkByGithubId(githubId)) {
-            Map<String, String> tokens = oauthService.login(githubId);
-            ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
-            Map<String, String> data = Map.of("action", "login");
+        Map<String, String> tokens;
+        ResponseCookie cookie;
+        Map<String, String> data;
 
-            ResponseDTO responseDto = new ResponseDTO("success", data);
+        if (userSearchService.isPresentByGithubId(githubId)) {
+            tokens = loginService.login(githubId);
+            cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
+            data = Map.of("action", "login");
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                    .body(responseDto);
         }
         else {
-            Map<String, String> tokens = oauthService.signup(githubId);
-            ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
-            Map<String, String> data = Map.of("action", "signup");
+            tokens = signupService.generateSignupTokens(githubId);
+            cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
+            data = Map.of("action", "signup");
 
-            ResponseDTO responseDto = new ResponseDTO("success", data);
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                    .body(responseDto);
         }
+
+        ResponseDTO responseDto = new ResponseDTO("success", data);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+                .body(responseDto);
     }
 
-    private String getAccessToken(String code) throws Exception {
-        log.warn("OAuth Access Token 요청");
+    private String getAccessToken(String code, String redirectUri) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
 
         String accessTokenUrl = "https://github.com/login/oauth/access_token";
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Accept", "application/json");
-
-        String redirectUri = "http://localhost:8081/login/oauth2/code/github";
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("client_id", clientId);
@@ -131,8 +135,8 @@ public class LoginController {
                 Map.class
         );
 
-        Map<String, String> response = responseEntity.getBody();
-        Integer githubId = Integer.valueOf(response.get("id"));
+        Map<String, ?> response = responseEntity.getBody();
+        Integer githubId = (Integer) response.get("id");
 
         return githubId;
     }
