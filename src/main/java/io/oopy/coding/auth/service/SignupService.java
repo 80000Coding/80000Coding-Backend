@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static io.oopy.coding.common.jwt.AuthConstants.ACCESS_TOKEN;
@@ -35,25 +36,26 @@ public class SignupService {
         JwtUserInfo jwtUserInfo = JwtUserInfo.createByGithubId(githubId);
 
         String accessToken = jwtTokenProvider.generateSignupAccessToken(jwtUserInfo);
-        String refreshToken = refreshSignupTokenService.issueRefreshToken(accessToken);
-        log.info("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
+        //String refreshToken = refreshSignupTokenService.issueRefreshToken(accessToken);
+        log.info("accessToken : {}", accessToken);
 
-        return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken);
+        return Map.of(ACCESS_TOKEN.getValue(), accessToken);
     }
-    public Map<String, String> signup(UserSignupReq dto, String refreshToken, String authHeader) {
+    public Map<String, String> signup(UserSignupReq dto, String authHeader) {
         String accessToken = jwtTokenProvider.resolveToken(authHeader);
         Integer githubId = jwtTokenProvider.getGithubIdFromToken(accessToken);
 
+        Map<String, String> tokens = new HashMap<>();
+
         if (userSearchService.isPresentByGithubId(githubId)) {
-            return null;
+            return tokens;
         }
 
         User user = User.of(githubId, dto.getName());
         userSaveService.save(user);
-        refreshSignupTokenService.signupDone(refreshToken);
         forbiddenTokenService.register(accessToken, githubId);
 
-        Map<String, String> tokens = loginService.login(user.getGithubId());
+        tokens = loginService.login(user.getGithubId());
 
         return tokens;
     }

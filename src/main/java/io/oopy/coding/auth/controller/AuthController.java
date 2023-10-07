@@ -1,11 +1,19 @@
 package io.oopy.coding.auth.controller;
 
+import com.nimbusds.oauth2.sdk.SuccessResponse;
 import io.oopy.coding.auth.service.LoginService;
 import io.oopy.coding.auth.service.SignupService;
 import io.oopy.coding.common.cookie.CookieUtil;
 import io.oopy.coding.common.dto.ResponseDTO;
 import io.oopy.coding.user.service.UserSearchService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +35,7 @@ import static io.oopy.coding.common.jwt.AuthConstants.ACCESS_TOKEN;
 import static io.oopy.coding.common.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
-@RequestMapping("/api/v1/login/oauth2")
+@RequestMapping("/api/v1/auth/login")
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
@@ -53,7 +61,15 @@ public class AuthController {
 
     // TODO : 실제로는 다른 uri로 요청예정, 프론트와 협의 필요
     @Operation(summary = "OAuth2 로그인 후 로그인/회원가입 분기 조회", description = "githubId 존재유무에 따라 로그인 및 회원가입 인지를 알려주고 로그인의 경우 사용자 정보로 jwt를 생성하고, 회원가입의 경우 githubId로 jwt를 생성합니다.")
-    @GetMapping("/code/github")
+    @Parameters({
+            @Parameter(name = "code", description = "OAuth2 login 후 받은 access token 발급 시 필요한 코드", in = ParameterIn.QUERY)
+    })
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+        @ApiResponse(responseCode = "200", description = "회원가입으로 이동", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+        @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = Error.class)))
+    })
+    @GetMapping("/github/code")
     public ResponseEntity<ResponseDTO> oauth2Redirected(@RequestParam("code") String authorizationCode,
                                                         HttpServletRequest request) throws Exception {
 
@@ -70,20 +86,22 @@ public class AuthController {
             cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
             data = Map.of("action", "login");
 
+            ResponseDTO responseDto = new ResponseDTO("success", data);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+                    .body(responseDto);
         }
         else {
             tokens = signupService.generateSignupTokens(githubId);
-            cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
             data = Map.of("action", "signup");
+            ResponseDTO responseDto = new ResponseDTO("success", data);
 
+            return ResponseEntity.ok()
+                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+                    .body(responseDto);
         }
-
-        ResponseDTO responseDto = new ResponseDTO("success", data);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                .body(responseDto);
     }
 
     private String getAccessToken(String code, String redirectUri) throws Exception {
