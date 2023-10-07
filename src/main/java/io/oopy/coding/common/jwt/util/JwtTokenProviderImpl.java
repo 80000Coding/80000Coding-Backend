@@ -31,15 +31,20 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     private final String jwtSecretKey;
     private final Duration accessTokenExpirationTime;
     private final Duration refreshTokenExpirationTime;
+    private final Duration signupAccessTokenExpirationTime;
+    private final Duration signupRefreshTokenExpirationTime;
 
     public JwtTokenProviderImpl(
             @Value("${jwt.secret}") String jwtSecretKey,
             @Value("${jwt.token.access-expiration-time}") Duration accessTokenExpirationTime,
-            @Value("${jwt.token.refresh-expiration-time}") Duration refreshTokenExpirationTime
-    ) {
+            @Value("${jwt.token.refresh-expiration-time}") Duration refreshTokenExpirationTime,
+            @Value("${jwt.token.signup-access-expiration-time}") Duration signupAccessTokenExpirationTime,
+            @Value("${jwt.token.signup-refresh-expiration-time}") Duration signupRefreshTokenExpireTime) {
         this.jwtSecretKey = jwtSecretKey;
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
+        this.signupAccessTokenExpirationTime = signupAccessTokenExpirationTime;
+        this.signupRefreshTokenExpirationTime = signupRefreshTokenExpireTime;
     }
 
     @Override
@@ -76,6 +81,30 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     @Override
+    public String generateSignupAccessToken(JwtUserInfo user) {
+        final Date now = new Date();
+
+        return Jwts.builder()
+                .setHeader(createHeader())
+                .setClaims(createClaims(user))
+                .signWith(SignatureAlgorithm.HS256, createSignature())
+                .setExpiration(createExpireDate(now, signupAccessTokenExpirationTime.toMillis()))
+                .compact();
+    }
+
+    @Override
+    public String generateSignupRefreshToken(JwtUserInfo user) {
+        final Date now = new Date();
+
+        return Jwts.builder()
+                .setHeader(createHeader())
+                .setClaims(createClaims(user))
+                .signWith(SignatureAlgorithm.HS256, createSignature())
+                .setExpiration(createExpireDate(now, signupRefreshTokenExpirationTime.toMillis()))
+                .compact();
+    }
+
+    @Override
     public JwtUserInfo getUserInfoFromToken(String token) throws AuthErrorException {
         Claims claims = verifyAndGetClaims(token);
         return JwtUserInfo.builder()
@@ -89,6 +118,12 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     public Long getUserIdFromToken(String token) throws AuthErrorException {
         Claims claims = verifyAndGetClaims(token);
         return claims.get(USER_ID, Long.class);
+    }
+
+    @Override
+    public Integer getGithubIdFromToken(String token) throws AuthErrorException {
+        Claims claims = verifyAndGetClaims(token);
+        return claims.get(GITHUB_ID, Integer.class);
     }
 
     @Override

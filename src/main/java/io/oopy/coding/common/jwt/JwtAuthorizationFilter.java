@@ -27,6 +27,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static io.oopy.coding.common.jwt.AuthConstants.*;
 
@@ -46,7 +48,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final List<String> jwtIgnoreUrls = List.of(
             "/test",
             "/api/v1/users/login",
-            "/api/v1/users/refresh"
+            "/api/v1/users/refresh",
+            "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
+            "/favicon.ico",
+            "/email/**",
+            "/api/v1/auth/login/**",
+            "/api/v1/auth/signup"
     );
 
     @Override
@@ -67,7 +74,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private boolean shouldIgnoreRequest(HttpServletRequest request) {
         String uri = request.getRequestURI();
         String method = request.getMethod();
-        return jwtIgnoreUrls.contains(uri) || "OPTIONS".equals(method);
+        Optional<String> judge = jwtIgnoreUrls.stream()
+                .filter(v ->
+                        Pattern.matches(v.replace("**", ".*"), uri) ||
+                                Pattern.matches(v.replace("/**", ""), uri)
+                )
+                .findFirst();
+        return !judge.isEmpty() || "OPTIONS".equals(method);
     }
 
     private String resolveAccessToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
@@ -136,4 +149,3 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         log.info("Authenticated user: {}", userDetails.getUsername());
     }
 }
-
