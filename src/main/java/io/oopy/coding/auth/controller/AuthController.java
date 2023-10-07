@@ -1,10 +1,11 @@
 package io.oopy.coding.auth.controller;
 
-import com.nimbusds.oauth2.sdk.SuccessResponse;
 import io.oopy.coding.auth.service.LoginService;
 import io.oopy.coding.auth.service.SignupService;
-import io.oopy.coding.common.cookie.CookieUtil;
-import io.oopy.coding.common.dto.ResponseDTO;
+import io.oopy.coding.common.response.ErrorResponse;
+import io.oopy.coding.common.response.FailureResponse;
+import io.oopy.coding.common.response.SuccessResponse;
+import io.oopy.coding.common.utils.cookie.CookieUtil;
 import io.oopy.coding.user.service.UserSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,8 +32,8 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.util.Map;
 
-import static io.oopy.coding.common.jwt.AuthConstants.ACCESS_TOKEN;
-import static io.oopy.coding.common.jwt.AuthConstants.REFRESH_TOKEN;
+import static io.oopy.coding.common.utils.jwt.AuthConstants.ACCESS_TOKEN;
+import static io.oopy.coding.common.utils.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
 @RequestMapping("/api/v1/auth/login")
@@ -66,11 +67,11 @@ public class AuthController {
     })
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-        @ApiResponse(responseCode = "200", description = "회원가입으로 이동", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-        @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = Error.class)))
+        @ApiResponse(responseCode = "200", description = "회원가입으로 이동", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+        @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/github/code")
-    public ResponseEntity<ResponseDTO> oauth2Redirected(@RequestParam("code") String authorizationCode,
+    public ResponseEntity<?> oauth2Redirected(@RequestParam("code") String authorizationCode,
                                                         HttpServletRequest request) throws Exception {
 
         String redirectUri = request.getRequestURL().toString();
@@ -78,30 +79,24 @@ public class AuthController {
         Integer githubId = getOauthUserId(accessToken);
 
         Map<String, String> tokens;
-        ResponseCookie cookie;
+        ResponseCookie cookie = null;
         Map<String, String> data;
 
         if (userSearchService.isPresentByGithubId(githubId)) {
             tokens = loginService.login(githubId);
             cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
             data = Map.of("action", "login");
-
-            ResponseDTO responseDto = new ResponseDTO("success", data);
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                    .body(responseDto);
         }
         else {
             tokens = signupService.generateSignupTokens(githubId);
             data = Map.of("action", "signup");
-            ResponseDTO responseDto = new ResponseDTO("success", data);
-
-            return ResponseEntity.ok()
-                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                    .body(responseDto);
         }
+
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok()
+                .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()));
+        if (cookie != null)
+            responseBuilder.header(HttpHeaders.SET_COOKIE, cookie.toString());
+        return responseBuilder.body(SuccessResponse.from(data));
     }
 
     private String getAccessToken(String code, String redirectUri) throws Exception {

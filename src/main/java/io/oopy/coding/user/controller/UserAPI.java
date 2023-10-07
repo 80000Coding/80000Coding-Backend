@@ -1,9 +1,9 @@
 package io.oopy.coding.user.controller;
 
 import io.oopy.coding.domain.user.dto.UserAuthReq;
-import io.oopy.coding.common.cookie.CookieUtil;
-import io.oopy.coding.common.jwt.entity.JwtUserInfo;
-import io.oopy.coding.common.security.CustomUserDetails;
+import io.oopy.coding.common.utils.cookie.CookieUtil;
+import io.oopy.coding.common.utils.jwt.entity.JwtUserInfo;
+import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.user.service.UserAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static io.oopy.coding.common.jwt.AuthConstants.*;
+import static io.oopy.coding.common.utils.jwt.AuthConstants.*;
 
 @RestController
 @RequestMapping("/api/v1/users")

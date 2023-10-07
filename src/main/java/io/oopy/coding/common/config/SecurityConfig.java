@@ -1,12 +1,12 @@
 package io.oopy.coding.common.config;
 
-import io.oopy.coding.common.cookie.CookieUtil;
-import io.oopy.coding.common.jwt.util.JwtTokenProvider;
-import io.oopy.coding.common.jwt.handler.JwtAccessDeniedHandler;
-import io.oopy.coding.common.jwt.handler.JwtAuthenticationEntryPoint;
-import io.oopy.coding.common.redis.forbidden.ForbiddenTokenService;
-import io.oopy.coding.common.redis.refresh.RefreshTokenService;
-import io.oopy.coding.common.security.UserDetailServiceImpl;
+import io.oopy.coding.common.utils.cookie.CookieUtil;
+import io.oopy.coding.common.utils.jwt.JwtUtil;
+import io.oopy.coding.common.security.handler.JwtAccessDeniedHandler;
+import io.oopy.coding.common.security.handler.JwtAuthenticationEntryPoint;
+import io.oopy.coding.common.utils.redis.forbidden.ForbiddenTokenService;
+import io.oopy.coding.common.utils.redis.refresh.RefreshTokenService;
+import io.oopy.coding.common.security.authentication.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -37,7 +37,7 @@ public class SecurityConfig {
     private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
 
     @Bean
@@ -72,7 +72,7 @@ public class SecurityConfig {
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler())
                 .authenticationEntryPoint(authenticationEntryPoint());
-        httpSecurity.apply(new JwtSecurityConfig(userDetailServiceImpl, refreshTokenService, forbiddenTokenService, jwtTokenProvider, cookieUtil));
+        httpSecurity.apply(new JwtSecurityConfig(userDetailServiceImpl, refreshTokenService, forbiddenTokenService, jwtUtil, cookieUtil));
         return httpSecurity.build();
     }
 }

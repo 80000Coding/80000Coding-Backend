@@ -1,9 +1,9 @@
 package io.oopy.coding.auth.controller;
 
-import com.nimbusds.oauth2.sdk.SuccessResponse;
 import io.oopy.coding.auth.service.SignupService;
-import io.oopy.coding.common.cookie.CookieUtil;
-import io.oopy.coding.common.dto.ResponseDTO;
+import io.oopy.coding.common.response.ErrorResponse;
+import io.oopy.coding.common.response.SuccessResponse;
+import io.oopy.coding.common.utils.cookie.CookieUtil;
 import io.oopy.coding.domain.user.dto.UserSignupReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,7 +17,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import net.jcip.annotations.Immutable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static io.oopy.coding.common.jwt.AuthConstants.REFRESH_TOKEN;
+import static io.oopy.coding.common.utils.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,28 +40,16 @@ public class SignupController {
     })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = Error.class)))
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/signup")
-    public ResponseEntity<ResponseDTO> signup(@RequestHeader("Authorization") String authorizationHeader,
-                                              @Valid @RequestBody UserSignupReq dto,
-                                              HttpServletRequest request, HttpServletResponse response) {
-
+    public ResponseEntity<?> signup(@RequestHeader("Authorization") String authorizationHeader,
+                                    @RequestBody @Valid UserSignupReq dto) {
         Map<String, String> tokens = signupService.signup(dto, authorizationHeader);
+        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
 
-        if (!tokens.isEmpty()) {
-            ResponseDTO responseDto = new ResponseDTO("Signup Successful", null);
-            ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(responseDto);
-        }
-        else {
-            ResponseDTO responseDto = new ResponseDTO("Signup Failed", null);
-
-            return ResponseEntity.badRequest()
-                    .body(responseDto);
-        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(SuccessResponse.noContent());
     }
 }
