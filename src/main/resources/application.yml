@@ -18,6 +18,17 @@ spring:
       max-lifetime: 1200000 # 20m (default 30m)
       connection-timeout: 3000 # 3s (default 30s)
       validation-timeout: 2000 # 2s (default 5s)
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USER_NAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   jpa:
     database: MYSQL
     database-platform: org.hibernate.dialect.MySQL8Dialect
@@ -31,6 +42,13 @@ spring:
   data.redis:
     host: localhost
     port: 6379
+  security: #OAuth2 연동 어플리케이션 정보 (TODO : 운영 어플리케이션 정보로 수정 필요)
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${OAUTH2_GITHUB_CLIENT_ID}
+            client-secret: ${OAUTH2_GITHUB_CLIENT_SECRET}
 
 logging:
   level:
@@ -50,11 +68,13 @@ springdoc:
       enabled: true
 
 jwt:
-  secret: exampleSecretKeyForSpringBootProjectAtSubRepository # TODO 운영 환경에서 수정
+  secret: ${JWT_SECRET} # TODO 운영 환경에서 수정
   token:
     # milliseconds 단위
     access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
     refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)
+    signup-access-expiration-time: 600000 # 10m (10 * 60 * 1000)
+    signup-refresh-expiration-time: 600000 # 10m (10 * 60 * 1000)
 
 ssh:
   host: ${SSH_HOST}
@@ -62,6 +82,11 @@ ssh:
   port: ${SSH_PORT}
   pem: ${SSH_PEM}
   database-port: ${SSH_DATABASE_PORT}
+
+mail:
+  cert:
+    domain: ${MAIL_CERT_DOMAIN}
+    success-redirect-url: ${MAIL_CERT_SUCCESS_URL:http://www.naver.com}
 
 ---
 spring.config.activate.on-profile: develop
@@ -86,10 +111,11 @@ spring:
       jdbc-url: ${DB_URL}
       username: ${DB_USER_NAME}
       password: ${DB_PASSWORD}
-      maximum-pool-size: 15 # (default 10)
-      minimum-idle: 15 # (default 10)
+      maximum-pool-size: 1 # (default 10)
+      minimum-idle: 1 # (default 10)
+      idle-timeout: 60000 # 1m (default 10m)
       max-lifetime: 1200000 # 20m (default 30m)
-      connection-timeout: 10000 # 10s (default 30s)
+      connection-timeout: 3000 # 3s (default 30s)
       validation-timeout: 2000 # 2s (default 5s)
     url: ${DB_URL}
     username: ${DB_USER_NAME}
@@ -108,6 +134,13 @@ spring:
   data.redis:
     host: localhost
     port: 6379
+  security: #OAuth2 연동 어플리케이션 정보 (TODO : 운영 어플리케이션 정보로 수정 필요)
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${OAUTH2_GITHUB_CLIENT_ID}
+            client-secret: ${OAUTH2_GITHUB_CLIENT_SECRET}
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
@@ -122,11 +155,13 @@ springdoc:
       enabled: true
 
 jwt:
-  secret: exampleSecretKeyForSpringBootProjectAtSubRepository # TODO 운영 환경에서 수정
+  secret: ${JWT_SECRET} # TODO 운영 환경에서 수정
   token:
     # milliseconds 단위
     access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
     refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)
+    signup-access-expiration-time: 600000 # 10m (10 * 60 * 1000)
+    signup-refresh-expiration-time: 600000 # 10m (10 * 60 * 1000)
 
 mail:
   cert:

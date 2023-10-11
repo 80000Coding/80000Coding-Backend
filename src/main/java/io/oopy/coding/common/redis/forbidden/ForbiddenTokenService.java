@@ -18,15 +18,15 @@ public class ForbiddenTokenService {
     /**
      * 토큰을 블랙 리스트에 등록합니다.
      * @param accessToken : 블랙 리스트에 등록할 토큰
-     * @param userId : 블랙 리스트에 등록할 사용자 ID
+     * @param githubId : 블랙 리스트에 등록할 github ID
      */
-    public void register(String accessToken, Long userId) {
+    public void register(String accessToken, Integer githubId) {
         final Date now = new Date();
         final Date expireDate = jwtTokenProvider.getExpiryDate(accessToken);
 
         final long expireTime = expireDate.getTime() - now.getTime();
 
-        ForbiddenToken forbiddenToken = ForbiddenToken.of(accessToken, userId, expireTime);
+        ForbiddenToken forbiddenToken = ForbiddenToken.of(accessToken, githubId, expireTime);
 
         forbiddenTokenRepository.save(forbiddenToken);
         log.info("forbidden token registered. about Token : {}", accessToken);

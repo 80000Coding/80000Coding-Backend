@@ -147,4 +147,3 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         log.info("Authenticated user: {}", userDetails.getUsername());
     }
 }
-

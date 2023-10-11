@@ -7,7 +7,6 @@ import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.domain.mark.entity.ContentMark;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

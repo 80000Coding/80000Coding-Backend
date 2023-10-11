@@ -14,7 +14,17 @@ public class UserSearchService {
 
     public User findById(Long id) {
         return userRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 유저입니다.")
+                () -> new IllegalStateException("존재하지 않는 유저입니다.")
         );
+    }
+
+    public User findByGithubId(Integer githubId) {
+        return userRepository.findByGithubId(githubId).orElseThrow(
+                () -> new IllegalStateException("존재하지 않는 유저입니다.")
+        );
+    }
+
+    public boolean isPresentByGithubId(Integer githubId) {
+        return userRepository.existsByGithubId(githubId);
     }
 }
