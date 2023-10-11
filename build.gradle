@@ -30,12 +30,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'com.jcraft:jsch:0.1.55'
-<<<<<<< HEAD
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-=======
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
->>>>>>> dev
 
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
