@@ -83,6 +83,9 @@ spring:
   datasource:
     hikari:
       driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: ${DB_URL}
+      username: ${DB_USER_NAME}
+      password: ${DB_PASSWORD}
       maximum-pool-size: 1 # (default 10)
       minimum-idle: 1 # (default 10)
       idle-timeout: 60000 # 1m (default 10m)
