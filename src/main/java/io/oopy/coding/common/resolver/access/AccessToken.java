@@ -4,11 +4,11 @@ import java.time.LocalDateTime;
 
 public record AccessToken(
         String accessToken,
-        Long userId,
+        Integer githubId,
         LocalDateTime expiryDate,
         boolean isReissued
 ) {
-    public static AccessToken of(String accessToken, Long userId, LocalDateTime expiryDate, boolean isReissued) {
-        return new AccessToken(accessToken, userId, expiryDate, isReissued);
+    public static AccessToken of(String accessToken, Integer githubId, LocalDateTime expiryDate, boolean isReissued) {
+        return new AccessToken(accessToken, githubId, expiryDate, isReissued);
     }
 }

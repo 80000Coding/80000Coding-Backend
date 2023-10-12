@@ -61,10 +61,10 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
             isReissued = true;
         }
 
-        Long userId = jwtUtil.getUserIdFromToken(accessToken);
+        Integer githubId = jwtUtil.getGithubIdFromToken(accessToken);
         LocalDateTime expiryDate = jwtUtil.getExpiryDate(accessToken);
         log.info("access token expiryDate : {}", expiryDate);
 
-        return AccessToken.of(accessToken, userId, expiryDate, isReissued);
+        return AccessToken.of(accessToken, githubId, expiryDate, isReissued);
     }
 }

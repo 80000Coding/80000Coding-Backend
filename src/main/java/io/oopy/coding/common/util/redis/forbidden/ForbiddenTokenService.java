@@ -1,11 +1,14 @@
 package io.oopy.coding.common.util.redis.forbidden;
 
+import io.oopy.coding.common.resolver.access.AccessToken;
 import io.oopy.coding.common.util.jwt.JwtUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Slf4j
@@ -13,23 +16,20 @@ import java.util.Date;
 @Component
 public class ForbiddenTokenService {
     private final ForbiddenTokenRepository forbiddenTokenRepository;
-    private final JwtUtil jwtUtil;
 
     /**
      * 토큰을 블랙 리스트에 등록합니다.
-     * @param accessToken : 블랙 리스트에 등록할 토큰
-     * @param githubId : 블랙 리스트에 등록할 github ID
+     * @param accessToken : 블랙 리스트에 등록할 액세스 토큰 객체
      */
-    public void register(String accessToken, Integer githubId) {
-        final Date now = new Date();
-        final Date expireDate = jwtUtil.getExpiryDate(accessToken);
+    public void register(AccessToken accessToken) {
+        final LocalDateTime now = LocalDateTime.now();
+        final long timeToLive = Duration.between(now, accessToken.expiryDate()).toSeconds();
 
-        final long expireTime = expireDate.getTime() - now.getTime();
+        log.info("forbidden token ttl : {}", timeToLive);
 
-        ForbiddenToken forbiddenToken = ForbiddenToken.of(accessToken, githubId, expireTime);
-
+        ForbiddenToken forbiddenToken = ForbiddenToken.of(accessToken.accessToken(), accessToken.githubId(), timeToLive);
         forbiddenTokenRepository.save(forbiddenToken);
-        log.info("forbidden token registered. about Token : {}", accessToken);
+        log.info("forbidden token registered. about User : {}", forbiddenToken.getGithubId());
     }
 
     /**
