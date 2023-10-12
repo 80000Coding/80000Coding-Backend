@@ -134,6 +134,16 @@ public class JwtUtilImpl implements JwtUtil {
         return DateUtil.toLocalDateTime(claims.getExpiration());
     }
 
+    @Override
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = verifyAndGetClaims(token);
+            return claims.getExpiration().before(new Date());
+        } catch (AuthErrorException e) {
+            return true;
+        }
+    }
+
     private Claims verifyAndGetClaims(final String accessToken) {
         try {
             return getClaimsFromToken(accessToken);
