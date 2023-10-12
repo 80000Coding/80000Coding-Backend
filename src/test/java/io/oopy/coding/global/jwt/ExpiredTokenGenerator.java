@@ -2,7 +2,7 @@ package io.oopy.coding.global.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.oopy.coding.common.jwt.entity.JwtUserInfo;
+import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;

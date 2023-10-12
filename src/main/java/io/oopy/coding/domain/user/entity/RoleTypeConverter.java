@@ -1,6 +1,6 @@
 package io.oopy.coding.domain.user.entity;
 
-import io.oopy.coding.common.utils.converter.AbstractLegacyEnumAttributeConverter;
+import io.oopy.coding.common.util.converter.AbstractLegacyEnumAttributeConverter;
 import jakarta.persistence.Convert;
 
 @Convert

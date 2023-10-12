@@ -3,7 +3,7 @@ package io.oopy.coding.auth.controller;
 import com.nimbusds.oauth2.sdk.SuccessResponse;
 import io.oopy.coding.auth.service.LoginService;
 import io.oopy.coding.auth.service.SignupService;
-import io.oopy.coding.common.cookie.CookieUtil;
+import io.oopy.coding.common.util.cookie.CookieUtil;
 import io.oopy.coding.common.dto.ResponseDTO;
 import io.oopy.coding.user.service.UserSearchService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,8 +31,8 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.util.Map;
 
-import static io.oopy.coding.common.jwt.AuthConstants.ACCESS_TOKEN;
-import static io.oopy.coding.common.jwt.AuthConstants.REFRESH_TOKEN;
+import static io.oopy.coding.common.util.jwt.AuthConstants.ACCESS_TOKEN;
+import static io.oopy.coding.common.util.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
 @RequestMapping("/api/v1/auth/login")

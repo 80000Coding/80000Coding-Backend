@@ -2,7 +2,7 @@ package io.oopy.coding.auth.controller;
 
 import com.nimbusds.oauth2.sdk.SuccessResponse;
 import io.oopy.coding.auth.service.SignupService;
-import io.oopy.coding.common.cookie.CookieUtil;
+import io.oopy.coding.common.util.cookie.CookieUtil;
 import io.oopy.coding.common.dto.ResponseDTO;
 import io.oopy.coding.domain.user.dto.UserSignupReq;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +17,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import net.jcip.annotations.Immutable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static io.oopy.coding.common.jwt.AuthConstants.REFRESH_TOKEN;
+import static io.oopy.coding.common.util.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
 @RequiredArgsConstructor
