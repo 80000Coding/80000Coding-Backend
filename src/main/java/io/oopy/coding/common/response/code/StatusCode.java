@@ -1,9 +1,8 @@
-package io.oopy.coding.common.util.jwt.exception;
+package io.oopy.coding.common.response.code;
 
 import org.springframework.http.HttpStatus;
 
-public interface ErrorCode {
+public interface StatusCode {
     HttpStatus getHttpStatus();
     String getMessage();
-    String getName();
 }

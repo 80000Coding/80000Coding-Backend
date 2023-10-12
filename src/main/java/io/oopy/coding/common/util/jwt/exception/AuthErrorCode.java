@@ -1,6 +1,6 @@
 package io.oopy.coding.common.util.jwt.exception;
 
-import io.oopy.coding.common.util.jwt.exception.ErrorCode;
+import io.oopy.coding.common.response.code.StatusCode;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import static org.springframework.http.HttpStatus.*;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public enum AuthErrorCode implements ErrorCode {
+public enum AuthErrorCode implements StatusCode {
     // 400 BAD_REQUEST: 클라이언트의 요청이 부적절 할 경우
     INVALID_HEADER(BAD_REQUEST, "유효하지 않은 헤더 포맷입니다"),
     EMPTY_ACCESS_TOKEN(BAD_REQUEST, "토큰이 비어있습니다"),
@@ -37,9 +37,5 @@ public enum AuthErrorCode implements ErrorCode {
 
     @Override public String getMessage() {
         return this.message;
-    }
-
-    @Override public String getName() {
-        return this.name();
     }
 }

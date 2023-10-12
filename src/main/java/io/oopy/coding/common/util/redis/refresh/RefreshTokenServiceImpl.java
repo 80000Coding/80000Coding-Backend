@@ -44,12 +44,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public RefreshToken refresh(String requestRefreshToken) throws AuthErrorException {
-        final Long userId = jwtUtil.getUserIdFromToken(requestRefreshToken);
-        final RefreshToken refreshToken = findOrThrow(userId);
+        final JwtUserInfo user = jwtUtil.getUserInfoFromToken(requestRefreshToken);
+        final RefreshToken refreshToken = findOrThrow(user.id());
 
         validateToken(requestRefreshToken, refreshToken);
 
-        final var user = jwtUtil.getUserInfoFromToken(requestRefreshToken);
         refreshToken.rotation(makeRefreshToken(user));
         refreshTokenRepository.save(refreshToken);
 
