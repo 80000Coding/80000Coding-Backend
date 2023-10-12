@@ -1,9 +1,12 @@
-package io.oopy.coding.auth.controller;
+package io.oopy.coding.api.auth.controller;
 
-import com.nimbusds.oauth2.sdk.SuccessResponse;
-import io.oopy.coding.auth.service.SignupService;
+import io.oopy.coding.api.auth.service.SignupService;
+import io.oopy.coding.common.resolver.access.AccessToken;
+import io.oopy.coding.common.resolver.access.AccessTokenInfo;
+import io.oopy.coding.common.response.ErrorResponse;
+import io.oopy.coding.common.response.FailureResponse;
+import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.util.cookie.CookieUtil;
-import io.oopy.coding.common.dto.ResponseDTO;
 import io.oopy.coding.domain.user.dto.UserSignupReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,8 +16,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -40,28 +41,17 @@ public class SignupController {
     })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = Error.class)))
+            @ApiResponse(responseCode = "400", description = "로그아웃 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/signup")
-    public ResponseEntity<ResponseDTO> signup(@RequestHeader("Authorization") String authorizationHeader,
-                                              @Valid @RequestBody UserSignupReq dto,
-                                              HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> signup(@AccessTokenInfo AccessToken accessToken,
+                                    @RequestBody @Valid UserSignupReq dto) {
+        Map<String, String> tokens = signupService.signup(dto, accessToken);
+        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
 
-        Map<String, String> tokens = signupService.signup(dto, authorizationHeader);
-
-        if (!tokens.isEmpty()) {
-            ResponseDTO responseDto = new ResponseDTO("Signup Successful", null);
-            ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(responseDto);
-        }
-        else {
-            ResponseDTO responseDto = new ResponseDTO("Signup Failed", null);
-
-            return ResponseEntity.badRequest()
-                    .body(responseDto);
-        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(SuccessResponse.noContent());
     }
 }

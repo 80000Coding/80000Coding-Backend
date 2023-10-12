@@ -1,10 +1,10 @@
-package io.oopy.coding.auth.service;
+package io.oopy.coding.api.auth.service;
 
 import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
 import io.oopy.coding.common.util.jwt.JwtUtil;
 import io.oopy.coding.common.util.redis.refresh.RefreshTokenService;
 import io.oopy.coding.domain.user.entity.User;
-import io.oopy.coding.user.service.UserSearchService;
+import io.oopy.coding.api.user.service.UserSearchService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

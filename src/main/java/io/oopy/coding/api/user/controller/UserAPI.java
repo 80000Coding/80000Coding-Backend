@@ -1,12 +1,19 @@
-package io.oopy.coding.user.controller;
+package io.oopy.coding.api.user.controller;
 
+import io.oopy.coding.api.user.service.UserAuthService;
+import io.oopy.coding.common.resolver.access.AccessToken;
+import io.oopy.coding.common.resolver.access.AccessTokenInfo;
+import io.oopy.coding.common.response.SuccessResponse;
+import io.oopy.coding.common.util.jwt.AuthConstants;
+import io.oopy.coding.common.util.jwt.exception.AuthErrorCode;
+import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
 import io.oopy.coding.domain.user.dto.UserAuthReq;
 import io.oopy.coding.common.util.cookie.CookieUtil;
 import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
 import io.oopy.coding.common.security.authentication.CustomUserDetails;
-import io.oopy.coding.user.service.UserAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +21,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -47,13 +55,23 @@ public class UserAPI {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<?> logoutTest(@CookieValue("refreshToken") String refreshToken, HttpServletRequest request, HttpServletResponse response) {
-        String authHeader = request.getHeader(AUTH_HEADER.getValue());
-        userAuthService.logout(authHeader, refreshToken);
-        ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 쿠키입니다."));
+    public ResponseEntity<?> logoutTest(@AccessTokenInfo AccessToken accessToken,
+                                        @CookieValue(value = "refreshToken", required = false) @Valid String refreshToken,
+                                        HttpServletRequest request, HttpServletResponse response) {
+        if (accessToken.isReissued()) {
+            refreshToken = response.getHeader(HttpHeaders.SET_COOKIE).substring(AuthConstants.REFRESH_TOKEN.getValue().length() + 1);
+            log.info("reissued refresh token: {}", refreshToken);
+        }
 
-        return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, cookie.toString()).build();
+        userAuthService.logout(accessToken, refreshToken);
+
+        if (!StringUtils.hasText(refreshToken)) {
+            return ResponseEntity.ok(SuccessResponse.noContent());
+        }
+
+        ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
+                .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "존재하지 않는 쿠키입니다."));
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(SuccessResponse.noContent());
     }
 
     @GetMapping("/refresh")

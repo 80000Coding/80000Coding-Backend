@@ -1,4 +1,4 @@
-package io.oopy.coding.content.service;
+package io.oopy.coding.api.content.service;
 
 import io.oopy.coding.domain.content.repository.ContentRepository;
 import io.oopy.coding.domain.content.dto.ContentDetailDTO;

@@ -1,5 +1,6 @@
-package io.oopy.coding.user.service;
+package io.oopy.coding.api.user.service;
 
+import io.oopy.coding.common.resolver.access.AccessToken;
 import io.oopy.coding.domain.user.dto.UserAuthReq;
 import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
@@ -11,6 +12,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
@@ -29,20 +31,16 @@ public class UserAuthService {
 
     public Map<String, String> login(UserAuthReq dto) {
         User user = userSearchService.findById(dto.getId());
-        JwtUserInfo jwtUserInfo = JwtUserInfo.from(user);
-        String accessToken = jwtUtil.generateAccessToken(jwtUserInfo);
-        String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
-        log.info("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
 
-        return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken);
+        return generateToken(JwtUserInfo.from(user));
     }
 
-    public void logout(String authHeader, String requestRefreshToken) {
-        String accessToken = jwtUtil.resolveToken(authHeader);
-        Integer githubId = jwtUtil.getGithubIdFromToken(accessToken);
+    @Transactional
+    public void logout(AccessToken requestAccessToken, String requestRefreshToken) {
+        forbiddenTokenService.register(requestAccessToken);
 
-        refreshTokenService.logout(requestRefreshToken);
-        forbiddenTokenService.register(accessToken, githubId);
+        if (!StringUtils.hasText(requestRefreshToken))
+            refreshTokenService.logout(requestRefreshToken);
     }
 
     public Map<String, String> refresh(String requestRefreshToken) {
@@ -53,5 +51,13 @@ public class UserAuthService {
         String accessToken = jwtUtil.generateAccessToken(dto);
 
         return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken.getToken());
+    }
+
+    private Map<String, String> generateToken(JwtUserInfo jwtUserInfo) {
+        String accessToken = jwtUtil.generateAccessToken(jwtUserInfo);
+        String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
+        log.debug("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
+
+        return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken);
     }
 }

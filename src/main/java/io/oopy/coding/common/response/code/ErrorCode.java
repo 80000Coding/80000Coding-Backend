@@ -25,8 +25,8 @@ public enum ErrorCode implements StatusCode {
     MISSING_REQUEST_HEADER_ERROR(BAD_REQUEST, "요청 헤더가 전달되지 않았습니다."),
     MISSING_REQUEST_BODY_ERROR(BAD_REQUEST, "요청 바디가 전달되지 않았습니다."),
 
+    ALREADY_REGISTERED_USER(BAD_REQUEST, "이미 등록된 유저입니다."),
     ALREADY_LOGIN_USER(BAD_REQUEST, "이미 로그인한 유저입니다."),
-
 
     EXPIRED_AUTH_CODE(BAD_REQUEST, "인증 시간이 만료되었습니다"),
     INVALID_AUTH_CODE(BAD_REQUEST, "유효하지 않은 인증 코드입니다"),

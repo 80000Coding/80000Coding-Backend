@@ -1,4 +1,4 @@
-package io.oopy.coding.comment.service;
+package io.oopy.coding.api.comment.service;
 
 import io.oopy.coding.domain.comment.repository.CommentRepository;
 import io.oopy.coding.domain.comment.dto.GetCommentDTO;

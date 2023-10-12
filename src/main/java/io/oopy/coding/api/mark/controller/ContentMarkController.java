@@ -1,8 +1,8 @@
-package io.oopy.coding.mark.controller;
+package io.oopy.coding.api.mark.controller;
 
 import io.oopy.coding.domain.mark.dto.CountMarkDTO;
 import io.oopy.coding.domain.mark.dto.IsPressDTO;
-import io.oopy.coding.mark.service.countMarksService;
+import io.oopy.coding.api.mark.service.countMarksService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;

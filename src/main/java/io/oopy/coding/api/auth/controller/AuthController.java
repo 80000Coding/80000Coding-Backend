@@ -1,11 +1,10 @@
-package io.oopy.coding.auth.controller;
+package io.oopy.coding.api.auth.controller;
 
-import com.nimbusds.oauth2.sdk.SuccessResponse;
-import io.oopy.coding.auth.service.LoginService;
-import io.oopy.coding.auth.service.SignupService;
+import io.oopy.coding.api.auth.service.LoginService;
+import io.oopy.coding.api.auth.service.SignupService;
+import io.oopy.coding.api.user.service.UserSearchService;
+import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.util.cookie.CookieUtil;
-import io.oopy.coding.common.dto.ResponseDTO;
-import io.oopy.coding.user.service.UserSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -70,38 +69,29 @@ public class AuthController {
         @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = Error.class)))
     })
     @GetMapping("/github/code")
-    public ResponseEntity<ResponseDTO> oauth2Redirected(@RequestParam("code") String authorizationCode,
+    public ResponseEntity<?> oauth2Redirected(@RequestParam("code") String authorizationCode,
                                                         HttpServletRequest request) throws Exception {
-
         String redirectUri = request.getRequestURL().toString();
         String accessToken = getAccessToken(authorizationCode, redirectUri);
         Integer githubId = getOauthUserId(accessToken);
 
-        Map<String, String> tokens;
-        ResponseCookie cookie;
-        Map<String, String> data;
-
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
         if (userSearchService.isPresentByGithubId(githubId)) {
-            tokens = loginService.login(githubId);
-            cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
-            data = Map.of("action", "login");
+            Map<String, String> tokens = loginService.login(githubId);
+            ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
 
-            ResponseDTO responseDto = new ResponseDTO("success", data);
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            responseBuilder.header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                    .body(responseDto);
+                    .body(SuccessResponse.from(Map.of("action", "login")));
         }
         else {
-            tokens = signupService.generateSignupTokens(githubId);
-            data = Map.of("action", "signup");
-            ResponseDTO responseDto = new ResponseDTO("success", data);
+            Map<String, String> tokens = signupService.generateSignupTokens(githubId);
 
-            return ResponseEntity.ok()
-                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                    .body(responseDto);
+            responseBuilder.header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+                    .body(SuccessResponse.from(Map.of("action", "signup")));
         }
+
+        return responseBuilder.build();
     }
 
     private String getAccessToken(String code, String redirectUri) throws Exception {

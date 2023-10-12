@@ -1,4 +1,4 @@
-package io.oopy.coding.mark.service;
+package io.oopy.coding.api.mark.service;
 
 import io.oopy.coding.domain.mark.dto.IsPressDTO;
 import io.oopy.coding.domain.mark.entity.ContentMark;

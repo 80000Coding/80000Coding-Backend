@@ -1,4 +1,4 @@
-package io.oopy.coding.user.service;
+package io.oopy.coding.api.user.service;
 
 import io.oopy.coding.domain.user.repository.UserRepository;
 import io.oopy.coding.domain.user.entity.User;

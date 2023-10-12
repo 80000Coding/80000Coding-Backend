@@ -1,4 +1,4 @@
-package io.oopy.coding.comment.controller;
+package io.oopy.coding.api.comment.controller;
 
 import io.oopy.coding.domain.comment.dto.GetCommentDTO;
 import io.swagger.v3.oas.annotations.Operation;

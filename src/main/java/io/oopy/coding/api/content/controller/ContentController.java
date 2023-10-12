@@ -1,6 +1,5 @@
-package io.oopy.coding.content.controller;
+package io.oopy.coding.api.content.controller;
 
-import io.oopy.coding.content.service.getContentDetailService;
 import io.oopy.coding.domain.content.dto.ContentDetailDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 @RequestMapping("/content")
 public class ContentController {
-    private final getContentDetailService getContentDetailService;
+    private final io.oopy.coding.api.content.service.getContentDetailService getContentDetailService;
 
     @Operation(summary = "게시판 상세 페이지", description = "게시판 상세 페이지")
     @GetMapping("")
