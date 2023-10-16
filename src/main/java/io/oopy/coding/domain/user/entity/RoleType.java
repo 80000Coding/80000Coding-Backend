@@ -2,7 +2,7 @@ package io.oopy.coding.domain.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.oopy.coding.common.utils.converter.LegacyCommonType;
+import io.oopy.coding.common.util.converter.LegacyCommonType;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
