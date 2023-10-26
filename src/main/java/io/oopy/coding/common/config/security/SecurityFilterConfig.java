@@ -1,5 +1,6 @@
 package io.oopy.coding.common.config.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.oopy.coding.common.security.authentication.UserDetailServiceImpl;
 import io.oopy.coding.common.security.filter.JwtAuthenticationFilter;
 import io.oopy.coding.common.security.filter.JwtExceptionFilter;
@@ -21,10 +22,11 @@ public class SecurityFilterConfig {
 
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
+    private final ObjectMapper objectMapper;
 
     @Bean
     public JwtExceptionFilter jwtExceptionFilter() {
-        return new JwtExceptionFilter();
+        return new JwtExceptionFilter(objectMapper);
     }
 
     @Bean

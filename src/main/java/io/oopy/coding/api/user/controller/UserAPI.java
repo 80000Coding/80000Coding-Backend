@@ -1,6 +1,7 @@
 package io.oopy.coding.api.user.controller;
 
 import io.oopy.coding.api.user.service.UserAuthService;
+import io.oopy.coding.api.user.service.UserProfileService;
 import io.oopy.coding.common.resolver.access.AccessToken;
 import io.oopy.coding.common.resolver.access.AccessTokenInfo;
 import io.oopy.coding.common.response.SuccessResponse;
@@ -11,6 +12,7 @@ import io.oopy.coding.domain.user.dto.UserAuthReq;
 import io.oopy.coding.common.util.cookie.CookieUtil;
 import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
 import io.oopy.coding.common.security.authentication.CustomUserDetails;
+import io.oopy.coding.domain.user.dto.UserNicknameReq;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -35,6 +37,7 @@ import static io.oopy.coding.common.util.jwt.AuthConstants.*;
 public class UserAPI {
     private final UserAuthService userAuthService;
     private final CookieUtil cookieUtil;
+    private final UserProfileService userProfileService;
 
     /**
      * OAuth2.0 인증을 통해 로그인을 진행하는 시나리오 <br/>
@@ -95,5 +98,53 @@ public class UserAPI {
         log.info("user: {}", user);
 
         return ResponseEntity.ok(user);
+    }
+
+    //// 프로필 ////
+
+    // 닉네임 변경
+    @PatchMapping(value = "/nickname")
+    public ResponseEntity<?> changeNickname(@AuthenticationPrincipal CustomUserDetails securityUser,
+                                            @RequestBody UserNicknameReq userNicknameReq) {
+        userProfileService.changeNickname(securityUser.getUserId(), userNicknameReq.getNickname());
+        return ResponseEntity.ok(SuccessResponse.from(null));
+    }
+
+    // 중복 로그인 확인
+    @GetMapping("/duplicate")
+    public ResponseEntity<?> exists(@RequestParam String nickname) {
+        if(userProfileService.isExist(nickname)) {
+            return ResponseEntity.ok(SuccessResponse.from(Map.of("nickname", "EXIST")));
+        } else {
+            return ResponseEntity.ok(SuccessResponse.from(Map.of("nickname", "NOT_EXIST")));
+        }
+    }
+
+    // 컨트리뷰터 랭킹 뱃지 표시 변경
+    @PatchMapping("/contributor-ranking-mark")
+    public ResponseEntity<?> changeContributorRankingMark(@AuthenticationPrincipal CustomUserDetails securityUser) {
+        userProfileService.changeUserContributorRankingMarkAgree(securityUser.getUserId());
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    // 이메일 수신 동의 변경
+    @PatchMapping("/email-agree")
+    public ResponseEntity<?> changeEmailAgree(@AuthenticationPrincipal CustomUserDetails securityUser) {
+        userProfileService.changeUserEmailAgree(securityUser.getUserId());
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    // 푸시 메시지 수신 동의 변경
+    @PatchMapping("/push-agree")
+    public ResponseEntity<?> changeUserPushMessageAgree(@AuthenticationPrincipal CustomUserDetails securityUser) {
+        userProfileService.changeUserPushMessageAgree(securityUser.getUserId());
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    // 탈퇴
+    @DeleteMapping("")
+    public ResponseEntity<?> delete(@AuthenticationPrincipal CustomUserDetails securityUser) {
+        userProfileService.delete(securityUser.getUserId());
+        return ResponseEntity.ok(SuccessResponse.noContent());
     }
 }
