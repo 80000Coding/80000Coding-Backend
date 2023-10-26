@@ -1,8 +1,13 @@
 package io.oopy.coding.domain.user.entity;
 
 import io.oopy.coding.domain.model.Auditable;
+import io.oopy.coding.domain.organization.entity.Organization;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Formula;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @Entity
 @Table(name="USERS")
@@ -34,6 +39,20 @@ public class User extends Auditable {
     @Convert(converter = RoleTypeConverter.class)
     @Column(name = "role", nullable = false)
     private RoleType role;
+
+    @Formula("(SELECT COUNT(*) FROM CONTENT C WHERE C.USER_ID = id AND C.CONTENT_TYPE = 'post' AND C.COMPLETE = 1 AND C.DELETE_DT IS NULL)")
+    private int postCount;
+
+    @Formula("(SELECT COUNT(*) FROM CONTENT C WHERE C.USER_ID = id AND C.CONTENT_TYPE = 'repo' AND C.COMPLETE = 1 AND C.DELETE_DT IS NULL)")
+    private int projectCount;
+
+    @OneToMany
+    @JoinTable(
+            name = "user_organization",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "organization_id")
+    )
+    private final List<Organization> organizations = new LinkedList<>();
 
     private User(Integer githubId, String name) {
         this.githubId = githubId;
