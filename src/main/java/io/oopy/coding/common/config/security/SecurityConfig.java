@@ -1,12 +1,7 @@
 package io.oopy.coding.common.config.security;
 
-import io.oopy.coding.common.util.cookie.CookieUtil;
-import io.oopy.coding.common.util.jwt.JwtUtil;
 import io.oopy.coding.common.security.handler.JwtAccessDeniedHandler;
 import io.oopy.coding.common.security.handler.JwtAuthenticationEntryPoint;
-import io.oopy.coding.common.util.redis.forbidden.ForbiddenTokenService;
-import io.oopy.coding.common.util.redis.refresh.RefreshTokenService;
-import io.oopy.coding.common.security.authentication.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
