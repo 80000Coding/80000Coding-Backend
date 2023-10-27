@@ -20,10 +20,10 @@ public class isPressService {
         List<ContentMark> pressMarks = contentMarkRepository.findContentMarkPressByContentIdAndUserId(contentId, userId);
         for (ContentMark pressMark : pressMarks) {
             if (pressMark.getType() == "like") {
-                like = 1;
+                like += 1;
             }
             else if (pressMark.getType() == "bookmark") {
-                bookmark = 1;
+                bookmark += 1;
             }
         }
 

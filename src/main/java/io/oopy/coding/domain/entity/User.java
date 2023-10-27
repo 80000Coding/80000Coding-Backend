@@ -3,12 +3,13 @@ package io.oopy.coding.domain.entity;
 import io.oopy.coding.domain.content.entity.Content;
 import jakarta.persistence.*;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="USER")
+@Table(name="USERS")
 @Getter
 @Setter
 @Builder

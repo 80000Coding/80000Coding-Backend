@@ -6,7 +6,6 @@ import io.oopy.coding.domain.entity.User;
 import io.oopy.coding.domain.mark.entity.ContentMark;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,13 +16,13 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Content extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -65,5 +64,20 @@ public class Content extends Auditable {
 
     @Column(name = "delete_dt")
     private LocalDateTime deleteAt;
+
+    public void update(String title, String body) {
+        this.title = title;
+        this.body = body;
+    }
+
+    public void softDelete() {
+        this.deleteAt = LocalDateTime.now();
+    }
+
+    public void updateViews(Long views) {
+        this.views = views;
+    }
+
+
 
 }
