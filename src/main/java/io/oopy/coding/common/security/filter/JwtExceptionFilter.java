@@ -18,7 +18,6 @@ import java.io.IOException;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class JwtExceptionFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;

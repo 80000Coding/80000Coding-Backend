@@ -34,19 +34,15 @@ public class JwtUtilImpl implements JwtUtil {
     private final Duration accessTokenExpirationTime;
     private final Duration refreshTokenExpirationTime;
     private final Duration signupAccessTokenExpirationTime;
-    private final Duration signupRefreshTokenExpirationTime;
-
     public JwtUtilImpl(
             @Value("${jwt.secret}") String jwtSecretKey,
             @Value("${jwt.token.access-expiration-time}") Duration accessTokenExpirationTime,
             @Value("${jwt.token.refresh-expiration-time}") Duration refreshTokenExpirationTime,
-            @Value("${jwt.token.signup-access-expiration-time}") Duration signupAccessTokenExpirationTime,
-            @Value("${jwt.token.signup-refresh-expiration-time}") Duration signupRefreshTokenExpireTime) {
+            @Value("${jwt.token.signup-access-expiration-time}") Duration signupAccessTokenExpirationTime) {
         this.jwtSecretKey = jwtSecretKey;
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
         this.signupAccessTokenExpirationTime = signupAccessTokenExpirationTime;
-        this.signupRefreshTokenExpirationTime = signupRefreshTokenExpireTime;
     }
 
     @Override
@@ -91,18 +87,6 @@ public class JwtUtilImpl implements JwtUtil {
                 .setClaims(createClaims(user))
                 .signWith(SignatureAlgorithm.HS256, createSignature())
                 .setExpiration(createExpireDate(now, signupAccessTokenExpirationTime.toMillis()))
-                .compact();
-    }
-
-    @Override
-    public String generateSignupRefreshToken(JwtUserInfo user) {
-        final Date now = new Date();
-
-        return Jwts.builder()
-                .setHeader(createHeader())
-                .setClaims(createClaims(user))
-                .signWith(SignatureAlgorithm.HS256, createSignature())
-                .setExpiration(createExpireDate(now, signupRefreshTokenExpirationTime.toMillis()))
                 .compact();
     }
 

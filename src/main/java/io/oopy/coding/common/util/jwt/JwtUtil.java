@@ -36,13 +36,6 @@ public interface JwtUtil {
     String generateSignupAccessToken(JwtUserInfo user);
 
     /**
-     * github id로 만든 임시 사용자 정보 기반으로 회원가입만을 위한 리프레쉬 토큰을 생성하는 메서드
-     * @param user UserDto : 사용자 정보
-     * @return String : 토큰
-     */
-    String generateSignupRefreshToken(JwtUserInfo user);
-
-    /**
      * token으로 부터 사용자 정보를 추출하는 메서드
      * @param token String : 토큰
      * @return UserAuthenticateReq : 사용자 정보
