@@ -33,8 +33,4 @@ public class ContentSearchService {
 
         return response;
     }
-
-    public void searchContent() {
-
-    }
 }
