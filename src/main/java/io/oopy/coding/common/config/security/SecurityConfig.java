@@ -37,7 +37,7 @@ public class SecurityConfig {
             "/",
             "/favicon.ico",
             "/api-docs/**",
-            "/test/**",
+            "/api/v1/users/test/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
             "/api/v1/users/login", "/api/v1/users/refresh",
             "/api/v1/auth/login/**", "/api/v1/auth/signup"
@@ -57,7 +57,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
                 .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(

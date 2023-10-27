@@ -1,19 +1,17 @@
 package io.oopy.coding.common.util.redis.forbidden;
 
 import io.oopy.coding.common.resolver.access.AccessToken;
-import io.oopy.coding.common.util.jwt.JwtUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-@Component
+@Service
 public class ForbiddenTokenService {
     private final ForbiddenTokenRepository forbiddenTokenRepository;
 

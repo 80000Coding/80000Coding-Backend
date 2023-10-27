@@ -1,17 +1,17 @@
 package io.oopy.coding.common.util.redis.refresh;
 
+import io.oopy.coding.common.util.jwt.JwtUtil;
 import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
 import io.oopy.coding.common.util.jwt.exception.AuthErrorCode;
 import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
-import io.oopy.coding.common.util.jwt.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
 @Slf4j
-@Component
+@Service
 public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;

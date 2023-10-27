@@ -17,6 +17,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
 import java.time.LocalDateTime;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,6 +29,8 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
+        log.info("parameter annotations: {}", parameter.getParameterAnnotation(AccessTokenInfo.class).required());
+
         return parameter.getParameterAnnotation(AccessTokenInfo.class) != null
                 && parameter.getParameterType().equals(AccessToken.class);
     }
@@ -45,14 +49,17 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
         final var httpServletRequest = (HttpServletRequest) webRequest.getNativeRequest();
         final var httpServletResponse = (HttpServletResponse) webRequest.getNativeResponse();
         boolean isReissued = false;
-
         String reissuedAccessToken = httpServletResponse.getHeader(AuthConstants.REISSUED_ACCESS_TOKEN.getValue());
 
         String accessToken;
         if (!StringUtils.hasText(reissuedAccessToken)) {
             accessToken = jwtUtil.resolveToken(httpServletRequest.getHeader(AuthConstants.AUTH_HEADER.getValue()));
 
-            if (!StringUtils.hasText(accessToken)) {
+            boolean isPresent = StringUtils.hasText(accessToken);
+            if (!isPresent && !parameter.getParameterAnnotation(AccessTokenInfo.class).required()) {
+                log.warn("Access Token is empty but required is false");
+                return null;
+            } else if (!isPresent) {
                 log.error("Access Token is empty");
                 throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "access token is empty");
             }
