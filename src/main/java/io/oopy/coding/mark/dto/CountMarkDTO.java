@@ -4,7 +4,7 @@ import lombok.*;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @ToString
 public class CountMarkDTO {

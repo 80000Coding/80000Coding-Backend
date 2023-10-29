@@ -8,6 +8,7 @@ import io.oopy.coding.domain.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
@@ -21,47 +22,14 @@ public class ContentService {
      * 게시글 상세 페이지
      * @param contentId
      */
+    @Transactional
     public GetContentRes getContent(Long contentId) {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new EntityNotFoundException("Content does not exist"));
 
-        content.updateViews(content.getViews() + 1);
+        content.plusViewCount();
 
-        return getResponse(content);
-    }
-
-    private GetContentRes getResponse(Content content) {
-
-        User user = content.getUser();
-//        List<ContentCategory> contentCategory = content.getContentCategories();
-
-        GetContentRes.Content responseContent = GetContentRes.Content.builder()
-                .id(content.getId())
-                .title(content.getTitle())
-                .body(content.getBody())
-                .type(content.getType())
-                .views(content.getViews())
-                .repo_name(content.getRepoName())
-                .repo_owner(content.getRepoOwner())
-                .complete(content.isComplete())
-                .content_image_url(content.getContentImageUrl())
-                .created_at(content.getCreatedAt())
-                .updated_at(content.getUpdatedAt())
-                .deleted_at(content.getDeleteAt())
-                .build();
-
-        GetContentRes.User responseUser = GetContentRes.User.builder()
-                .name(user.getName())
-                .profile_image_url(user.getProfileImageUrl())
-                .build();
-
-        GetContentRes.ContentCategory responseContentCategory = null;
-
-        return GetContentRes.builder()
-                .content(responseContent)
-                .user(responseUser)
-                .contentCategory(responseContentCategory)
-                .build();
+        return GetContentRes.from(content);
     }
 
     /**
@@ -69,17 +37,14 @@ public class ContentService {
      * @param contentId
      * @return contentId, deletedAt
      */
+    @Transactional
     public DeleteContentRes deleteContent(Long contentId) {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new EntityNotFoundException("Content does not exist"));
 
         content.softDelete();
-        contentRepository.save(content);
 
-        return DeleteContentRes.builder()
-                .content_id(contentId)
-                .deleted_at(content.getDeleteAt())
-                .build();
+        return DeleteContentRes.of(content.getId(), content.getDeleteAt());
     }
 
     /**
@@ -88,7 +53,7 @@ public class ContentService {
      * @return contentId
      */
     public CreateContentRes createContent(CreateContentReq req) {
-        User user = userRepository.findById(req.getUser_id())
+        User user = userRepository.findById(req.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User does not exist"));
 
         Content newContent = Content.builder()
@@ -99,8 +64,8 @@ public class ContentService {
                 .type(req.getType())
                 .title("")
                 .body("")
-                .repoOwner(req.getRepo_owner() != null ? req.getRepo_owner() : null)
-                .repoName(req.getRepo_name() != null ? req.getRepo_name() : null)
+                .repoOwner(req.getRepoOwner() != null ? req.getRepoOwner() : null)
+                .repoName(req.getRepoName() != null ? req.getRepoName() : null)
                 .views(0L)
                 .complete(false)
                 .contentImageUrl("")
@@ -109,9 +74,7 @@ public class ContentService {
 
         contentRepository.save(newContent);
 
-        return CreateContentRes.builder()
-                .content_id(newContent.getId())
-                .build();
+        return CreateContentRes.of(newContent.getId());
     }
 
     /**
@@ -120,15 +83,11 @@ public class ContentService {
      * @return contentId, updatedAt
      */
     public UpdateContentRes updateContent(UpdateContentReq req) {
-        Content content = contentRepository.findById(req.getContent_id())
+        Content content = contentRepository.findById(req.getContentId())
                 .orElseThrow(() -> new EntityNotFoundException("Content does not exist"));
 
-        content.update(req.getTitle(), req.getBody());
-        contentRepository.save(content);
+        contentRepository.save(content.update(req.getTitle(), req.getBody()));
 
-        return UpdateContentRes.builder()
-                .content_id(req.getContent_id())
-                .updated_at(content.getUpdatedAt())
-                .build();
+        return UpdateContentRes.of(content.getId(), content.getUpdatedAt());
     }
 }

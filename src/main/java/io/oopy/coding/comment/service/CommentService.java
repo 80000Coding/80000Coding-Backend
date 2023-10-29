@@ -10,6 +10,7 @@ import io.oopy.coding.domain.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ public class CommentService {
      * 댓글 정보
      * @param contentId
      */
+    @Transactional
     public List<CommentDTO> getComments(Long contentId) {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new EntityNotFoundException("Content does not exist"));
@@ -33,7 +35,7 @@ public class CommentService {
         List<CommentDTO> response = new ArrayList<>();
 
         for (Comment comment : comments) {
-            CommentDTO dto = CommentDTO.toDTO(comment);
+            CommentDTO dto = CommentDTO.fromEntity(comment);
             response.add(dto);
         }
 
@@ -44,64 +46,49 @@ public class CommentService {
      * 댓글 생성
      * @param req
      */
-    public CreateCommentDTO createComment(CreateCommentReq req) {
-        User user = userRepository.findById(req.getUser_id())
+    public CreateCommentRes createComment(CreateCommentReq req) {
+        User user = userRepository.findById(req.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User does not exist"));
 
-        Content content = contentRepository.findById(req.getContent_id())
+        Content content = contentRepository.findById(req.getContentId())
                 .orElseThrow(() -> new EntityNotFoundException("Content does not exist"));
 
         Comment newComment = Comment.builder()
                 .content(content)
                 .user(user)
                 .commentBody(req.getContent())
-                .parentId(req.getParent_id())
+                .parentId(req.getParentId())
                 .build();
 
         commentRepository.save(newComment);
 
-        CreateCommentDTO response = CreateCommentDTO.builder()
-                .content_id(req.getContent_id())
-                .comment_id(newComment.getId())
-                .comment_body(req.getContent())
-                .parent_id(req.getParent_id())
-                .created_at(newComment.getCreatedAt())
-                .build();
-
-        return response;
+        return CreateCommentRes.from(req, newComment);
     }
 
     /**
      * 댓글 삭제 (soft delete)
      * @param commentId
      */
-    public DeleteCommentDTO deleteComment(Long commentId) {
+    @Transactional
+    public DeleteCommentRes deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("Comment does not exist"));
 
         comment.deleteComment();
-        commentRepository.save(comment);
 
-        return DeleteCommentDTO.builder()
-                .comment_id(commentId)
-                .deleted_at(comment.getDeleteAt())
-                .build();
+        return DeleteCommentRes.of(commentId, comment.getDeleteAt());
     }
 
     /**
      * 댓글 수정
      * @param req
      */
-    public UpdateCommentDTO updateComment(UpdateCommentReq req) {
-        Comment comment = commentRepository.findById(req.getComment_id())
+    public UpdateCommentRes updateComment(UpdateCommentReq req) {
+        Comment comment = commentRepository.findById(req.getCommentId())
                 .orElseThrow(() -> new EntityNotFoundException("Comment does not exist"));
 
-        comment.updateComment(req.getContent());
-        commentRepository.save(comment);
+        commentRepository.save(comment.updateComment(req.getContent()));
 
-        return UpdateCommentDTO.builder()
-                .comment_id(req.getComment_id())
-                .updated_at(comment.getUpdatedAt())
-                .build();
+        return UpdateCommentRes.of(comment.getId(), comment.getUpdatedAt());
     }
 }

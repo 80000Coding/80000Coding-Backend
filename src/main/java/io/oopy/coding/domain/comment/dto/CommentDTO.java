@@ -9,16 +9,15 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@ToString
 public class CommentDTO {
     private Long id;
     private String commentBody;
     private Long parentId;
     private LocalDateTime deleteAt;
 
-    public static CommentDTO toDTO(Comment comment) {
+    public static CommentDTO fromEntity(Comment comment) {
         return CommentDTO.builder()
                 .id(comment.getId())
                 .commentBody(comment.getCommentBody())

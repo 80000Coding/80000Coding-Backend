@@ -8,9 +8,11 @@ import lombok.ToString;
 
 @Getter
 @AllArgsConstructor
-@ToString
-@Builder
 @Schema(description = "게시글 생성 DTO")
 public class CreateContentRes {
-    private Long content_id;
+    private Long contentId;
+
+    public static CreateContentRes of(Long contentId) {
+        return new CreateContentRes(contentId);
+    }
 }

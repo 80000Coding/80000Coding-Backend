@@ -4,17 +4,14 @@ import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.entity.Auditable;
 import io.oopy.coding.domain.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name="CONTENT_MARK")
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ContentMark extends Auditable {
 
     @Id

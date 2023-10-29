@@ -6,6 +6,7 @@ import io.oopy.coding.domain.entity.User;
 import io.oopy.coding.domain.mark.entity.ContentMark;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class Content extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -65,19 +66,19 @@ public class Content extends Auditable {
     @Column(name = "delete_dt")
     private LocalDateTime deleteAt;
 
-    public void update(String title, String body) {
+    public Content update(String title, String body) {
         this.title = title;
         this.body = body;
+
+        return this;
     }
 
     public void softDelete() {
         this.deleteAt = LocalDateTime.now();
     }
 
-    public void updateViews(Long views) {
-        this.views = views;
+    public void plusViewCount() {
+        this.views += 1;
     }
-
-
 
 }

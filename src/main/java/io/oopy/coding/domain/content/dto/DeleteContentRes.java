@@ -9,9 +9,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-@ToString
-@Builder
 public class DeleteContentRes {
-    private Long content_id;
-    private LocalDateTime deleted_at;
+    private Long contentId;
+    private LocalDateTime deletedAt;
+
+    public static DeleteContentRes of(Long contentId, LocalDateTime deletedAt) {
+        return new DeleteContentRes(contentId, deletedAt);
+    }
 }

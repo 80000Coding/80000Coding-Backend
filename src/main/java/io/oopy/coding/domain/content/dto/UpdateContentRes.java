@@ -9,9 +9,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-@ToString
-@Builder
 public class UpdateContentRes {
-    private Long content_id;
-    private LocalDateTime updated_at;
+    private Long contentId;
+    private LocalDateTime updatedAt;
+
+    public static UpdateContentRes of(Long contentId, LocalDateTime updatedAt) {
+        return new UpdateContentRes(contentId, updatedAt);
+    }
 }

@@ -20,10 +20,10 @@ public class SecurityConfig {
             "/api-docs/**",
             "/test/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
-            "/content",
-            "/content/**",
-            "/comment",
-            "/comment/**"
+            "/api/v1/contents",
+            "/api/v1/contents/**",
+            "/api/v1/comments",
+            "/api/v1/comments/**"
     };
 
     @Bean

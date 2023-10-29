@@ -20,11 +20,11 @@ public class Comment extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "content_id")
     private Content content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -37,8 +37,10 @@ public class Comment extends Auditable {
     @Column(name = "delete_dt")
     private LocalDateTime deleteAt;
 
-    public void updateComment(String commentBody) {
+    public Comment updateComment(String commentBody) {
         this.commentBody = commentBody;
+
+        return this;
     }
 
     public void deleteComment() {
