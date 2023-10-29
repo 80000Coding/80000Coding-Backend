@@ -4,13 +4,13 @@ import io.oopy.coding.api.user.service.UserAuthService;
 import io.oopy.coding.common.resolver.access.AccessToken;
 import io.oopy.coding.common.resolver.access.AccessTokenInfo;
 import io.oopy.coding.common.response.SuccessResponse;
+import io.oopy.coding.common.security.authentication.CustomUserDetails;
+import io.oopy.coding.common.util.cookie.CookieUtil;
 import io.oopy.coding.common.util.jwt.AuthConstants;
+import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
 import io.oopy.coding.common.util.jwt.exception.AuthErrorCode;
 import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
 import io.oopy.coding.domain.user.dto.UserAuthReq;
-import io.oopy.coding.common.util.cookie.CookieUtil;
-import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
-import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -26,7 +26,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static io.oopy.coding.common.util.jwt.AuthConstants.*;
+import static io.oopy.coding.common.util.jwt.AuthConstants.ACCESS_TOKEN;
+import static io.oopy.coding.common.util.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -96,4 +97,6 @@ public class UserAPI {
 
         return ResponseEntity.ok(user);
     }
+
+
 }
