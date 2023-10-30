@@ -24,8 +24,6 @@ public class SecurityFilterConfig {
     private final CookieUtil cookieUtil;
     private final ObjectMapper objectMapper;
 
-    private final ObjectMapper objectMapper;
-
     @Bean
     public JwtExceptionFilter jwtExceptionFilter() {
         return new JwtExceptionFilter(objectMapper);
