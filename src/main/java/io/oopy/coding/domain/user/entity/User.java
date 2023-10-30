@@ -35,6 +35,17 @@ public class User extends Auditable {
     @Column(name = "role", nullable = false)
     private RoleType role;
 
+    @Column(name = "deleted")
+    private Boolean deleted;
+
+    public void changeNickname(String nickname) {
+        this.name = nickname;
+    }
+
+    public void setDeleted() {
+        this.deleted = Boolean.TRUE;
+    }
+
     private User(Integer githubId, String name) {
         this.githubId = githubId;
         this.name = name;

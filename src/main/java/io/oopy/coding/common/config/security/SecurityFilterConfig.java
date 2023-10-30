@@ -22,6 +22,7 @@ public class SecurityFilterConfig {
 
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
+    private final ObjectMapper objectMapper;
 
     private final ObjectMapper objectMapper;
 
