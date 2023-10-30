@@ -18,15 +18,14 @@ public class CommentController {
         return ResponseEntity.ok().body(commentService.getComments(contentId));
     }
 
-    @Valid
     @PostMapping("")
-    public ResponseEntity<?> createComment(@RequestBody CreateCommentReq request) {
+    public ResponseEntity<?> createComment(@Valid @RequestBody CreateCommentReq request) {
         return ResponseEntity.ok().body(commentService.createComment(request));
     }
 
     @Valid
     @PatchMapping("")
-    public ResponseEntity<?> updateComment(@RequestBody UpdateCommentReq request) {
+    public ResponseEntity<?> updateComment(@Valid @RequestBody UpdateCommentReq request) {
         return ResponseEntity.ok().body(commentService.updateComment(request));
     }
 

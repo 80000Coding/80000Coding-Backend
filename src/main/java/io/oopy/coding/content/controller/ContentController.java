@@ -26,15 +26,14 @@ public class ContentController {
         return ResponseEntity.ok().body(response);
     }
 
-    @Valid
     @PostMapping("")
-    public ResponseEntity<?> createContent(@RequestBody CreateContentReq request) {
+    public ResponseEntity<?> createContent(@Valid @RequestBody CreateContentReq request) {
         return ResponseEntity.ok().body(contentService.createContent(request));
     }
 
     @Valid
     @PatchMapping("")
-    public ResponseEntity<?> updateContent(@RequestBody UpdateContentReq request) {
+    public ResponseEntity<?> updateContent(@Valid @RequestBody UpdateContentReq request) {
         return ResponseEntity.ok().body(contentService.updateContent(request));
     }
 
