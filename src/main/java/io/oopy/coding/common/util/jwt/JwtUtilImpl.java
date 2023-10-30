@@ -1,6 +1,7 @@
 package io.oopy.coding.common.util.jwt;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import io.oopy.coding.common.util.DateUtil;
 import io.oopy.coding.common.util.jwt.exception.AuthErrorCode;
 import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
@@ -30,7 +31,9 @@ public class JwtUtilImpl implements JwtUtil {
     private static final String ROLE = "role";
     private static final String GITHUB_ID = "githubId";
 
-    private final String jwtSecretKey;
+    private final Key signatureKey;
+    private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+
     private final Duration accessTokenExpirationTime;
     private final Duration refreshTokenExpirationTime;
     private final Duration signupAccessTokenExpirationTime;
@@ -41,8 +44,11 @@ public class JwtUtilImpl implements JwtUtil {
             @Value("${jwt.token.access-expiration-time}") Duration accessTokenExpirationTime,
             @Value("${jwt.token.refresh-expiration-time}") Duration refreshTokenExpirationTime,
             @Value("${jwt.token.signup-access-expiration-time}") Duration signupAccessTokenExpirationTime,
-            @Value("${jwt.token.signup-refresh-expiration-time}") Duration signupRefreshTokenExpireTime) {
-        this.jwtSecretKey = jwtSecretKey;
+            @Value("${jwt.token.signup-refresh-expiration-time}") Duration signupRefreshTokenExpireTime)
+    {
+        final byte[] secretKeyBytes = Base64.getDecoder().decode(jwtSecretKey);
+        this.signatureKey = Keys.hmacShaKeyFor(secretKeyBytes);
+
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
         this.signupAccessTokenExpirationTime = signupAccessTokenExpirationTime;
@@ -57,7 +63,6 @@ public class JwtUtilImpl implements JwtUtil {
         return "";
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public String generateAccessToken(JwtUserInfo user) {
         final Date now = new Date();
@@ -65,7 +70,7 @@ public class JwtUtilImpl implements JwtUtil {
         return Jwts.builder()
                 .setHeader(createHeader())
                 .setClaims(createClaims(user))
-                .signWith(SignatureAlgorithm.HS256, createSignature())
+                .signWith(signatureKey, signatureAlgorithm)
                 .setExpiration(createExpireDate(now, accessTokenExpirationTime.toMillis()))
                 .compact();
     }
@@ -77,7 +82,7 @@ public class JwtUtilImpl implements JwtUtil {
         return Jwts.builder()
                 .setHeader(createHeader())
                 .setClaims(createClaims(user))
-                .signWith(SignatureAlgorithm.HS256, createSignature())
+                .signWith(signatureKey, signatureAlgorithm)
                 .setExpiration(createExpireDate(now, refreshTokenExpirationTime.toMillis()))
                 .compact();
     }
@@ -89,7 +94,7 @@ public class JwtUtilImpl implements JwtUtil {
         return Jwts.builder()
                 .setHeader(createHeader())
                 .setClaims(createClaims(user))
-                .signWith(SignatureAlgorithm.HS256, createSignature())
+                .signWith(signatureKey, signatureAlgorithm)
                 .setExpiration(createExpireDate(now, signupAccessTokenExpirationTime.toMillis()))
                 .compact();
     }
@@ -101,7 +106,7 @@ public class JwtUtilImpl implements JwtUtil {
         return Jwts.builder()
                 .setHeader(createHeader())
                 .setClaims(createClaims(user))
-                .signWith(SignatureAlgorithm.HS256, createSignature())
+                .signWith(signatureKey, signatureAlgorithm)
                 .setExpiration(createExpireDate(now, signupRefreshTokenExpirationTime.toMillis()))
                 .compact();
     }
@@ -167,19 +172,13 @@ public class JwtUtilImpl implements JwtUtil {
                 GITHUB_ID, dto.githubId());
     }
 
-    private Key createSignature() {
-        byte[] secretKeyBytes = Base64.getDecoder().decode(jwtSecretKey);
-        return new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS256.getJcaName());
-    }
-
     private Date createExpireDate(final Date now, long expirationTime) {
         return new Date(now.getTime() + expirationTime);
     }
 
-    @SuppressWarnings("deprecation")
     private Claims getClaimsFromToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(Base64.getDecoder().decode(jwtSecretKey))
+        return Jwts.parserBuilder()
+                .setSigningKey(signatureKey).build()
                 .parseClaimsJws(token)
                 .getBody();
     }

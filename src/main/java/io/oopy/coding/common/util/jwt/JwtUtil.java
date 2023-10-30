@@ -1,10 +1,9 @@
 package io.oopy.coding.common.util.jwt;
 
-import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
 import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
+import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public interface JwtUtil {
     /**
