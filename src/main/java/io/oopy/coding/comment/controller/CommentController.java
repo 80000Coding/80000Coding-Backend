@@ -23,7 +23,6 @@ public class CommentController {
         return ResponseEntity.ok().body(commentService.createComment(request));
     }
 
-    @Valid
     @PatchMapping("")
     public ResponseEntity<?> updateComment(@Valid @RequestBody UpdateCommentReq request) {
         return ResponseEntity.ok().body(commentService.updateComment(request));
