@@ -2,7 +2,7 @@ package io.oopy.coding.domain.comment.dto;
 
 import io.oopy.coding.domain.comment.entity.Comment;
 import io.oopy.coding.domain.content.entity.Content;
-import io.oopy.coding.domain.entity.User;
+import io.oopy.coding.domain.user.entity.User;
 import lombok.*;
 
 import java.time.LocalDateTime;

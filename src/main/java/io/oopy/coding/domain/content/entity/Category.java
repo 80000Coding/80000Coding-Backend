@@ -1,6 +1,6 @@
 package io.oopy.coding.domain.content.entity;
 
-import io.oopy.coding.domain.entity.Auditable;
+import io.oopy.coding.domain.model.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 
