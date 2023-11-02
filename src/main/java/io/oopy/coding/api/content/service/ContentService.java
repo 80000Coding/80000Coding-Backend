@@ -1,5 +1,8 @@
 package io.oopy.coding.api.content.service;
 
+import io.oopy.coding.api.content.exception.ContentErrorCode;
+import io.oopy.coding.api.content.exception.ContentErrorException;
+import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.domain.content.dto.*;
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.content.repository.ContentRepository;
@@ -23,13 +26,18 @@ public class ContentService {
      * @param contentId
      */
     @Transactional
-    public GetContentRes getContent(Long contentId) {
+    public SuccessResponse getContent(Long contentId) {
+
         Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new EntityNotFoundException("Content does not exist"));
+                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+
+        // soft Delete 된 게시글 일 경우
+        if (content.getDeleteAt() != null)
+            throw new ContentErrorException(ContentErrorCode.DELETED_CONTENT);
 
         content.plusViewCount();
 
-        return GetContentRes.from(content);
+        return SuccessResponse.from(GetContentRes.from(content));
     }
 
     /**
@@ -38,13 +46,18 @@ public class ContentService {
      * @return contentId, deletedAt
      */
     @Transactional
-    public DeleteContentRes deleteContent(Long contentId) {
+    public SuccessResponse deleteContent(Long contentId, Long userId) {
         Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new EntityNotFoundException("Content does not exist"));
+                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+
+        if (!content.getUser().getId().equals(userId))
+            throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
+        else if(content.getDeleteAt() != null)
+            throw new ContentErrorException(ContentErrorCode.DELETED_CONTENT);
 
         content.softDelete();
 
-        return DeleteContentRes.of(content.getId(), content.getDeleteAt());
+        return SuccessResponse.from(DeleteContentRes.of(content.getId(), content.getDeleteAt()));
     }
 
     /**
@@ -52,8 +65,10 @@ public class ContentService {
      * @param req
      * @return contentId
      */
-    public CreateContentRes createContent(CreateContentReq req) {
-        User user = userRepository.findById(req.getUserId())
+    public SuccessResponse createContent(CreateContentReq req, Long userId) {
+
+        // TODO orELseThrow 부분 제거(유저 측에서 이미 검증해서 넘어올 것이기 때문)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User does not exist"));
 
         Content newContent = Content.builder()
@@ -74,7 +89,7 @@ public class ContentService {
 
         contentRepository.save(newContent);
 
-        return CreateContentRes.of(newContent.getId());
+        return SuccessResponse.from(CreateContentRes.of(newContent.getId()));
     }
 
     /**
@@ -82,12 +97,18 @@ public class ContentService {
      * @param req
      * @return contentId, updatedAt
      */
-    public UpdateContentRes updateContent(UpdateContentReq req) {
+    public SuccessResponse updateContent(UpdateContentReq req, Long userId) {
+
         Content content = contentRepository.findById(req.getContentId())
-                .orElseThrow(() -> new EntityNotFoundException("Content does not exist"));
+                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+
+        if (!content.getUser().getId().equals(userId))
+            throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
+        else if(content.getDeleteAt() != null)
+            throw new ContentErrorException(ContentErrorCode.DELETED_CONTENT);
 
         contentRepository.save(content.update(req.getTitle(), req.getBody()));
 
-        return UpdateContentRes.of(content.getId(), content.getUpdatedAt());
+        return SuccessResponse.from(UpdateContentRes.of(content.getId(), content.getUpdatedAt()));
     }
 }

@@ -1,11 +1,13 @@
 package io.oopy.coding.api.content.controller;
 
 import io.oopy.coding.api.content.service.*;
+import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.content.dto.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -20,25 +22,23 @@ public class ContentController {
 
     @GetMapping("")
     public ResponseEntity<?> GetContent(@RequestParam Long contentId) {
-        GetContentRes response = contentService.getContent(contentId);
-
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(contentService.getContent(contentId));
     }
 
     @PostMapping("")
-    public ResponseEntity<?> createContent(@Valid @RequestBody CreateContentReq request) {
-        return ResponseEntity.ok().body(contentService.createContent(request));
+    public ResponseEntity<?> createContent(@Valid @RequestBody CreateContentReq req, @AuthenticationPrincipal CustomUserDetails securityUser) {
+        return ResponseEntity.ok().body(contentService.createContent(req, securityUser.getUserId()));
     }
 
     @Valid
     @PatchMapping("")
-    public ResponseEntity<?> updateContent(@Valid @RequestBody UpdateContentReq request) {
-        return ResponseEntity.ok().body(contentService.updateContent(request));
+    public ResponseEntity<?> updateContent(@Valid @RequestBody UpdateContentReq req, @AuthenticationPrincipal CustomUserDetails securityUser) {
+        return ResponseEntity.ok().body(contentService.updateContent(req, securityUser.getUserId()));
     }
 
     @DeleteMapping("")
-    public ResponseEntity<?> deleteContent(@RequestParam Long contentId) {
-        return ResponseEntity.ok().body(contentService.deleteContent(contentId));
+    public ResponseEntity<?> deleteContent(@RequestParam Long contentId, @AuthenticationPrincipal CustomUserDetails securityUser) {
+        return ResponseEntity.ok().body(contentService.deleteContent(contentId, securityUser.getUserId()));
     }
 
     // 아직 이야기 된 부분은 없이 혼자 필요하지 않을까 해서 만들어 놓은 기능
