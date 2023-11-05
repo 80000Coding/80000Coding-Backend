@@ -1,8 +1,8 @@
 package io.oopy.coding.api.mark.controller;
 
-import io.oopy.coding.domain.mark.dto.CountMarkDTO;
-import io.oopy.coding.domain.mark.dto.IsPressDTO;
-import io.oopy.coding.api.mark.service.countMarksService;
+import io.oopy.coding.api.mark.service.CountMarksService;
+import io.oopy.coding.mark.dto.CountMarkDTO;
+import io.oopy.coding.mark.dto.IsPressDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 @RequestMapping("/mark")
 public class ContentMarkController {
-    private final countMarksService countMarksService;
+
+    private final CountMarksService countMarksService;
 
     @Operation(summary = "좋아요, 북마크 개수", description = "좋아요와 북마크 개수를 한번에 return")
     @GetMapping("")

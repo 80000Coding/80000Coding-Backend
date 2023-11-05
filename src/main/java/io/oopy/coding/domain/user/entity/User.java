@@ -49,6 +49,17 @@ public class User extends Auditable {
     @OneToMany(mappedBy = "user")
     private final List<UserOrganization> userOrganizations = new ArrayList<>();
 
+    @Column(name = "deleted")
+    private Boolean deleted;
+
+    public void changeNickname(String nickname) {
+        this.name = nickname;
+    }
+
+    public void setDeleted() {
+        this.deleted = Boolean.TRUE;
+    }
+
     private User(Integer githubId, String name) {
         this.githubId = githubId;
         this.name = name;

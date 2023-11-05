@@ -1,44 +1,36 @@
 package io.oopy.coding.api.comment.controller;
 
-import io.oopy.coding.domain.comment.dto.GetCommentDTO;
-import io.swagger.v3.oas.annotations.Operation;
+import io.oopy.coding.api.comment.service.CommentService;
+import io.oopy.coding.domain.comment.dto.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-
-@Controller
+@RestController
 @RequiredArgsConstructor
-@RequestMapping("/comment")
+@RequestMapping("/api/v1/comments")
 public class CommentController {
+    private final CommentService commentService;
 
-    @Operation(summary = "댓글 정보", description = "댓글 정보")
     @GetMapping("")
-    public GetCommentDTO getComment() {
-        return GetCommentDTO.builder()
-                .commentBody("test comment")
-                .commentCreatedAt(LocalDateTime.now())
-                .userName("test user")
-                .userProfileImageUrl("test url")
-                .build();
+    public ResponseEntity<?> getComment(@RequestParam Long contentId) {
+        return ResponseEntity.ok().body(commentService.getComments(contentId));
     }
 
-    @Operation(summary = "댓글 생성", description = "Request로 content_id, content, parent_id")
     @PostMapping("")
-    public boolean createComment() {
-        return true;
+    public ResponseEntity<?> createComment(@Valid @RequestBody CreateCommentReq request) {
+        return ResponseEntity.ok().body(commentService.createComment(request));
     }
 
-    @Operation(summary = "댓글 수정", description = "Request로 content_id, content")
     @PatchMapping("")
-    public boolean updateComment() {
-        return true;
+    public ResponseEntity<?> updateComment(@Valid @RequestBody UpdateCommentReq request) {
+        return ResponseEntity.ok().body(commentService.updateComment(request));
     }
 
-    @Operation(summary = "댓글 삭제", description = "Request로 content_id")
     @DeleteMapping("")
-    public boolean deleteComment() {
-        return true;
+    public ResponseEntity<?> deleteComment(@RequestParam Long commentId) {
+        return ResponseEntity.ok().body(commentService.deleteComment(commentId));
     }
+
 }

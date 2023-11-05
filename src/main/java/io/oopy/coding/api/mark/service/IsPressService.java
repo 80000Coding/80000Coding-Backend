@@ -1,6 +1,6 @@
 package io.oopy.coding.api.mark.service;
 
-import io.oopy.coding.domain.mark.dto.IsPressDTO;
+import io.oopy.coding.mark.dto.IsPressDTO;
 import io.oopy.coding.domain.mark.entity.ContentMark;
 import io.oopy.coding.domain.mark.repository.ContentMarkRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class isPressService {
+public class IsPressService {
     private final ContentMarkRepository contentMarkRepository;
 
     public IsPressDTO isPress(Long contentId, Long userId) {
@@ -20,10 +20,10 @@ public class isPressService {
         List<ContentMark> pressMarks = contentMarkRepository.findContentMarkPressByContentIdAndUserId(contentId, userId);
         for (ContentMark pressMark : pressMarks) {
             if (pressMark.getType() == "like") {
-                like = 1;
+                like += 1;
             }
             else if (pressMark.getType() == "bookmark") {
-                bookmark = 1;
+                bookmark += 1;
             }
         }
 

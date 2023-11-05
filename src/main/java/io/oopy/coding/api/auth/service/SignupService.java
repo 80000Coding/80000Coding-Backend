@@ -1,5 +1,6 @@
 package io.oopy.coding.api.auth.service;
 
+import io.oopy.coding.api.user.service.UserSettingService;
 import io.oopy.coding.common.resolver.access.AccessToken;
 import io.oopy.coding.common.response.code.ErrorCode;
 import io.oopy.coding.common.response.exception.GlobalErrorException;
@@ -10,6 +11,7 @@ import io.oopy.coding.domain.user.dto.UserSignupReq;
 import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.api.user.service.UserSaveService;
 import io.oopy.coding.api.user.service.UserSearchService;
+import io.oopy.coding.domain.user.entity.UserSetting;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,7 @@ public class SignupService {
     private final UserSaveService userSaveService;
     private final JwtUtil jwtUtil;
     private final ForbiddenTokenService forbiddenTokenService;
+    private final UserSettingService userSettingService;
 
     public Map<String, String> generateSignupTokens(Integer githubId) {
         JwtUserInfo jwtUserInfo = JwtUserInfo.createByGithubId(githubId);
@@ -48,8 +51,10 @@ public class SignupService {
 
         User user = User.of(githubId, dto.getName());
         userSaveService.save(user);
-        forbiddenTokenService.register(accessToken);
+        UserSetting userSetting = UserSetting.from(user);
+        userSettingService.save(userSetting);
 
+        forbiddenTokenService.register(accessToken);
         return loginService.login(user.getGithubId());
     }
 }
