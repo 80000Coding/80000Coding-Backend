@@ -93,6 +93,7 @@ public class AuthController {
                     .body(SuccessResponse.from(Map.of("action", "signup")));
         }
 
+        ResponseEntity<?> responseEntity = responseBuilder.build();
         return responseBuilder.build();
     }
 

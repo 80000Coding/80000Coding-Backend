@@ -20,17 +20,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static io.oopy.coding.common.util.jwt.AuthConstants.ACCESS_TOKEN;
 
 @RestController
 @RequiredArgsConstructor
+@Transactional
 @RequestMapping("/api/v1/profile")
 public class ProfileController {
     private final ProfileService profileService;
@@ -46,23 +46,35 @@ public class ProfileController {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{id}")
-    // TODO : service 에서 처리 @Transactional(readOnly = true)
-    public ResponseEntity<?> profileInfo(@RequestParam(required = true) @AccessTokenInfo AccessToken accessToken, @AuthenticationPrincipal CustomUserDetails customUserDetails, long id) {
+    public ResponseEntity<?> profileInfo(
+//                                        @RequestParam(required = true) @AccessTokenInfo AccessToken accessToken,
+//                                         @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                         @PathVariable("id") long id) {
         User user = profileService.findById(id);
-        //List<Organization> organizationList = profileService.findOrgain
-        boolean settingFlag = (user.getGithubId() == accessToken.githubId());
+        boolean settingFlag = true;
+        //(user.getGithubId() == accessToken.githubId());
 
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
 
+        System.out.println(settingFlag);
+        System.out.println(user.getProfileImageUrl());
+        System.out.println(user.getName());
+        System.out.println(user.getPostCount());
+        System.out.println(user.getProjectCount());
+        System.out.println(user.getOrganizationCodes());
+        // TODO : map을 service에서 return response, service에서 분기처리
+        // dev -> pull, feat -> git merge
         responseBuilder.body(SuccessResponse.from(Map.of(
                 "setting_flag", settingFlag,
-                "profile_image_url", user.getProfileImageUrl(),
+                "profile_image_url", "none",
                 "name", user.getName(),
                 "post_count", user.getPostCount(),
                 "project_count", user.getProjectCount(),
-                "organizations", user.getOrganizations()
+                "organization_codes", user.getOrganizationCodes()
                 )
         ));
+
+        ResponseEntity<?> responseEntity = responseBuilder.build();
 
         return responseBuilder.build();
     }

@@ -1,12 +1,12 @@
 package io.oopy.coding.domain.user.entity;
 
 import io.oopy.coding.domain.model.Auditable;
-import io.oopy.coding.domain.organization.entity.Organization;
+import io.oopy.coding.domain.organization.entity.UserOrganization;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Formula;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -46,21 +46,37 @@ public class User extends Auditable {
     @Formula("(SELECT COUNT(*) FROM CONTENT C WHERE C.USER_ID = id AND C.CONTENT_TYPE = 'repo' AND C.COMPLETE = 1 AND C.DELETE_DT IS NULL)")
     private int projectCount;
 
-    @OneToMany
-    @JoinTable(
-            name = "user_organization",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "organization_id")
-    )
-    private final List<Organization> organizations = new LinkedList<>();
+    @OneToMany(mappedBy = "user")
+    private final List<UserOrganization> userOrganizations = new ArrayList<>();
 
     private User(Integer githubId, String name) {
         this.githubId = githubId;
         this.name = name;
         this.role = RoleType.USER;
     }
-
     public static User of(Integer githubId, String name) {
         return new User(githubId, name);
+    }
+
+    // TODO : front랑 어떻게 값을 바꿀지
+    public List<String> getOrganizationCodes() {
+        if (this.userOrganizations == null) {
+            return new ArrayList<>();
+        }
+
+//        List<String> organizationCodes = new ArrayList<>();
+//
+//        this.userOrganizations.forEach(
+//                e -> organizationCodes.add(e.getOrganization().getCode())
+//        );
+
+        // TODO : query 횟수 확인 N + 1, lamda method 참조
+        return this.userOrganizations
+                .stream()
+                .map(v-> {
+                    return v.getOrganization().getCode();
+                }).toList();
+
+        //return organizationCodes;
     }
 }
