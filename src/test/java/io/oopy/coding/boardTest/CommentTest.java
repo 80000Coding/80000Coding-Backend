@@ -3,7 +3,6 @@ package io.oopy.coding.boardTest;
 import io.oopy.coding.domain.comment.repository.CommentRepository;
 import io.oopy.coding.domain.comment.dto.GetCommentDTO;
 import io.oopy.coding.domain.comment.entity.Comment;
-import io.oopy.coding.comment.service.getCommentService;
 import io.oopy.coding.domain.content.repository.ContentRepository;
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.entity.User;

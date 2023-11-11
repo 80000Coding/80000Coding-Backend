@@ -1,10 +1,8 @@
 package io.oopy.coding.boardTest;
 
-import io.oopy.coding.content.service.getContentDetailService;
 import io.oopy.coding.domain.content.repository.CategoryRepository;
 import io.oopy.coding.domain.content.repository.ContentCategoryRepository;
 import io.oopy.coding.domain.content.repository.ContentRepository;
-import io.oopy.coding.domain.content.dto.ContentDetailDTO;
 import io.oopy.coding.domain.content.entity.Category;
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.content.entity.ContentCategory;

@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Content extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +38,7 @@ public class Content extends Auditable {
     @OneToMany(mappedBy = "content")
     private List<Comment> comments = new ArrayList<>();
 
-    @Column(name = "type", nullable = false)
+    @Column(name = "content_type", nullable = false)
     private String type;
 
     @Column(name = "title", nullable = false)
@@ -56,6 +56,28 @@ public class Content extends Auditable {
     @Column(name = "views", nullable = false)
     private Long views;
 
-    @Column(name = "delete_dt", nullable = false)
+    @Column(name = "complete", nullable = false)
+    private boolean complete;
+
+    @Column(name = "content_image_url")
+    private String contentImageUrl;
+
+    @Column(name = "delete_dt")
     private LocalDateTime deleteAt;
+
+    public Content update(String title, String body) {
+        this.title = title;
+        this.body = body;
+
+        return this;
+    }
+
+    public void softDelete() {
+        this.deleteAt = LocalDateTime.now();
+    }
+
+    public void plusViewCount() {
+        this.views += 1;
+    }
+
 }
