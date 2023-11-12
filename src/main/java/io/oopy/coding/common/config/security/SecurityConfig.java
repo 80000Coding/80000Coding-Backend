@@ -1,6 +1,7 @@
 package io.oopy.coding.common.config.security;
 
 import io.oopy.coding.common.util.cookie.CookieUtil;
+import io.oopy.coding.common.util.jwt.AuthConstants;
 import io.oopy.coding.common.util.jwt.JwtUtil;
 import io.oopy.coding.common.security.handler.JwtAccessDeniedHandler;
 import io.oopy.coding.common.security.handler.JwtAuthenticationEntryPoint;
@@ -25,6 +26,10 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 @Configuration
 @EnableWebSecurity
@@ -32,6 +37,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtSecurityConfig jwtSecurityConfig;
+    private List<String> corsOrigins = List.of("http://localhost:3000");
 
     private final String[] webSecurityIgnoring = {
             "/",
@@ -87,8 +93,11 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() { // Localhost 환경 cors
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000");
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"));
+        configuration.setAllowedOrigins(corsOrigins);
+        configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setMaxAge(3600L);
+        configuration.setExposedHeaders(List.of(SET_COOKIE, AUTHORIZATION, AuthConstants.REFRESH_TOKEN.getValue()));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
