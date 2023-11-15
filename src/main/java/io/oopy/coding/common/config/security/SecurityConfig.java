@@ -64,7 +64,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
+                .cors(httpSecurityCorsConfigurer -> corsConfigurationSource())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -97,7 +97,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setMaxAge(3600L);
-        configuration.setExposedHeaders(List.of(SET_COOKIE, AUTHORIZATION, AuthConstants.REFRESH_TOKEN.getValue()));
+        configuration.setExposedHeaders(List.of(SET_COOKIE, "accessToken", AuthConstants.REFRESH_TOKEN.getValue()));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
