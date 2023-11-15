@@ -8,6 +8,7 @@ import io.oopy.coding.common.response.FailureResponse;
 import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.organization.entity.Organization;
+import io.oopy.coding.domain.user.dto.UserNicknameReq;
 import io.oopy.coding.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,26 +20,20 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
-import static io.oopy.coding.common.util.jwt.AuthConstants.ACCESS_TOKEN;
 
 @RestController
 @RequiredArgsConstructor
-@Transactional
 @RequestMapping("/api/v1/profile")
 public class ProfileController {
     private final ProfileService profileService;
 
     @Operation(summary = "유저 프로필 정보 조회", description = "해당 유저와 관련된 정보를 불러온다.")
     @Parameters({
-            @Parameter(name = "id", description = "유저의 id"),
-            @Parameter(name = "accessToken", description = "유저의 access token")
+            @Parameter(name = "accessToken", description = "유저의 access token"),
+            @Parameter(name = "id", description = "유저의 id")
     })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -47,35 +42,58 @@ public class ProfileController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<?> profileInfo(
-//                                        @RequestParam(required = true) @AccessTokenInfo AccessToken accessToken,
-//                                         @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                         @AccessTokenInfo(required = false) AccessToken accessToken,
                                          @PathVariable("id") long id) {
-        User user = profileService.findById(id);
-        boolean settingFlag = true;
-        //(user.getGithubId() == accessToken.githubId());
+        Map<String, ?> profileInfo = profileService.findByAccessTokenAndId(accessToken, id);
+        ResponseEntity<?> responseEntity = ResponseEntity.ok().body(SuccessResponse.from(profileInfo));
 
-        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
+        return responseEntity;
+    }
 
-        System.out.println(settingFlag);
-        System.out.println(user.getProfileImageUrl());
-        System.out.println(user.getName());
-        System.out.println(user.getPostCount());
-        System.out.println(user.getProjectCount());
-        System.out.println(user.getOrganizationCodes());
-        // TODO : map을 service에서 return response, service에서 분기처리
-        // dev -> pull, feat -> git merge
-        responseBuilder.body(SuccessResponse.from(Map.of(
-                "setting_flag", settingFlag,
-                "profile_image_url", "none",
-                "name", user.getName(),
-                "post_count", user.getPostCount(),
-                "project_count", user.getProjectCount(),
-                "organization_codes", user.getOrganizationCodes()
-                )
-        ));
+    // 닉네임 변경
+    @PatchMapping(value = "/nickname")
+    public ResponseEntity<?> changeNickname(@AuthenticationPrincipal CustomUserDetails securityUser,
+                                            @AccessTokenInfo(required = false) AccessToken accessToken,
+                                            @RequestBody UserNicknameReq userNicknameReq) {
+        profileService.changeNickname(securityUser.getUserId(), userNicknameReq.getNickname());
+        return ResponseEntity.ok(SuccessResponse.from(null));
+    }
 
-        ResponseEntity<?> responseEntity = responseBuilder.build();
+    // 중복 로그인 확인
+    @GetMapping("/duplicate")
+    public ResponseEntity<?> exists(@RequestParam String nickname) {
+        if(profileService.isExist(nickname)) {
+            return ResponseEntity.ok(SuccessResponse.from(Map.of("nickname", "EXIST")));
+        } else {
+            return ResponseEntity.ok(SuccessResponse.from(Map.of("nickname", "NOT_EXIST")));
+        }
+    }
 
-        return responseBuilder.build();
+    // 컨트리뷰터 랭킹 뱃지 표시 변경
+    @PatchMapping("/contributor-ranking-mark")
+    public ResponseEntity<?> changeContributorRankingMark(@AuthenticationPrincipal CustomUserDetails securityUser) {
+        profileService.changeUserContributorRankingMarkAgree(securityUser.getUserId());
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    // 이메일 수신 동의 변경
+    @PatchMapping("/email-agree")
+    public ResponseEntity<?> changeEmailAgree(@AuthenticationPrincipal CustomUserDetails securityUser) {
+        profileService.changeUserEmailAgree(securityUser.getUserId());
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    // 푸시 메시지 수신 동의 변경
+    @PatchMapping("/push-agree")
+    public ResponseEntity<?> changeUserPushMessageAgree(@AuthenticationPrincipal CustomUserDetails securityUser) {
+        profileService.changeUserPushMessageAgree(securityUser.getUserId());
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    // 탈퇴
+    @DeleteMapping("")
+    public ResponseEntity<?> delete(@AuthenticationPrincipal CustomUserDetails securityUser) {
+        profileService.delete(securityUser.getUserId());
+        return ResponseEntity.ok(SuccessResponse.noContent());
     }
 }

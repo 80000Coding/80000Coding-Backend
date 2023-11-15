@@ -1,29 +1,103 @@
 package io.oopy.coding.api.profile.service;
 
+import io.oopy.coding.api.user.service.UserSaveService;
 import io.oopy.coding.api.user.service.UserSearchService;
+import io.oopy.coding.api.user.service.UserSettingService;
 import io.oopy.coding.common.resolver.access.AccessToken;
-import io.oopy.coding.common.util.jwt.JwtUtil;
-import io.oopy.coding.domain.organization.entity.Organization;
 import io.oopy.coding.domain.user.entity.User;
+import io.oopy.coding.domain.user.entity.UserSetting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
     private final UserSearchService userSearchService;
-    private final JwtUtil jwtUtil;
+    private final UserSaveService userSaveService;
+    private final UserSettingService userSettingService;
 
     @Transactional(readOnly = true)
-    public User findById(long id) {
-        // TODO : user가 없어서 error 가 throw 될 시 어떻게 처리할지
-        return userSearchService.findById(id);
+    public Map<String, ?> findByAccessTokenAndId(AccessToken accessToken, long id) {
+        User user = userSearchService.findById(id);
+        Boolean settingFlag;
+
+        //github id 일치 시 설정 버튼 가능
+        if (accessToken != null && accessToken.githubId().equals(user.getGithubId()))
+            settingFlag = true;
+        else
+            settingFlag = false;
+
+        return Map.of(
+                "setting_flag", settingFlag,
+                "profile_image_url", Optional.ofNullable(user.getProfileImageUrl()).orElse("none"),
+                "name", user.getName(),
+                "post_count", user.getPostCount(),
+                "project_count", user.getProjectCount(),
+                "organization_codes", user.getOrganizationCodes()
+        );
+    }
+
+    /**
+     * 닉네임 변경
+     * @param userId
+     * @param nickname
+     */
+    public void changeNickname(Long userId, String nickname) {
+        User user = userSearchService.findById(userId);
+        user.changeNickname(nickname);
+        if (isExist(nickname))
+            throw new IllegalArgumentException("이미 존재하는 닉네임 입니다."); // fixme exception
+        userSaveService.save(user);
+    }
+
+    @Transactional
+    public void changeUserContributorRankingMarkAgree(Long userId) {
+        UserSetting userSetting = getByUserId(userId);
+        userSetting.changeContributorRankingMarkAgree();
+    }
+
+    @Transactional
+    public void changeUserEmailAgree(Long userId) {
+        UserSetting userSetting = getByUserId(userId);
+        userSetting.changeEmailAgree();
+    }
+
+    @Transactional
+    public void changeUserPushMessageAgree(Long userId) {
+        UserSetting userSetting = getByUserId(userId);
+        userSetting.changePushAgree();
+    }
+
+    @Transactional
+    public void delete(Long userId) {
+        User user = userSearchService.findById(userId);
+        user.setDeleted();
+    }
+
+    /**
+     * 닉네임 중복 확인
+     * @param nickname
+     * @return
+     */
+    public boolean isExist(String nickname) {
+        try {
+            userSearchService.findByNickname(nickname);
+            return true;
+        } catch (Exception e) {
+            // 존재하지 않는 유저
+            // exception으로 판단하는게 옳은진 모르겠음
+            return false;
+        }
+    }
+
+    private UserSetting getByUserId(Long userId) {
+        User user = userSearchService.findById(userId);
+        return userSettingService.search(user);
     }
 }
