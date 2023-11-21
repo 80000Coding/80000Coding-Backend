@@ -34,12 +34,12 @@ public class ProfileService {
             settingFlag = false;
 
         return Map.of(
-                "setting_flag", settingFlag,
-                "profile_image_url", Optional.ofNullable(user.getProfileImageUrl()).orElse("none"),
+                "settingFlag", settingFlag,
+                "profileImageUrl", Optional.ofNullable(user.getProfileImageUrl()).orElse("none"),
                 "name", user.getName(),
-                "post_count", user.getPostCount(),
-                "project_count", user.getProjectCount(),
-                "organization_codes", user.getOrganizationCodes()
+                "postCount", user.getPostCount(),
+                "projectCount", user.getProjectCount(),
+                "organizationCodes", user.getOrganizationCodes()
         );
     }
 
