@@ -24,4 +24,7 @@ public class Organization {
     @Column
     private String description;
 
+    public String getCode() {
+        return this.code;
+    }
 }

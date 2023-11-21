@@ -1,6 +1,7 @@
 package io.oopy.coding.domain.user.entity;
 
 import io.oopy.coding.domain.model.Auditable;
+import io.oopy.coding.domain.organization.entity.Organization;
 import io.oopy.coding.domain.organization.entity.UserOrganization;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.Formula;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name="USERS")
@@ -39,12 +41,6 @@ public class User extends Auditable {
     @Convert(converter = RoleTypeConverter.class)
     @Column(name = "role", nullable = false)
     private RoleType role;
-
-    @Formula("(SELECT COUNT(*) FROM CONTENT C WHERE C.USER_ID = id AND C.CONTENT_TYPE = 'post' AND C.COMPLETE = 1 AND C.DELETE_DT IS NULL)")
-    private int postCount;
-
-    @Formula("(SELECT COUNT(*) FROM CONTENT C WHERE C.USER_ID = id AND C.CONTENT_TYPE = 'repo' AND C.COMPLETE = 1 AND C.DELETE_DT IS NULL)")
-    private int projectCount;
 
     @OneToMany(mappedBy = "user")
     private final List<UserOrganization> userOrganizations = new ArrayList<>();
@@ -82,11 +78,10 @@ public class User extends Auditable {
 //        );
 
         // TODO : query 횟수 확인 N + 1, lamda method 참조
-        return this.userOrganizations
-                .stream()
-                .map(v-> {
-                    return v.getOrganization().getCode();
-                }).toList();
+        return this.userOrganizations.stream()
+                .map(UserOrganization::getOrganization)
+                .map(Organization::getCode)
+                .collect(Collectors.toList());
 
         //return organizationCodes;
     }

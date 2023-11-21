@@ -3,6 +3,7 @@ package io.oopy.coding.api.profile.service;
 import io.oopy.coding.api.user.service.UserSaveService;
 import io.oopy.coding.api.user.service.UserSearchService;
 import io.oopy.coding.api.user.service.UserSettingService;
+import io.oopy.coding.api.user.service.UserStatisticService;
 import io.oopy.coding.common.resolver.access.AccessToken;
 import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.domain.user.entity.UserSetting;
@@ -19,6 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProfileService {
     private final UserSearchService userSearchService;
+    private final UserStatisticService userStatisticService;
     private final UserSaveService userSaveService;
     private final UserSettingService userSettingService;
 
@@ -37,8 +39,8 @@ public class ProfileService {
                 "settingFlag", settingFlag,
                 "profileImageUrl", Optional.ofNullable(user.getProfileImageUrl()).orElse("none"),
                 "name", user.getName(),
-                "postCount", user.getPostCount(),
-                "projectCount", user.getProjectCount(),
+                "postCount", userStatisticService.countPostByUserId(id),
+                "projectCount", userStatisticService.countProjectByUserId(id),
                 "organizationCodes", user.getOrganizationCodes()
         );
     }
