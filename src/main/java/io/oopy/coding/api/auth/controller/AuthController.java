@@ -81,14 +81,16 @@ public class AuthController {
             Map<String, String> tokens = loginService.login(githubId);
             ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
 
-            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
                     .body(SuccessResponse.from(Map.of("action", "login")));
         }
         else {
             Map<String, String> tokens = signupService.generateSignupTokens(githubId);
 
-            return ResponseEntity.ok().header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+            return ResponseEntity.ok()
+                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
                     .body(SuccessResponse.from(Map.of("action", "signup")));
         }
     }
