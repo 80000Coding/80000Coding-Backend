@@ -72,7 +72,7 @@ public class AuthController {
     })
     @GetMapping("/github/code")
     public ResponseEntity<?> oauth2Redirected(@RequestParam("code") String authorizationCode,
-                                                        HttpServletRequest request) throws Exception {
+                                              HttpServletRequest request) throws Exception {
         String redirectUri = request.getRequestURL().toString();
         String accessToken = getAccessToken(authorizationCode, redirectUri);
         Integer githubId = getOauthUserId(accessToken);

@@ -69,6 +69,12 @@ public class UserProfileService {
         }
     }
 
+    @Transactional
+    public void saveProfileImage(Long userId, String imageUrl) {
+        User user = userSearchService.findById(userId);
+        user.changeProfileImageUrl(imageUrl);
+    }
+
     private UserSetting getByUserId(Long userId) {
         User user = userSearchService.findById(userId);
         return userSettingService.search(user);
