@@ -29,7 +29,9 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        log.info("parameter annotations: {}", parameter.getParameterAnnotation(AccessTokenInfo.class).required());
+        AccessTokenInfo parameterAnnotation = parameter.getParameterAnnotation(AccessTokenInfo.class);
+        //TODO : 닉네임 변경 시 아래 정보가 없어서 NPE 문제가 발생함
+        //log.info("parameter annotations: {}", parameter.getParameterAnnotation(AccessTokenInfo.class).required());
 
         return parameter.getParameterAnnotation(AccessTokenInfo.class) != null
                 && parameter.getParameterType().equals(AccessToken.class);

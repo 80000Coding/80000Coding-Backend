@@ -77,23 +77,22 @@ public class AuthController {
         String accessToken = getAccessToken(authorizationCode, redirectUri);
         Integer githubId = getOauthUserId(accessToken);
 
-        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
         if (userSearchService.isPresentByGithubId(githubId)) {
             Map<String, String> tokens = loginService.login(githubId);
             ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
 
-            responseBuilder.header(HttpHeaders.SET_COOKIE, cookie.toString())
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
                     .body(SuccessResponse.from(Map.of("action", "login")));
         }
         else {
             Map<String, String> tokens = signupService.generateSignupTokens(githubId);
 
-            responseBuilder.header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+            return ResponseEntity.ok()
+                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
                     .body(SuccessResponse.from(Map.of("action", "signup")));
         }
-
-        return responseBuilder.build();
     }
 
     private String getAccessToken(String code, String redirectUri) throws Exception {
