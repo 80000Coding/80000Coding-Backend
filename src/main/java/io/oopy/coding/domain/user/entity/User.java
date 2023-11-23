@@ -55,4 +55,8 @@ public class User extends Auditable {
     public static User of(Integer githubId, String name) {
         return new User(githubId, name);
     }
+
+    public void changeProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
 }
