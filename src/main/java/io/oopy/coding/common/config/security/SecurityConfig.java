@@ -2,6 +2,7 @@ package io.oopy.coding.common.config.security;
 
 import io.oopy.coding.common.security.handler.JwtAccessDeniedHandler;
 import io.oopy.coding.common.security.handler.JwtAuthenticationEntryPoint;
+import io.oopy.coding.common.util.jwt.AuthConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -19,10 +20,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 @Configuration
@@ -31,7 +30,7 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtSecurityConfig jwtSecurityConfig;
-    private List<String> corsOrigins = List.of("http://localhost:3000");
+    private List<String> corsOrigins = List.of("http://127.0.0.1:3000");
 
     private final String[] webSecurityIgnoring = {
             "/",
@@ -41,7 +40,8 @@ public class SecurityConfig {
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
             "/api/v1/users/login", "/api/v1/users/refresh",
             "/api/v1/auth/login/**", "/api/v1/auth/signup",
-            "/api/v1/profile/**"
+            "/api/v1/profile/**",
+            "/login/oauth2/**", "/api/v1/feed/title", "/api/v1/feed/body"
     };
 
     @Bean

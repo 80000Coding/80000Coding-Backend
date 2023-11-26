@@ -67,6 +67,7 @@ public class User extends Auditable {
 
     public void changeProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
 
     // TODO : front랑 어떻게 값을 바꿀지
     public List<String> getOrganizationCodes() {
