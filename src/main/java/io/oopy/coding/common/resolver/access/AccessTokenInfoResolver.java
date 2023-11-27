@@ -29,7 +29,7 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        log.info("parameter annotations: {}", parameter.getParameterAnnotation(AccessTokenInfo.class).required());
+//        log.info("parameter annotations: {}", parameter.getParameterAnnotation(AccessTokenInfo.class).required());
 
         return parameter.getParameterAnnotation(AccessTokenInfo.class) != null
                 && parameter.getParameterType().equals(AccessToken.class);

@@ -3,6 +3,7 @@ package io.oopy.coding.api.content.service;
 import io.oopy.coding.api.content.exception.ContentErrorCode;
 import io.oopy.coding.api.content.exception.ContentErrorException;
 import io.oopy.coding.common.response.SuccessResponse;
+import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.content.dto.*;
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.content.repository.ContentRepository;
@@ -10,6 +11,7 @@ import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ContentService {
     private final ContentRepository contentRepository;
     private final UserRepository userRepository;
@@ -41,35 +44,13 @@ public class ContentService {
     }
 
     /**
-     * 게시글 삭제 (soft delete)
-     * @param contentId
-     * @return contentId, deletedAt
-     */
-    @Transactional
-    public SuccessResponse deleteContent(Long contentId, Long userId) {
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
-
-        if (!content.getUser().getId().equals(userId))
-            throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
-        else if(content.getDeleteAt() != null)
-            throw new ContentErrorException(ContentErrorCode.DELETED_CONTENT);
-
-        content.softDelete();
-
-        return SuccessResponse.from(DeleteContentRes.of(content.getId(), content.getDeleteAt()));
-    }
-
-    /**
      * 게시글 생성
      * @param req
      * @return contentId
      */
-    public SuccessResponse createContent(CreateContentReq req, Long userId) {
+    public SuccessResponse createContent(CreateContentReq req, CustomUserDetails securityUser) {
 
-        // TODO orELseThrow 부분 제거(유저 측에서 이미 검증해서 넘어올 것이기 때문)
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User does not exist"));
+        User user = userRepository.findById(securityUser.getUserId()).orElse(null);
 
         Content newContent = Content.builder()
                 .user(user)
@@ -97,18 +78,38 @@ public class ContentService {
      * @param req
      * @return contentId, updatedAt
      */
-    public SuccessResponse updateContent(UpdateContentReq req, Long userId) {
+    public SuccessResponse updateContent(UpdateContentReq req, CustomUserDetails securityUser) {
 
         Content content = contentRepository.findById(req.getContentId())
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
 
-        if (!content.getUser().getId().equals(userId))
+        if (!securityUser.getRole().equals("ROLE_ADMIN") && !content.getUser().getId().equals(securityUser.getUserId()))
             throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
-        else if(content.getDeleteAt() != null)
+        if(content.getDeleteAt() != null)
             throw new ContentErrorException(ContentErrorCode.DELETED_CONTENT);
 
         contentRepository.save(content.update(req.getTitle(), req.getBody()));
 
         return SuccessResponse.from(UpdateContentRes.of(content.getId(), content.getUpdatedAt()));
+    }
+
+    /**
+     * 게시글 삭제 (soft delete)
+     * @param contentId
+     * @return contentId, deletedAt
+     */
+    @Transactional
+    public SuccessResponse deleteContent(Long contentId, CustomUserDetails securityUser) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+
+        if (!securityUser.getRole().equals("ROLE_ADMIN") && !content.getUser().getId().equals(securityUser.getUserId()))
+            throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
+        if(content.getDeleteAt() != null)
+            throw new ContentErrorException(ContentErrorCode.DELETED_CONTENT);
+
+        content.softDelete();
+
+        return SuccessResponse.from(DeleteContentRes.of(content.getId(), content.getDeleteAt()));
     }
 }

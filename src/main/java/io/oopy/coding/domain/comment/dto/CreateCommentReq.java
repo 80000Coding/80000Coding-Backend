@@ -14,10 +14,6 @@ import lombok.Getter;
 public class CreateCommentReq {
 
     @NotNull
-    @Schema(description = "댓글 작성자 ID")
-    private Long userId;
-
-    @NotBlank
     @Schema(description = "게시글 ID")
     private Long contentId;
 

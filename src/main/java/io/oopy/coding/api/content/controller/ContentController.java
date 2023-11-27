@@ -1,6 +1,8 @@
 package io.oopy.coding.api.content.controller;
 
 import io.oopy.coding.api.content.service.*;
+import io.oopy.coding.common.resolver.access.AccessToken;
+import io.oopy.coding.common.resolver.access.AccessTokenInfo;
 import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.content.dto.*;
 import jakarta.validation.Valid;
@@ -14,36 +16,30 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/contents")
-// TODO 유저관련 검증부분 추가(Token, sofDelete 된 유저 등..)
 public class ContentController {
 
     private final ContentService contentService;
-    private final ContentSearchService contentSearchService;
 
-    @GetMapping("")
+
+    // TODO 비회원/회원 이용은 Get만 진행, 뒤쪽 url을 구분해서 ignoring에 작성해야할 것 같음(url 이름 논의)
+    @GetMapping("/get")
     public ResponseEntity<?> GetContent(@RequestParam Long contentId) {
         return ResponseEntity.ok().body(contentService.getContent(contentId));
     }
 
-    @PostMapping("")
+    @PostMapping("/post")
     public ResponseEntity<?> createContent(@Valid @RequestBody CreateContentReq req, @AuthenticationPrincipal CustomUserDetails securityUser) {
-        return ResponseEntity.ok().body(contentService.createContent(req, securityUser.getUserId()));
+        return ResponseEntity.ok().body(contentService.createContent(req, securityUser));
     }
 
     @Valid
-    @PatchMapping("")
+    @PatchMapping("/update")
     public ResponseEntity<?> updateContent(@Valid @RequestBody UpdateContentReq req, @AuthenticationPrincipal CustomUserDetails securityUser) {
-        return ResponseEntity.ok().body(contentService.updateContent(req, securityUser.getUserId()));
+        return ResponseEntity.ok().body(contentService.updateContent(req, securityUser));
     }
 
-    @DeleteMapping("")
+    @DeleteMapping("/delete")
     public ResponseEntity<?> deleteContent(@RequestParam Long contentId, @AuthenticationPrincipal CustomUserDetails securityUser) {
-        return ResponseEntity.ok().body(contentService.deleteContent(contentId, securityUser.getUserId()));
-    }
-
-    // 아직 이야기 된 부분은 없이 혼자 필요하지 않을까 해서 만들어 놓은 기능
-    @GetMapping("/user")
-    public ResponseEntity<?> getUserContents(@RequestParam Long userId) {
-        return ResponseEntity.ok().body(contentSearchService.getUserContents(userId));
+        return ResponseEntity.ok().body(contentService.deleteContent(contentId, securityUser));
     }
 }

@@ -52,6 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/v1/users/refresh",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
             "/login/oauth2/**",
+            "/api/v1/contents/get", "/api/v1/comments/get",
             "/favicon.ico"
     );
 
