@@ -33,7 +33,7 @@ public class CommentService {
      * @param contentId
      */
     @Transactional
-    public SuccessResponse getComments(Long contentId) {
+    public List<CommentDTO> getComments(Long contentId) {
         contentRepository.findById(contentId)
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
 
@@ -46,14 +46,14 @@ public class CommentService {
             response.add(dto);
         }
 
-        return SuccessResponse.from(response);
+        return response;
     }
 
     /**
      * 댓글 생성
      * @param req
      */
-    public SuccessResponse createComment(CreateCommentReq req, CustomUserDetails securityUser) {
+    public CreateCommentRes createComment(CreateCommentReq req, CustomUserDetails securityUser) {
         User user = userRepository.findById(securityUser.getUserId()).orElse(null);
 
         Content content = contentRepository.findById(req.getContentId())
@@ -76,7 +76,7 @@ public class CommentService {
 
         commentRepository.save(newComment);
 
-        return SuccessResponse.from(CreateCommentRes.from(req, newComment));
+        return CreateCommentRes.from(req, newComment);
     }
 
     /**
@@ -84,7 +84,7 @@ public class CommentService {
      * @param commentId
      */
     @Transactional
-    public SuccessResponse deleteComment(Long commentId, CustomUserDetails securityUser) {
+    public DeleteCommentRes deleteComment(Long commentId, CustomUserDetails securityUser) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentErrorException(CommentErrorCode.INVALID_COMMENT_ID));
 
@@ -96,14 +96,14 @@ public class CommentService {
         else
             throw new CommentErrorException(CommentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
 
-        return SuccessResponse.from(DeleteCommentRes.of(commentId, comment.getDeleteAt()));
+        return DeleteCommentRes.of(commentId, comment.getDeleteAt());
     }
 
     /**
      * 댓글 수정
      * @param req
      */
-    public SuccessResponse updateComment(UpdateCommentReq req, CustomUserDetails securityUser) {
+    public UpdateCommentRes updateComment(UpdateCommentReq req, CustomUserDetails securityUser) {
         Comment comment = commentRepository.findById(req.getCommentId())
                 .orElseThrow(() -> new CommentErrorException(CommentErrorCode.INVALID_COMMENT_ID));
 
@@ -115,6 +115,6 @@ public class CommentService {
         else
             throw new CommentErrorException(CommentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
 
-        return SuccessResponse.from(UpdateCommentRes.of(comment.getId(), comment.getUpdatedAt()));
+        return UpdateCommentRes.of(comment.getId(), comment.getUpdatedAt());
     }
 }

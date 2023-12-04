@@ -25,7 +25,6 @@ public class SuccessResponse<T> {
     private SuccessResponse(T data) {
         this.data = data;
     }
-
     /**
      * 전송할 Application Level Data를 설정한다.
      * @param data : 전송할 데이터

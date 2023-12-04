@@ -29,7 +29,7 @@ public class ContentService {
      * @param contentId
      */
     @Transactional
-    public SuccessResponse getContent(Long contentId) {
+    public GetContentRes getContent(Long contentId) {
 
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
@@ -40,7 +40,7 @@ public class ContentService {
 
         content.plusViewCount();
 
-        return SuccessResponse.from(GetContentRes.from(content));
+        return GetContentRes.from(content);
     }
 
     /**
@@ -48,7 +48,7 @@ public class ContentService {
      * @param req
      * @return contentId
      */
-    public SuccessResponse createContent(CreateContentReq req, CustomUserDetails securityUser) {
+    public CreateContentRes createContent(CreateContentReq req, CustomUserDetails securityUser) {
 
         User user = userRepository.findById(securityUser.getUserId()).orElse(null);
 
@@ -70,7 +70,7 @@ public class ContentService {
 
         contentRepository.save(newContent);
 
-        return SuccessResponse.from(CreateContentRes.of(newContent.getId()));
+        return CreateContentRes.of(newContent.getId());
     }
 
     /**
@@ -78,7 +78,7 @@ public class ContentService {
      * @param req
      * @return contentId, updatedAt
      */
-    public SuccessResponse updateContent(UpdateContentReq req, CustomUserDetails securityUser) {
+    public UpdateContentRes updateContent(UpdateContentReq req, CustomUserDetails securityUser) {
 
         Content content = contentRepository.findById(req.getContentId())
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
@@ -90,7 +90,7 @@ public class ContentService {
 
         contentRepository.save(content.update(req.getTitle(), req.getBody()));
 
-        return SuccessResponse.from(UpdateContentRes.of(content.getId(), content.getUpdatedAt()));
+        return UpdateContentRes.of(content.getId(), content.getUpdatedAt());
     }
 
     /**
@@ -99,7 +99,7 @@ public class ContentService {
      * @return contentId, deletedAt
      */
     @Transactional
-    public SuccessResponse deleteContent(Long contentId, CustomUserDetails securityUser) {
+    public DeleteContentRes deleteContent(Long contentId, CustomUserDetails securityUser) {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
 
@@ -110,6 +110,6 @@ public class ContentService {
 
         content.softDelete();
 
-        return SuccessResponse.from(DeleteContentRes.of(content.getId(), content.getDeleteAt()));
+        return DeleteContentRes.of(content.getId(), content.getDeleteAt());
     }
 }
