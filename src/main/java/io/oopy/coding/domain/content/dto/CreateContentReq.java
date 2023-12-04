@@ -13,10 +13,6 @@ import lombok.Getter;
 public class CreateContentReq {
 
     @NotBlank
-    @Schema(description = "유저 id(임시)", example = "1")
-    private Long userId;
-
-    @NotBlank
     @Schema(description = "게시글 타입", example = "post")
     private String type;
 

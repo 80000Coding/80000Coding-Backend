@@ -1,5 +1,11 @@
 package io.oopy.coding.api.comment.service;
 
+import io.oopy.coding.api.comment.exception.CommentErrorCode;
+import io.oopy.coding.api.comment.exception.CommentErrorException;
+import io.oopy.coding.api.content.exception.ContentErrorCode;
+import io.oopy.coding.api.content.exception.ContentErrorException;
+import io.oopy.coding.common.response.SuccessResponse;
+import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.comment.dto.*;
 import io.oopy.coding.domain.comment.entity.Comment;
 import io.oopy.coding.domain.comment.repository.CommentRepository;
@@ -28,10 +34,11 @@ public class CommentService {
      */
     @Transactional
     public List<CommentDTO> getComments(Long contentId) {
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new EntityNotFoundException("Content does not exist"));
+        contentRepository.findById(contentId)
+                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
 
         List<Comment> comments = commentRepository.findCommentsByContentId(contentId);
+
         List<CommentDTO> response = new ArrayList<>();
 
         for (Comment comment : comments) {
@@ -46,12 +53,19 @@ public class CommentService {
      * 댓글 생성
      * @param req
      */
-    public CreateCommentRes createComment(CreateCommentReq req) {
-        User user = userRepository.findById(req.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("User does not exist"));
+    public CreateCommentRes createComment(CreateCommentReq req, CustomUserDetails securityUser) {
+        User user = userRepository.findById(securityUser.getUserId()).orElse(null);
 
         Content content = contentRepository.findById(req.getContentId())
-                .orElseThrow(() -> new EntityNotFoundException("Content does not exist"));
+                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+
+        if (req.getParentId() != null) {
+            Comment parentComment = commentRepository.findById(req.getParentId())
+                    .orElseThrow(() -> new CommentErrorException(CommentErrorCode.INVALID_PARENT_COMMENT));
+            if (parentComment.getDeleteAt() != null) {
+                throw new CommentErrorException(CommentErrorCode.INVALID_PARENT_COMMENT);
+            }
+        }
 
         Comment newComment = Comment.builder()
                 .content(content)
@@ -70,11 +84,17 @@ public class CommentService {
      * @param commentId
      */
     @Transactional
-    public DeleteCommentRes deleteComment(Long commentId) {
+    public DeleteCommentRes deleteComment(Long commentId, CustomUserDetails securityUser) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("Comment does not exist"));
+                .orElseThrow(() -> new CommentErrorException(CommentErrorCode.INVALID_COMMENT_ID));
 
-        comment.deleteComment();
+        if (comment.getDeleteAt() != null)
+            throw new CommentErrorException(CommentErrorCode.DELETED_COMMENT);
+
+        if (securityUser.getRole().equals("ROLE_ADMIN") || comment.getUser().getId().equals(securityUser.getUserId()))
+            comment.deleteComment();
+        else
+            throw new CommentErrorException(CommentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
 
         return DeleteCommentRes.of(commentId, comment.getDeleteAt());
     }
@@ -83,11 +103,17 @@ public class CommentService {
      * 댓글 수정
      * @param req
      */
-    public UpdateCommentRes updateComment(UpdateCommentReq req) {
+    public UpdateCommentRes updateComment(UpdateCommentReq req, CustomUserDetails securityUser) {
         Comment comment = commentRepository.findById(req.getCommentId())
-                .orElseThrow(() -> new EntityNotFoundException("Comment does not exist"));
+                .orElseThrow(() -> new CommentErrorException(CommentErrorCode.INVALID_COMMENT_ID));
 
-        commentRepository.save(comment.updateComment(req.getContent()));
+        if (comment.getDeleteAt() != null)
+            throw new CommentErrorException(CommentErrorCode.DELETED_COMMENT);
+
+        if (securityUser.getRole().equals("ROLE_ADMIN") || comment.getUser().getId().equals(securityUser.getUserId()))
+            commentRepository.save(comment.updateComment(req.getContent()));
+        else
+            throw new CommentErrorException(CommentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
 
         return UpdateCommentRes.of(comment.getId(), comment.getUpdatedAt());
     }
