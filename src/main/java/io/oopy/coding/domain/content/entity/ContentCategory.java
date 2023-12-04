@@ -10,7 +10,7 @@ import lombok.*;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ContentCategory extends Auditable {
 
     @Id
@@ -25,6 +25,6 @@ public class ContentCategory extends Auditable {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @Column(name = "type", nullable = false)
+    @Column(name = "category_type", nullable = false)
     private String type;
 }

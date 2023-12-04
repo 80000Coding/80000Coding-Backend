@@ -68,13 +68,12 @@ springdoc:
       enabled: true
 
 jwt:
-  secret: ${JWT_SECRET} # TODO 운영 환경에서 수정
+  secret: exampleSecretKeyForSpringBootProjectAtSubRepository
   token:
     # milliseconds 단위
     access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
     refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)
     signup-access-expiration-time: 600000 # 10m (10 * 60 * 1000)
-    signup-refresh-expiration-time: 600000 # 10m (10 * 60 * 1000)
 
 ssh:
   host: ${SSH_HOST}
@@ -155,13 +154,12 @@ springdoc:
       enabled: true
 
 jwt:
-  secret: ${JWT_SECRET} # TODO 운영 환경에서 수정
+  secret: ${JWT_SECRET}
   token:
     # milliseconds 단위
     access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
     refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)
     signup-access-expiration-time: 600000 # 10m (10 * 60 * 1000)
-    signup-refresh-expiration-time: 600000 # 10m (10 * 60 * 1000)
 
 mail:
   cert:

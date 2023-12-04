@@ -1,13 +1,11 @@
 package io.oopy.coding.domain.comment.entity;
 
 import io.oopy.coding.domain.content.entity.Content;
+import io.oopy.coding.domain.model.Auditable;
 import io.oopy.coding.domain.user.entity.User;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -16,8 +14,8 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class Comment {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Comment extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +35,16 @@ public class Comment {
     @Column(name = "parent_id")
     private Long parentId;
 
-    @Column(name = "update_dt")
+    @Column(name = "delete_dt")
     private LocalDateTime deleteAt;
+
+    public Comment updateComment(String commentBody) {
+        this.commentBody = commentBody;
+
+        return this;
+    }
+
+    public void deleteComment() {
+        this.deleteAt = LocalDateTime.now();
+    }
 }

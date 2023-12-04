@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    public Optional<User> findByGithubId(Integer githubId);
-    public boolean existsByGithubId(Integer githubId);
+    Optional<User> findByGithubId(Integer githubId);
+    boolean existsByGithubId(Integer githubId);
+    Optional<User> findByNameAndDeletedIsFalse(String name);
+    Optional<User> findByIdAndDeletedIsFalse(Long id);
 }

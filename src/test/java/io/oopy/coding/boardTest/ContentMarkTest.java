@@ -11,9 +11,9 @@ import io.oopy.coding.domain.mark.repository.ContentMarkRepository;
 import io.oopy.coding.domain.mark.dto.CountMarkDTO;
 import io.oopy.coding.domain.mark.dto.IsPressDTO;
 import io.oopy.coding.domain.mark.entity.ContentMark;
-import io.oopy.coding.mark.service.countMarksService;
+import io.oopy.coding.api.mark.service.CountMarksService;
 import io.oopy.coding.domain.repository.UserRepository;
-import io.oopy.coding.mark.service.isPressService;
+import io.oopy.coding.api.mark.service.IsPressService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,9 +34,9 @@ import java.util.List;
 @ExtendWith(SpringExtension.class)
 public class ContentMarkTest {
 
-    private countMarksService countMarksService;
+    private CountMarksService countMarksService;
 
-    private isPressService isPressService;
+    private IsPressService isPressService;
 
     @Autowired
     private UserRepository userRepository;
@@ -172,7 +172,7 @@ public class ContentMarkTest {
         contentMarkRepository.save(testContentMark2);
         contentMarkRepository.save(testContentMark3);
 
-        countMarksService = new countMarksService(contentMarkRepository);
+        countMarksService = new CountMarksService(contentMarkRepository);
 
         CountMarkDTO result = countMarksService.countMarks(testContent.getId());
 
@@ -190,7 +190,7 @@ public class ContentMarkTest {
         contentMarkRepository.save(testContentMark1);
         contentMarkRepository.save(testContentMark2);
 
-        isPressService = new isPressService(contentMarkRepository);
+        isPressService = new IsPressService(contentMarkRepository);
 
         IsPressDTO result = isPressService.isPress(testContent.getId(), testUser.getId());
 

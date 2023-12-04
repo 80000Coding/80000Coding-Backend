@@ -38,4 +38,8 @@ public class UserOrganization extends Auditable {
     public static UserOrganization of(Organization organization, User user, String email) {
         return new UserOrganization(organization, user, email);
     }
+
+    public Organization getOrganization() {
+        return this.organization;
+    }
 }
