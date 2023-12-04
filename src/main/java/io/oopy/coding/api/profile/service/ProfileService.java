@@ -1,5 +1,10 @@
-package io.oopy.coding.api.user.service;
+package io.oopy.coding.api.profile.service;
 
+import io.oopy.coding.api.user.service.UserSaveService;
+import io.oopy.coding.api.user.service.UserSearchService;
+import io.oopy.coding.api.user.service.UserSettingService;
+import io.oopy.coding.api.user.service.UserStatisticService;
+import io.oopy.coding.common.resolver.access.AccessToken;
 import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.domain.user.entity.UserSetting;
 import lombok.RequiredArgsConstructor;
@@ -7,14 +12,38 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
-@Slf4j
-@RequiredArgsConstructor
-public class UserProfileService {
+import java.util.Map;
+import java.util.Optional;
 
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class ProfileService {
     private final UserSearchService userSearchService;
+    private final UserStatisticService userStatisticService;
     private final UserSaveService userSaveService;
     private final UserSettingService userSettingService;
+
+    @Transactional(readOnly = true)
+    public Map<String, ?> findByAccessTokenAndId(AccessToken accessToken, long id) {
+        User user = userSearchService.findById(id);
+        Boolean settingFlag;
+
+        //github id 일치 시 설정 버튼 가능
+        if (accessToken != null && accessToken.githubId().equals(user.getGithubId()))
+            settingFlag = true;
+        else
+            settingFlag = false;
+
+        return Map.of(
+                "settingFlag", settingFlag,
+                "profileImageUrl", Optional.ofNullable(user.getProfileImageUrl()).orElse("none"),
+                "name", user.getName(),
+                "postCount", userStatisticService.countPostByUserId(id),
+                "projectCount", userStatisticService.countProjectByUserId(id),
+                "organizationCodes", user.getOrganizationCodes()
+        );
+    }
 
     /**
      * 닉네임 변경
@@ -67,12 +96,6 @@ public class UserProfileService {
             // exception으로 판단하는게 옳은진 모르겠음
             return false;
         }
-    }
-
-    @Transactional
-    public void saveProfileImage(Long userId, String imageUrl) {
-        User user = userSearchService.findById(userId);
-        user.changeProfileImageUrl(imageUrl);
     }
 
     private UserSetting getByUserId(Long userId) {

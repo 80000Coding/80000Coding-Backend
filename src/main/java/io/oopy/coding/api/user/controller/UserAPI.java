@@ -12,11 +12,7 @@ import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
 import io.oopy.coding.common.util.jwt.exception.AuthErrorCode;
 import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
 import io.oopy.coding.domain.user.dto.UserAuthReq;
-import io.oopy.coding.common.util.cookie.CookieUtil;
-import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
-import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.user.dto.UserNicknameReq;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -153,4 +149,10 @@ public class UserAPI {
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
+    @GetMapping("/profile-image")
+    public ResponseEntity<?> saveProfileImage(@AuthenticationPrincipal CustomUserDetails securityUser,
+                                              @RequestParam("image") String imageUrl) {
+        userProfileService.saveProfileImage(securityUser.getUserId(), imageUrl);
+        return null;
+    }
 }

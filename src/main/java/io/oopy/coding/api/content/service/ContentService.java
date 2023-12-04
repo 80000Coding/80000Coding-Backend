@@ -6,6 +6,7 @@ import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.content.dto.*;
 import io.oopy.coding.domain.content.entity.Content;
+import io.oopy.coding.domain.content.repository.ContentQueryRepository;
 import io.oopy.coding.domain.content.repository.ContentRepository;
 import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.domain.user.repository.UserRepository;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor

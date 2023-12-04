@@ -14,13 +14,13 @@ public class ContentDTO {
     private String body;
     private String type;
     private Long views;
-    private String repo_name;
-    private String repo_owner;
+    private String repoName;
+    private String repoOwner;
     private boolean complete;
-    private String content_image_url;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
-    private LocalDateTime deleted_at;
+    private String contentImageUrl;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 
     public static ContentDTO toDTO(Content content) {
         return ContentDTO.builder()
@@ -29,13 +29,13 @@ public class ContentDTO {
                 .body(content.getBody())
                 .type(content.getType())
                 .views(content.getViews())
-                .repo_name(content.getRepoName())
-                .repo_owner(content.getRepoOwner())
+                .repoName(content.getRepoName())
+                .repoOwner(content.getRepoOwner())
                 .complete(content.isComplete())
-                .content_image_url(content.getContentImageUrl())
-                .created_at(content.getCreatedAt())
-                .updated_at(content.getUpdatedAt())
-                .deleted_at(content.getDeleteAt())
+                .contentImageUrl(content.getContentImageUrl())
+                .createdAt(content.getCreatedAt())
+                .updatedAt(content.getUpdatedAt())
+                .deletedAt(content.getDeleteAt())
                 .build();
     }
 }
