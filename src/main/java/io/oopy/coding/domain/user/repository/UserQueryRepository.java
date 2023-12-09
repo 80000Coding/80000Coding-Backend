@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static io.oopy.coding.domain.user.entity.QUser.user;
+import static io.oopy.coding.domain.content.entity.QContent.content;
 
 @RequiredArgsConstructor
 @Repository
@@ -31,5 +32,29 @@ public class UserQueryRepository {
                 .from(user)
                 .where(user.name.contains(nickname));
         return PageableExecutionUtils.getPage(fetch, pageable, count::fetchOne);
+    }
+
+    public long countPostByUserId(long id) {
+        long postCount = queryFactory.selectFrom(content)
+                .where(content.user.id.eq(id)
+                    .and(content.type.eq("post"))
+                    .and(content.complete.eq(true))
+                    .and(content.deleteAt.isNull())
+                )
+                .fetchCount();
+
+        return postCount;
+    }
+
+    public long countProjByUserId(long id) {
+        long postCount = queryFactory.selectFrom(content)
+                .where(content.user.id.eq(id)
+                        .and(content.type.eq("proj"))
+                        .and(content.complete.eq(true))
+                        .and(content.deleteAt.isNull())
+                )
+                .fetchCount();
+
+        return postCount;
     }
 }

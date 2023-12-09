@@ -1,5 +1,6 @@
 package io.oopy.coding.api.user.service;
 
+import io.oopy.coding.domain.user.repository.UserQueryRepository;
 import io.oopy.coding.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -10,15 +11,15 @@ import org.springframework.stereotype.Service;
 @Transactional
 @RequiredArgsConstructor
 public class UserStatisticService {
-    private final UserRepository userRepository;
+    private final UserQueryRepository userQueryRepository;
 
     public long countPostByUserId(long id) {
-        //@Formula("(SELECT COUNT(*) FROM CONTENT C WHERE C.USER_ID = id AND C.CONTENT_TYPE = 'post' AND C.COMPLETE = 1 AND C.DELETE_DT IS NULL)")
-        return 0;
+        long postCount = userQueryRepository.countPostByUserId(id);
+        return postCount;
     }
 
     public long countProjectByUserId(long id) {
-        //@Formula("(SELECT COUNT(*) FROM CONTENT C WHERE C.USER_ID = id AND C.CONTENT_TYPE = 'repo' AND C.COMPLETE = 1 AND C.DELETE_DT IS NULL)")
-        return 0;
+        long projCount = userQueryRepository.countPostByUserId(id);
+        return projCount;
     }
 }

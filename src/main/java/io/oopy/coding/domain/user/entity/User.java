@@ -5,7 +5,6 @@ import io.oopy.coding.domain.organization.entity.Organization;
 import io.oopy.coding.domain.organization.entity.UserOrganization;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Formula;
 
 import java.util.ArrayList;
 import java.util.List;
