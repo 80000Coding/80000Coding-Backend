@@ -19,7 +19,7 @@ public class UserStatisticService {
     }
 
     public long countProjectByUserId(long id) {
-        long projCount = userQueryRepository.countPostByUserId(id);
+        long projCount = userQueryRepository.countProjByUserId(id);
         return projCount;
     }
 }
