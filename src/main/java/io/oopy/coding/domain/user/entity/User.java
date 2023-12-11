@@ -5,6 +5,7 @@ import lombok.*;
 import io.oopy.coding.domain.model.Auditable;
 import io.oopy.coding.domain.organization.entity.Organization;
 import io.oopy.coding.domain.organization.entity.UserOrganization;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,24 +68,23 @@ public class User extends Auditable {
         this.profileImageUrl = profileImageUrl;
     }
 
-    // TODO : front랑 어떻게 값을 바꿀지
     public List<String> getOrganizationCodes() {
         if (this.userOrganizations == null) {
             return new ArrayList<>();
         }
-
-//        List<String> organizationCodes = new ArrayList<>();
-//
-//        this.userOrganizations.forEach(
-//                e -> organizationCodes.add(e.getOrganization().getCode())
-//        );
-
-        // TODO : query 횟수 확인 N + 1, lamda method 참조
         return this.userOrganizations.stream()
                 .map(UserOrganization::getOrganization)
                 .map(Organization::getCode)
                 .collect(Collectors.toList());
+    }
 
-        //return organizationCodes;
+    public List<String> getOrganizationNames() {
+        if (this.userOrganizations == null) {
+            return new ArrayList<>();
+        }
+        return this.userOrganizations.stream()
+                .map(UserOrganization::getOrganization)
+                .map(Organization::getName)
+                .collect(Collectors.toList());
     }
 }
