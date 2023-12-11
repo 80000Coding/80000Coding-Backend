@@ -3,8 +3,8 @@ package io.oopy.coding.domain.content.entity;
 import io.oopy.coding.domain.comment.entity.Comment;
 import io.oopy.coding.domain.model.Auditable;
 import io.oopy.coding.domain.user.entity.User;
-import io.oopy.coding.domain.mark.entity.ContentMark;
 
+import io.oopy.coding.domain.mark.entity.ContentMark;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;

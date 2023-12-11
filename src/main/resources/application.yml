@@ -18,6 +18,17 @@ spring:
       max-lifetime: 1200000 # 20m (default 30m)
       connection-timeout: 3000 # 3s (default 30s)
       validation-timeout: 2000 # 2s (default 5s)
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USER_NAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   jpa:
     database: MYSQL
     database-platform: org.hibernate.dialect.MySQL8Dialect
@@ -71,6 +82,11 @@ ssh:
   pem: ${SSH_PEM}
   database-port: ${SSH_DATABASE_PORT}
 
+mail:
+  cert:
+    domain: ${MAIL_CERT_DOMAIN}
+    success-redirect-url: ${MAIL_CERT_SUCCESS_URL:http://www.naver.com}
+
 ---
 spring.config.activate.on-profile: develop
 
@@ -103,6 +119,17 @@ spring:
     url: ${DB_URL}
     username: ${DB_USER_NAME}
     password: ${DB_PASSWORD}
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USER_NAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   data.redis:
     host: localhost
     port: 6379
@@ -133,3 +160,8 @@ jwt:
     access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
     refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)
     signup-access-expiration-time: 600000 # 10m (10 * 60 * 1000)
+
+mail:
+  cert:
+    domain: ${MAIL_CERT_DOMAIN}
+    success-redirect-url: ${MAIL_CERT_SUCCESS_URL:http://www.naver.com}

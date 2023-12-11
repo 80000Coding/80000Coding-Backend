@@ -1,10 +1,10 @@
 package io.oopy.coding.domain.user.entity;
 
+import jakarta.persistence.*;
+import lombok.*;
 import io.oopy.coding.domain.model.Auditable;
 import io.oopy.coding.domain.organization.entity.Organization;
 import io.oopy.coding.domain.organization.entity.UserOrganization;
-import jakarta.persistence.*;
-import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;

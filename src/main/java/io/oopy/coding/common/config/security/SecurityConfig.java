@@ -42,7 +42,8 @@ public class SecurityConfig {
             "/api/v1/auth/login/**", "/api/v1/auth/signup",
             "/api/v1/contents/get", "api/v1/comments/get",
             "/api/v1/profile/**",
-            "/login/oauth2/**", "/api/v1/feed/title", "/api/v1/feed/body", "/api/v1/feed/nickname"
+            "/login/oauth2/**", "/api/v1/feed/title", "/api/v1/feed/body",
+            "/api/v1/email-cert/cert/**", "/api/v1/feed/nickname"
     };
 
     @Bean
