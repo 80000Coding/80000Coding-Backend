@@ -4,6 +4,8 @@ import io.oopy.coding.common.email.service.EmailService;
 import io.oopy.coding.common.redis.organizationcert.OrganizationCertification;
 import io.oopy.coding.common.redis.organizationcert.OrganizationCertificationService;
 import io.oopy.coding.common.redis.organizationcert.dto.OrganizationCertificationDto;
+import io.oopy.coding.common.response.code.ErrorCode;
+import io.oopy.coding.common.response.exception.GlobalErrorException;
 import io.oopy.coding.emailcert.service.dto.EmailCertificateDto;
 import io.oopy.coding.organization.service.OrganizationService;
 import io.oopy.coding.organization.service.dto.OrganizationDto;
@@ -53,10 +55,10 @@ public class EmailCertService {
         Optional<OrganizationCertification> emailCertification = organizationCertificationService.getOrganizationCertification(
                 OrganizationCertificationDto.Cert.of(userId, token, code));
         if (emailCertification.isEmpty()) {
-            throw new RuntimeException("진행중이지 않습니다.");
+            throw new GlobalErrorException(ErrorCode.NOT_FOUND_ORGANIZATION_CERT);
         }
         if (!token.equals(emailCertification.get().getCertToken())) {
-            throw new RuntimeException("토큰 정보가 올바르지 않습니다.");
+            throw new GlobalErrorException(ErrorCode.INVALID_ORGANIZATION_CERT_TOKEN);
         }
         organizationService.setUserOrganization(
                 OrganizationDto.Cert.of(code, Long.parseLong(userId), emailCertification.get().getUserEmail()));
@@ -69,7 +71,7 @@ public class EmailCertService {
         Optional<OrganizationCertification> emailCertificationBySet = organizationCertificationService.getOrganizationCertification(
                 OrganizationCertificationDto.Get.of(emailSend.getUserId(), emailSend.getOrganizationCode()));
         if (emailCertificationBySet.isPresent()) {
-            throw new RuntimeException("인증 진행중");
+            throw new GlobalErrorException(ErrorCode.ALREADY_ORGANIZATION_CERT);
         }
     }
 }

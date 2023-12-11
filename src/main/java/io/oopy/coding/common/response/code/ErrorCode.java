@@ -27,10 +27,12 @@ public enum ErrorCode implements StatusCode {
 
     ALREADY_REGISTERED_USER(BAD_REQUEST, "이미 등록된 유저입니다."),
     ALREADY_LOGIN_USER(BAD_REQUEST, "이미 로그인한 유저입니다."),
+    ALREADY_ORGANIZATION_CERT(BAD_REQUEST, "이미 인증 진행중인 조직입니다"),
 
     EXPIRED_AUTH_CODE(BAD_REQUEST, "인증 시간이 만료되었습니다"),
     INVALID_AUTH_CODE(BAD_REQUEST, "유효하지 않은 인증 코드입니다"),
     INVALID_RECEIVER(BAD_REQUEST, "유효하지 않은 수신자입니다"),
+    INVALID_ORGANIZATION_CERT_TOKEN(BAD_REQUEST, "올바르지 않은 토큰 정보입니다"),
 
     /**
      * 403 FORBIDDEN: 서버에서 요청을 거부한 경우
@@ -44,6 +46,8 @@ public enum ErrorCode implements StatusCode {
     NULL_POINT_ERROR(NOT_FOUND,"Null Point Exception"),
     NOT_VALID_ERROR(NOT_FOUND,"유효하지 않은 요청입니다."),
     NOT_VALID_HEADER_ERROR(NOT_FOUND,"헤더에 데이터가 존재하지 않습니다."),
+    NOT_FOUND_ORGANIZATION(NOT_FOUND, "존재하지 않는 조직입니다."),
+    NOT_FOUND_ORGANIZATION_CERT(NOT_FOUND, "진행중인 인증이 존재하지 않습니다."),
 
     /**
      * 500 INTERNAL_SERVER_ERROR: 서버에서 에러가 발생한 경우

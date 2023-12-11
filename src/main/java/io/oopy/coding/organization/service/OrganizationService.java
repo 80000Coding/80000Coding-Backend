@@ -1,5 +1,7 @@
 package io.oopy.coding.organization.service;
 
+import io.oopy.coding.common.response.code.ErrorCode;
+import io.oopy.coding.common.response.exception.GlobalErrorException;
 import io.oopy.coding.domain.organization.entity.Organization;
 import io.oopy.coding.domain.organization.entity.UserOrganization;
 import io.oopy.coding.domain.organization.repository.OrganizationRepository;
@@ -28,7 +30,7 @@ public class OrganizationService {
 
     @Transactional
     public OrganizationDto.Organization getOrganizationByCode(String code) {
-        Organization organization = organizationRepository.findByCode(code).orElseThrow(() -> new RuntimeException("없는 조직입니다."));
+        Organization organization = organizationRepository.findByCode(code).orElseThrow(() -> new GlobalErrorException(ErrorCode.NOT_FOUND_ORGANIZATION));
         return OrganizationDto.Organization.of(
                 organization.getName(), organization.getCode(), organization.getDescription());
     }
@@ -52,7 +54,7 @@ public class OrganizationService {
 
     @Transactional
     public void setUserOrganization(OrganizationDto.Cert cert) {
-        Organization organization = organizationRepository.findByCode(cert.getOrganizationCode()).orElseThrow(()-> new RuntimeException("없는 조직입니다."));
+        Organization organization = organizationRepository.findByCode(cert.getOrganizationCode()).orElseThrow(()-> new GlobalErrorException(ErrorCode.NOT_FOUND_ORGANIZATION));
         UserOrganization userOrganization = UserOrganization.of(organization,
                 User.builder()
                     .id(cert.getUserId()).build(), cert.getUserEmail());
