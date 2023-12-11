@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * 조직 인증 관련 서비스. Redis를 사용
+ */
 @Service
 @Slf4j
 public class OrganizationCertificationService {
@@ -34,6 +37,11 @@ public class OrganizationCertificationService {
         this.organizationService = organizationService;
     }
 
+    /**
+     * 인증 진행중인 조직 정보 리스트 조회
+     * @param organizationCertKey
+     * @return
+     */
     @Transactional(readOnly = true)
     public List<OrganizationCertification> getOrganizationCertifications(OrganizationKey organizationCertKey) {
         List<OrganizationCertification> organizationCertifications = listOperations.range(organizationCertKey.getKey(), 0, -1);
@@ -47,6 +55,10 @@ public class OrganizationCertificationService {
                 filteredOrganizationCertifications;
     }
 
+    /**
+     * 조직 인증 등록. 만료시간 : 600초
+     * @param register
+     */
     @Transactional
     public void register(OrganizationCertificationDto.Register register) {
         if(organizationService.isUserAlreadyRegistered(
@@ -73,6 +85,10 @@ public class OrganizationCertificationService {
                 organizationCertification.getExpiredAt().atZone(zoneId).toInstant());
     }
 
+    /**
+     * 조직 인증 삭제
+     * @param organizationCertKey
+     */
     @Transactional
     public void delete(OrganizationCertKey organizationCertKey) {
         Optional<OrganizationCertification> organizationCertification = getOrganizationCertification(organizationCertKey);
@@ -82,6 +98,11 @@ public class OrganizationCertificationService {
         listOperations.remove(organizationCertKey.getKey(), 0, organizationCertification.get());
     }
 
+    /**
+     * 진행 중인 조직 정보 리스트 중에, 특정 조직 하나를 뽑아낸다.
+     * @param cert
+     * @return
+     */
     public Optional<OrganizationCertification> getOrganizationCertification(OrganizationCertKey cert) {
         List<OrganizationCertification> organizationCertificationList = getOrganizationCertifications(cert);
         if (ObjectUtils.isEmpty(organizationCertificationList)) {

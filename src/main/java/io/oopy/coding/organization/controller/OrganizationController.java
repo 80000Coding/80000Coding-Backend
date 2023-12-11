@@ -3,7 +3,8 @@ package io.oopy.coding.organization.controller;
 import io.oopy.coding.common.redis.organizationcert.OrganizationCertification;
 import io.oopy.coding.common.redis.organizationcert.OrganizationCertificationService;
 import io.oopy.coding.common.redis.organizationcert.dto.OrganizationCertificationDto;
-import io.oopy.coding.common.security.CustomUserDetails;
+import io.oopy.coding.common.response.SuccessResponse;
+import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.emailcert.dto.EmailCertRequest;
 import io.oopy.coding.organization.dto.OrganizationResponse;
 import io.oopy.coding.organization.service.OrganizationService;
@@ -31,13 +32,13 @@ public class OrganizationController {
             """
     )
     @GetMapping("/users")
-    public ResponseEntity<List<OrganizationResponse.UserOrganization> > getList(@AuthenticationPrincipal CustomUserDetails securityUser) {
+    public ResponseEntity<SuccessResponse<List<OrganizationResponse.UserOrganization> > > getList(@AuthenticationPrincipal CustomUserDetails securityUser) {
         List<OrganizationDto.UserOrganization> userOrganizations = organizationService.getUserOrganizations(securityUser.getUserId());
         List<OrganizationResponse.UserOrganization> response = userOrganizations
                 .stream()
                 .map(v->OrganizationResponse.UserOrganization.of(v.getCode(), v.getName(), v.getEmail()))
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(SuccessResponse.from(response));
     }
 
     @Operation(summary = "인증 진행중인 조직 내역 조회", description =
@@ -46,14 +47,14 @@ public class OrganizationController {
             """
     )
     @GetMapping("/pending/users")
-    public ResponseEntity<List<OrganizationResponse.UserOrganization> > getPendingList(@AuthenticationPrincipal CustomUserDetails securityUser) {
+    public ResponseEntity<SuccessResponse<List<OrganizationResponse.UserOrganization> > > getPendingList(@AuthenticationPrincipal CustomUserDetails securityUser) {
         OrganizationCertificationDto.Key key = OrganizationCertificationDto.Key.of(securityUser.getUserId().toString());
         List<OrganizationCertification> organizationCertifications = organizationCertificationService.getOrganizationCertifications(key);
         List<OrganizationResponse.UserOrganization> response = organizationCertifications
                 .stream()
                 .map(v -> OrganizationResponse.UserOrganization.of(v.getOrganizationCode(), v.getOrganizationName(), v.getUserEmail()))
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(SuccessResponse.from(response));
     }
 
     @Operation(summary = "조직 인증 진행 취소", description =

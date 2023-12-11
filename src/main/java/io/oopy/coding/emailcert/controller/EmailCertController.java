@@ -1,11 +1,12 @@
 package io.oopy.coding.emailcert.controller;
 
-import io.oopy.coding.common.security.CustomUserDetails;
+import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.emailcert.dto.EmailCertRequest;
 import io.oopy.coding.emailcert.service.EmailCertService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/email-cert")
+@RequestMapping("/api/v1/email-cert")
 @RequiredArgsConstructor
 @Slf4j
 public class EmailCertController {
@@ -33,7 +34,7 @@ public class EmailCertController {
     )
     @PostMapping("/send")
     @ResponseBody
-    public ResponseEntity sendCertification(@RequestBody EmailCertRequest.Send emailSend,
+    public ResponseEntity sendCertification(@RequestBody @Valid EmailCertRequest.Send emailSend,
             @AuthenticationPrincipal CustomUserDetails securityUser) throws MessagingException {
         emailCertService.sendCertMail(emailSend.toCertificateEmailSend(securityUser.getUserId().toString()));
         return ResponseEntity.noContent().build();
