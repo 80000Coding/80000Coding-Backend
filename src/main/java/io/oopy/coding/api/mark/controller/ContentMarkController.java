@@ -1,39 +1,38 @@
 package io.oopy.coding.api.mark.controller;
 
-import io.oopy.coding.api.mark.service.CountMarksService;
-import io.oopy.coding.mark.dto.CountMarkDTO;
-import io.oopy.coding.mark.dto.IsPressDTO;
-import io.swagger.v3.oas.annotations.Operation;
+import io.oopy.coding.api.mark.service.ContentMarkService;
+import io.oopy.coding.common.response.SuccessResponse;
+import io.oopy.coding.common.security.authentication.CustomUserDetails;
+import io.oopy.coding.domain.mark.dto.ChangeUserPressReq;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 
-@Controller
+@RestController
 @RequiredArgsConstructor
-@RequestMapping("/mark")
+@RequestMapping("/api/v1/mark")
 public class ContentMarkController {
 
-    private final CountMarksService countMarksService;
+    private final ContentMarkService contentMarkService;
 
-    @Operation(summary = "좋아요, 북마크 개수", description = "좋아요와 북마크 개수를 한번에 return")
-    @GetMapping("")
-    public CountMarkDTO countMarkDTO() {
-        return CountMarkDTO.builder()
-                .like(3L)
-                .bookmark(24L)
-                .build();
+    // 게시글 전체 mark 개수
+    @GetMapping("/get")
+    public ResponseEntity<?> getContentMark(@RequestParam Long contentId) {
+        return ResponseEntity.ok().body(SuccessResponse.from(contentMarkService.getMarkByContent(contentId)));
     }
 
-    @Operation(summary = "유저 Press 여부", description = "0일 시 Press, 1일 시 Not press")
+    // 유저 개인 press 여부
     @PostMapping("")
-    public IsPressDTO isPressDTO() {
-        return IsPressDTO.builder()
-                .like(0)
-                .bookmark(1)
-                .build();
+    public ResponseEntity<?> getUserPress(@AuthenticationPrincipal CustomUserDetails securityUser, @RequestParam Long contentId) {
+        return ResponseEntity.ok().body(SuccessResponse.from(contentMarkService.getUserPress(securityUser, contentId)));
     }
 
+    // 유저 개인 press 여부 수정
+    @PatchMapping("")
+    public ResponseEntity<?> pressMark(@AuthenticationPrincipal CustomUserDetails securityUser, @RequestBody ChangeUserPressReq req) {
+        contentMarkService.changeUserPress(securityUser, req);
+        return ResponseEntity.ok().body(SuccessResponse.noContent());
+    }
 }

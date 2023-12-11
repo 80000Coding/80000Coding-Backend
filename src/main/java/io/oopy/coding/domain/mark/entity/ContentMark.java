@@ -1,5 +1,6 @@
 package io.oopy.coding.domain.mark.entity;
 
+import io.oopy.coding.api.mark.MarkType;
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.model.Auditable;
 import io.oopy.coding.domain.user.entity.User;
@@ -27,5 +28,5 @@ public class ContentMark extends Auditable {
     private User user;
 
     @Column(name = "type")
-    private String type;
+    private MarkType type;
 }
