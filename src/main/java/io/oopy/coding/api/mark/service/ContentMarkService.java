@@ -11,7 +11,6 @@ import io.oopy.coding.domain.content.repository.ContentRepository;
 import io.oopy.coding.domain.mark.dto.UserPressReq;
 import io.oopy.coding.domain.mark.entity.ContentMark;
 import io.oopy.coding.domain.mark.repository.ContentMarkRepository;
-import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ public class ContentMarkService {
     private final UserRepository userRepository;
 
     public ContentMarkDto getMarkByContent(Long contentId) {
-        Content content = contentRepository.findById(contentId)
+        contentRepository.findById(contentId)
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
 
         List<ContentMark> marks = contentMarkRepository.findContentMarksByContentId(contentId);
@@ -40,20 +39,19 @@ public class ContentMarkService {
                 likeCount++;
             else if (contentMark.getType().equals(MarkType.BOOKMARK))
                 bookMarkCount++;
-//            else -> type이 다를 경우 예외
+            else
+                throw new ContentErrorException(ContentErrorCode.INVALID_CONTENT_MARK);
         }
 
-        ContentMarkDto response = ContentMarkDto.builder()
+        return ContentMarkDto.builder()
                 .like(likeCount)
                 .bookmark(bookMarkCount)
                 .build();
-
-        return response;
     }
 
     @Transactional
     public UserPressReq getUserPress(CustomUserDetails securityUser, Long contentId) {
-        Content content = contentRepository.findById(contentId)
+        contentRepository.findById(contentId)
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
 
         List<ContentMark> marks = contentMarkRepository.findContentMarksByContentIdAndUserId(contentId, securityUser.getUserId());

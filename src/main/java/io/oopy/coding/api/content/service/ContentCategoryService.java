@@ -28,12 +28,12 @@ public class ContentCategoryService {
     private final CategoryRepository categoryRepository;
 
     public List<ContentCategoryDto> getCategories(Long contentId) {
-        Content content = contentRepository.findById(contentId)
+        contentRepository.findById(contentId)
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
 
-        List<ContentCategoryDto> response = new ArrayList<>();
-
         List<ContentCategory> categories = contentCategoryRepository.findContentCategoriesByContentId(contentId);
+
+        List<ContentCategoryDto> response = new ArrayList<>();
         if (categories.isEmpty()) {
             throw new ContentErrorException(ContentErrorCode.EMPTY_CATEGORY);
         }
@@ -60,11 +60,7 @@ public class ContentCategoryService {
             throw new ContentErrorException(ContentErrorCode.ALREADY_APPOINTED_CATEGORY);
         }
 
-        ContentCategory newContentCategory = ContentCategory.builder()
-                .content(content)
-                .category(category)
-                .type(category.getName())
-                .build();
+        ContentCategory newContentCategory = ContentCategory.fromContentAndCategory(content, category);
 
         contentCategoryRepository.save(newContentCategory);
 
@@ -73,10 +69,10 @@ public class ContentCategoryService {
 
     @Transactional
     public boolean deleteCategory(ChangeCategoryReq req) {
-        Content content = contentRepository.findById(req.getContentId())
+        contentRepository.findById(req.getContentId())
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
 
-        Category category = categoryRepository.findByName(req.getCategory())
+        categoryRepository.findByName(req.getCategory())
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_CATEGORY));
 
         ContentCategory contentCategory = contentCategoryRepository.findContentCategoryByContentIdAndCategoryName(req.getContentId(), req.getCategory());

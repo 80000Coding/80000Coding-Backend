@@ -3,6 +3,7 @@ package io.oopy.coding.api.content.controller;
 import io.oopy.coding.api.content.service.ContentCategoryService;
 import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.domain.content.dto.ChangeCategoryReq;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +20,13 @@ public class ContentCategoryController {
     }
 
     @PatchMapping("")
-    public ResponseEntity<?> addCategory(@RequestBody ChangeCategoryReq req) {
+    public ResponseEntity<?> addCategory(@Valid @RequestBody ChangeCategoryReq req) {
         contentCategoryService.addCategory(req);
         return ResponseEntity.ok().body(SuccessResponse.noContent());
     }
 
     @DeleteMapping("")
-    public ResponseEntity<?> deleteCategory(@RequestBody ChangeCategoryReq req) {
+    public ResponseEntity<?> deleteCategory(@Valid @RequestBody ChangeCategoryReq req) {
         contentCategoryService.deleteCategory(req);
         return ResponseEntity.ok().body(SuccessResponse.noContent());
     }

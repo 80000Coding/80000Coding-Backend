@@ -27,4 +27,13 @@ public class ContentCategory extends Auditable {
 
     @Column(name = "category_type", nullable = false)
     private String type;
+
+    public static ContentCategory fromContentAndCategory(Content content, Category category) {
+        return ContentCategory.builder()
+                .content(content)
+                .category(category)
+                .type(category.getName())
+                .build();
+    }
+
 }

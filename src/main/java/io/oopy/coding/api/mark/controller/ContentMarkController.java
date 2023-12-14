@@ -4,6 +4,7 @@ import io.oopy.coding.api.mark.service.ContentMarkService;
 import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.mark.dto.ChangeUserPressReq;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,7 +32,7 @@ public class ContentMarkController {
 
     // 유저 개인 press 여부 수정
     @PatchMapping("")
-    public ResponseEntity<?> pressMark(@AuthenticationPrincipal CustomUserDetails securityUser, @RequestBody ChangeUserPressReq req) {
+    public ResponseEntity<?> pressMark(@AuthenticationPrincipal CustomUserDetails securityUser, @Valid @RequestBody ChangeUserPressReq req) {
         contentMarkService.changeUserPress(securityUser, req);
         return ResponseEntity.ok().body(SuccessResponse.noContent());
     }
