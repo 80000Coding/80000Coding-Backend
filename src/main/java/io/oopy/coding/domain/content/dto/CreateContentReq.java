@@ -13,7 +13,7 @@ import lombok.Getter;
 public class CreateContentReq {
 
     @NotBlank
-    @Schema(description = "게시글 타입", example = "post")
+    @Schema(description = "게시글 타입(post, project)", example = "project")
     private String type;
 
     @Schema(description = "리포지토리 이름", example = "palco repo")

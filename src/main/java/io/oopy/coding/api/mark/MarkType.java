@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum MarkType {
+    //TODO 코드가 필요한가, 필요하다면 어떻게 작성할 것인가??
     LIKE("1", "like"),
     BOOKMARK("2", "bookmark");
 
@@ -21,7 +22,7 @@ public enum MarkType {
         return type;
     }
 
-    public static MarkType fromType(String type) {
+    public static MarkType fromString(String type) {
         for (MarkType markType : values()) {
             if (markType.getType().equals(type)) {
                 return markType;

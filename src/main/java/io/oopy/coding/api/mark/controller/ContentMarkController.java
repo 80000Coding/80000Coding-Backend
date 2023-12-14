@@ -4,6 +4,7 @@ import io.oopy.coding.api.mark.service.ContentMarkService;
 import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.mark.dto.ChangeUserPressReq;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,19 +19,19 @@ public class ContentMarkController {
 
     private final ContentMarkService contentMarkService;
 
-    // 게시글 전체 mark 개수
+    @Operation(summary = "게시글 전체 mark 개수")
     @GetMapping("/get")
     public ResponseEntity<?> getContentMark(@RequestParam Long contentId) {
         return ResponseEntity.ok().body(SuccessResponse.from(contentMarkService.getMarkByContent(contentId)));
     }
 
-    // 유저 개인 press 여부
+    @Operation(summary = "게시글 유저 개인 press 여부")
     @PostMapping("")
     public ResponseEntity<?> getUserPress(@AuthenticationPrincipal CustomUserDetails securityUser, @RequestParam Long contentId) {
         return ResponseEntity.ok().body(SuccessResponse.from(contentMarkService.getUserPress(securityUser, contentId)));
     }
 
-    // 유저 개인 press 여부 수정
+    @Operation(summary = "게시글 유저 개인 press 여부 토글")
     @PatchMapping("")
     public ResponseEntity<?> pressMark(@AuthenticationPrincipal CustomUserDetails securityUser, @Valid @RequestBody ChangeUserPressReq req) {
         contentMarkService.changeUserPress(securityUser, req);

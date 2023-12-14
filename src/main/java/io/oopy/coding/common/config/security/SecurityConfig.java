@@ -41,7 +41,7 @@ public class SecurityConfig {
             "/api/v1/users/login", "/api/v1/users/refresh",
             "/api/v1/auth/login/**", "/api/v1/auth/signup",
             "/api/v1/contents/get", "/api/v1/comments/get",
-            "/api/v1/category", "/api/v1/mark/get",
+            "/api/v1/category/get", "/api/v1/mark/get",
             "/api/v1/profile/**",
             "/login/oauth2/**", "/api/v1/feed/title", "/api/v1/feed/body"
     };

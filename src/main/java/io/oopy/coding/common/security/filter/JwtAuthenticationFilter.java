@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/v1/contents/get", "/api/v1/comments/get",
             "/favicon.ico",
             "/api/v1/feed/title", "/api/v1/feed/body",
-            "/api/v1/category", "/api/v1/mark/get"
+            "/api/v1/category/get", "/api/v1/mark/get"
     );
 
     @Override

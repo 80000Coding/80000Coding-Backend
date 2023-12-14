@@ -35,9 +35,9 @@ public class ContentMarkService {
         Long bookMarkCount = 0L;
 
         for (ContentMark contentMark : marks) {
-            if (contentMark.getType().equals(MarkType.LIKE))
+            if (contentMark.getType() == MarkType.LIKE)
                 likeCount++;
-            else if (contentMark.getType().equals(MarkType.BOOKMARK))
+            else if (contentMark.getType() == MarkType.BOOKMARK)
                 bookMarkCount++;
             else
                 throw new ContentErrorException(ContentErrorCode.INVALID_CONTENT_MARK);
@@ -79,7 +79,7 @@ public class ContentMarkService {
         Content content = contentRepository.findById(req.getContentId())
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
 
-        MarkType markType = MarkType.fromType(req.getType());
+        MarkType markType = MarkType.fromString(req.getType());
 
         ContentMark userMark = contentMarkRepository.findContentMarksByContentIdAndUserIdAndType(req.getContentId(), securityUser.getUserId(), markType);
 

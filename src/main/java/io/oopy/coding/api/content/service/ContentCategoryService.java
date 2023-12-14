@@ -2,6 +2,7 @@ package io.oopy.coding.api.content.service;
 
 import io.oopy.coding.api.content.exception.ContentErrorCode;
 import io.oopy.coding.api.content.exception.ContentErrorException;
+import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.content.dto.ChangeCategoryReq;
 import io.oopy.coding.domain.content.dto.ContentCategoryDto;
 import io.oopy.coding.domain.content.entity.Category;
@@ -10,6 +11,7 @@ import io.oopy.coding.domain.content.entity.ContentCategory;
 import io.oopy.coding.domain.content.repository.CategoryRepository;
 import io.oopy.coding.domain.content.repository.ContentCategoryRepository;
 import io.oopy.coding.domain.content.repository.ContentRepository;
+import io.oopy.coding.domain.user.entity.RoleType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,9 +50,13 @@ public class ContentCategoryService {
         return response;
     }
 
-    public boolean addCategory(ChangeCategoryReq req) {
+    public boolean addCategory(ChangeCategoryReq req, CustomUserDetails securityUser) {
         Content content = contentRepository.findById(req.getContentId())
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+
+        if (securityUser.getRole() != RoleType.ADMIN && !content.getUser().getId().equals(securityUser.getUserId())) {
+            throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
+        }
 
         Category category = categoryRepository.findByName(req.getCategory())
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_CATEGORY));
@@ -68,9 +74,13 @@ public class ContentCategoryService {
     }
 
     @Transactional
-    public boolean deleteCategory(ChangeCategoryReq req) {
-        contentRepository.findById(req.getContentId())
+    public boolean deleteCategory(ChangeCategoryReq req, CustomUserDetails securityUser) {
+        Content content = contentRepository.findById(req.getContentId())
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+
+        if (securityUser.getRole() != RoleType.ADMIN && !content.getUser().getId().equals(securityUser.getUserId())) {
+            throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
+        }
 
         categoryRepository.findByName(req.getCategory())
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_CATEGORY));

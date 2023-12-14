@@ -16,11 +16,15 @@ public enum ContentErrorCode implements StatusCode {
      */
     DELETED_CONTENT(BAD_REQUEST, "삭제된 게시글입니다."),
     INVALID_CONTENT_ID(BAD_REQUEST, "존재하지 않는 게시글입니다."),
-    INVALID_CONTENT_CATEGORY(BAD_REQUEST, "없는 카테고리입니다"),
+    INVALID_CONTENT_TYPE(BAD_REQUEST, "존재하지 않는 게시글 타입입니다."),
+    INVALID_CONTENT_CATEGORY(BAD_REQUEST, "존재하지 않는 카테고리입니다"),
     INVALID_CONTENT_MARK(BAD_REQUEST, "존재하지 않는 마크타입입니다."),
     EMPTY_CATEGORY(BAD_REQUEST, "게시글에 설정된 카테고리가 없습니다"),
     ALREADY_APPOINTED_CATEGORY(BAD_REQUEST, "이미 지정된 카테고리입니다."),
     ALREADY_DELETED_CATEGORY(BAD_REQUEST, "이미 존재하지 않는 카테고리입니다."),
+    MISS_MATCH_POST_TYPE(BAD_REQUEST, "타입에 맞는 요청이 아닙니다.(post)"),
+    MISS_MATCH_PROJECT_TYPE(BAD_REQUEST, "타입에 맞는 요청이 아닙니다.(project)"),
+
 
     /**
      * 401 UNAUTHORIZED
