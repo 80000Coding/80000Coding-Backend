@@ -1,10 +1,11 @@
-package io.oopy.coding.api.content;
+package io.oopy.coding.domain.content.entity;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.oopy.coding.common.util.converter.LegacyCommonType;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum ContentType {
+public enum ContentType implements LegacyCommonType {
     // TODO 코드가 필요한가, 필요하다면 어떻게 작성할 것인가??
     POST("1", "post"),
     PROJECT("2", "project");

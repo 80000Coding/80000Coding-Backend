@@ -31,7 +31,7 @@ public class ContentDTO {
                 .views(content.getViews())
                 .repoName(content.getRepoName())
                 .repoOwner(content.getRepoOwner())
-                .publish(content.getPublish())
+                .publish(content.getComplete())
                 .contentImageUrl(content.getContentImageUrl())
                 .createdAt(content.getCreatedAt())
                 .updatedAt(content.getUpdatedAt())

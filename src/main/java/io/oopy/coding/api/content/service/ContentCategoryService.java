@@ -25,25 +25,24 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class ContentCategoryService {
-    private final ContentRepository contentRepository;
     private final ContentCategoryRepository contentCategoryRepository;
     private final CategoryRepository categoryRepository;
+    private final ContentService contentService;
 
+    @Transactional
     public List<ContentCategoryDto> getCategories(Long contentId) {
-        contentRepository.findById(contentId)
-                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+        contentService.findContent(contentId);
 
-        List<ContentCategory> categories = contentCategoryRepository.findContentCategoriesByContentId(contentId);
+        List<ContentCategory> categories = contentCategoryRepository.findContentCategoriesWithCategoryByContentId(contentId);
 
-        List<ContentCategoryDto> response = new ArrayList<>();
         if (categories.isEmpty()) {
             throw new ContentErrorException(ContentErrorCode.EMPTY_CATEGORY);
         }
 
+        List<ContentCategoryDto> response = new ArrayList<>();
+
         for (ContentCategory contentCategory : categories) {
-            Category category = categoryRepository.findById(contentCategory.getCategory().getId())
-                    .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_CATEGORY));
-            ContentCategoryDto dto = ContentCategoryDto.toDTO(category);
+            ContentCategoryDto dto = ContentCategoryDto.toDTO(contentCategory.getCategory());
             response.add(dto);
         }
 
@@ -51,8 +50,7 @@ public class ContentCategoryService {
     }
 
     public boolean addCategory(ChangeCategoryReq req, CustomUserDetails securityUser) {
-        Content content = contentRepository.findById(req.getContentId())
-                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+        Content content = contentService.findContent(req.getContentId());
 
         if (securityUser.getRole() != RoleType.ADMIN && !content.getUser().getId().equals(securityUser.getUserId())) {
             throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
@@ -75,8 +73,7 @@ public class ContentCategoryService {
 
     @Transactional
     public boolean deleteCategory(ChangeCategoryReq req, CustomUserDetails securityUser) {
-        Content content = contentRepository.findById(req.getContentId())
-                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+        Content content = contentService.findContent(req.getContentId());
 
         if (securityUser.getRole() != RoleType.ADMIN && !content.getUser().getId().equals(securityUser.getUserId())) {
             throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);

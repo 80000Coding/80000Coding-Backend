@@ -1,6 +1,6 @@
 package io.oopy.coding.api.content.service;
 
-import io.oopy.coding.api.content.ContentType;
+import io.oopy.coding.domain.content.entity.ContentType;
 import io.oopy.coding.api.content.exception.ContentErrorCode;
 import io.oopy.coding.api.content.exception.ContentErrorException;
 import io.oopy.coding.common.security.authentication.CustomUserDetails;
@@ -30,9 +30,7 @@ public class ContentService {
      */
     @Transactional
     public GetContentRes getContent(Long contentId) {
-
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+        Content content = findContent(contentId);
 
         // soft Delete 된 게시글 일 경우
         if (content.getDeleteAt() != null)
@@ -65,7 +63,7 @@ public class ContentService {
                 .repoOwner(req.getRepoOwner() != null ? req.getRepoOwner() : null)
                 .repoName(req.getRepoName() != null ? req.getRepoName() : null)
                 .views(0L)
-                .publish(false)
+                .complete(false)
                 .contentImageUrl("")
                 .deleteAt(null)
                 .build();
@@ -83,8 +81,7 @@ public class ContentService {
     //TODO 프론트쪽에서 넘겨주는 이미지 주소를 그대로 저장하면 되는건가?
     public UpdateContentRes updateContent(UpdateContentReq req, CustomUserDetails securityUser) {
 
-        Content content = contentRepository.findById(req.getContentId())
-                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+        Content content = findContent(req.getContentId());
 
         if (securityUser.getRole() != RoleType.ADMIN && !content.getUser().getId().equals(securityUser.getUserId()))
             throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
@@ -103,8 +100,7 @@ public class ContentService {
      */
     @Transactional
     public DeleteContentRes deleteContent(Long contentId, CustomUserDetails securityUser) {
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
+        Content content = findContent(contentId);
 
         if (securityUser.getRole() != RoleType.ADMIN && !content.getUser().getId().equals(securityUser.getUserId()))
             throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
@@ -114,6 +110,11 @@ public class ContentService {
         content.softDelete();
 
         return DeleteContentRes.of(content.getId(), content.getDeleteAt());
+    }
+
+    public Content findContent(Long contentId) {
+        return contentRepository.findById(contentId)
+                .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
     }
 
     /**
