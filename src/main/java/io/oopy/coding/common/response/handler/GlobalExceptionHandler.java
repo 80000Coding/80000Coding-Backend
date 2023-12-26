@@ -1,5 +1,8 @@
 package io.oopy.coding.common.response.handler;
 
+import io.oopy.coding.api.comment.exception.CommentErrorException;
+import io.oopy.coding.api.content.exception.ContentErrorException;
+import io.oopy.coding.api.mark.exception.ContentMarkErrorException;
 import io.oopy.coding.common.response.ErrorResponse;
 import io.oopy.coding.common.response.FailureResponse;
 import io.oopy.coding.common.response.code.ErrorCode;
@@ -59,6 +62,45 @@ public class GlobalExceptionHandler {
         final ErrorResponse response = ErrorResponse.of(ErrorCode.FORBIDDEN_ERROR.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
+
+    /**
+     * API 호출 시 게시글 관련 예외를 처리하는 메서드
+     * @param e ContentErrorException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(ContentErrorException.class)
+    protected ResponseEntity<ErrorResponse> handleContentErrorException(ContentErrorException e) {
+        log.warn("handleContentErrorException : {}", e.getMessage());
+        final ErrorResponse response = ErrorResponse.of(e.getErrorCode().getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
+    }
+
+    /**
+     * API 호출 시 댓글 관련 예외를 처리하는 메서드
+     * @param e CommentErrorException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(CommentErrorException.class)
+    protected ResponseEntity<ErrorResponse> handleCommentErrorException(CommentErrorException e) {
+        log.warn("handleCommentErrorException : {}", e.getMessage());
+        final ErrorResponse response = ErrorResponse.of(e.getErrorCode().getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
+    }
+
+    /**
+     * API 호출 시 마크 관련 예외를 처리하는 메서드
+     * @param e ContentMarkErrorException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(ContentMarkErrorException.class)
+    protected ResponseEntity<ErrorResponse> handleContentMarkErrorException(ContentMarkErrorException e) {
+        log.warn("handleContentMarkErrorException : {}", e.getMessage());
+        final ErrorResponse response = ErrorResponse.of(e.getErrorCode().getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
+    }
+
+
+
 
     /**
      * API 호출 시 객체 혹은 파라미터 데이터 값이 유효하지 않은 경우

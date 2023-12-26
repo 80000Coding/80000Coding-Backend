@@ -12,7 +12,7 @@ public class ContentCategoryDto {
     private String type;
     private String color;
 
-    public static ContentCategoryDto toDTO(Category category) {
+    public static ContentCategoryDto from(Category category) {
         return ContentCategoryDto.builder()
                 .type(category.getName())
                 .color(category.getColor())

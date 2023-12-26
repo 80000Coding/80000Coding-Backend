@@ -46,7 +46,7 @@ public class GetContentRes {
                     .views(content.getViews())
                     .repoName(content.getRepoName())
                     .repoOwner(content.getRepoOwner())
-                    .publish(content.getComplete())
+                    .publish(content.getPublish())
                     .contentImageUrl(content.getContentImageUrl())
                     .createdAt(content.getCreatedAt())
                     .updatedAt(content.getUpdatedAt())

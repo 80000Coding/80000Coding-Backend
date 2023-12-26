@@ -42,7 +42,7 @@ public class ContentCategoryService {
         List<ContentCategoryDto> response = new ArrayList<>();
 
         for (ContentCategory contentCategory : categories) {
-            ContentCategoryDto dto = ContentCategoryDto.toDTO(contentCategory.getCategory());
+            ContentCategoryDto dto = ContentCategoryDto.from(contentCategory.getCategory());
             response.add(dto);
         }
 
@@ -64,7 +64,7 @@ public class ContentCategoryService {
             throw new ContentErrorException(ContentErrorCode.ALREADY_APPOINTED_CATEGORY);
         }
 
-        ContentCategory newContentCategory = ContentCategory.fromContentAndCategory(content, category);
+        ContentCategory newContentCategory = ContentCategory.newInstance(content, category);
 
         contentCategoryRepository.save(newContentCategory);
 

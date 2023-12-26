@@ -63,7 +63,7 @@ public class ContentService {
                 .repoOwner(req.getRepoOwner() != null ? req.getRepoOwner() : null)
                 .repoName(req.getRepoName() != null ? req.getRepoName() : null)
                 .views(0L)
-                .complete(false)
+                .publish(false)
                 .contentImageUrl("")
                 .deleteAt(null)
                 .build();

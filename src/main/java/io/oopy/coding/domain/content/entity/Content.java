@@ -57,8 +57,8 @@ public class Content extends Auditable {
     @Column(name = "views", nullable = false)
     private Long views;
 
-    @Column(name = "complete", nullable = false)
-    private Boolean complete;
+    @Column(name = "publish", nullable = false)
+    private Boolean publish;
 
     @Column(name = "content_image_url")
     private String contentImageUrl;
@@ -70,7 +70,7 @@ public class Content extends Auditable {
         this.title = title;
         this.body = body;
         this.contentImageUrl = contentImageUrl;
-        this.complete = publish;
+        this.publish = publish;
 
         return this;
     }
