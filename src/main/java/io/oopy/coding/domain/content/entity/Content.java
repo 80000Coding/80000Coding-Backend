@@ -39,7 +39,8 @@ public class Content extends Auditable {
     private List<Comment> comments = new ArrayList<>();
 
     @Column(name = "content_type", nullable = false)
-    private String type;
+    @Convert(converter = ContentTypeConverter.class)
+    private ContentType type;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -56,8 +57,8 @@ public class Content extends Auditable {
     @Column(name = "views", nullable = false)
     private Long views;
 
-    @Column(name = "complete", nullable = false)
-    private boolean complete;
+    @Column(name = "publish", nullable = false)
+    private Boolean publish;
 
     @Column(name = "content_image_url")
     private String contentImageUrl;
@@ -65,9 +66,11 @@ public class Content extends Auditable {
     @Column(name = "delete_dt")
     private LocalDateTime deleteAt;
 
-    public Content update(String title, String body) {
+    public Content update(String title, String body, String contentImageUrl, boolean publish) {
         this.title = title;
         this.body = body;
+        this.contentImageUrl = contentImageUrl;
+        this.publish = publish;
 
         return this;
     }

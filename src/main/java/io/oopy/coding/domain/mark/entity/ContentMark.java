@@ -27,5 +27,6 @@ public class ContentMark extends Auditable {
     private User user;
 
     @Column(name = "type")
-    private String type;
+    @Convert(converter = MarkTypeConverter.class)
+    private MarkType type;
 }

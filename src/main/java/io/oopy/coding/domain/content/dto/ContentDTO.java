@@ -16,7 +16,7 @@ public class ContentDTO {
     private Long views;
     private String repoName;
     private String repoOwner;
-    private boolean complete;
+    private Boolean publish;
     private String contentImageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -27,11 +27,11 @@ public class ContentDTO {
                 .id(content.getId())
                 .title(content.getTitle())
                 .body(content.getBody())
-                .type(content.getType())
+                .type(content.getType().getType())
                 .views(content.getViews())
                 .repoName(content.getRepoName())
                 .repoOwner(content.getRepoOwner())
-                .complete(content.isComplete())
+                .publish(content.getPublish())
                 .contentImageUrl(content.getContentImageUrl())
                 .createdAt(content.getCreatedAt())
                 .updatedAt(content.getUpdatedAt())

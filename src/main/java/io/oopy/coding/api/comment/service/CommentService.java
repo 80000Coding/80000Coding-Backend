@@ -11,6 +11,7 @@ import io.oopy.coding.domain.comment.entity.Comment;
 import io.oopy.coding.domain.comment.repository.CommentRepository;
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.content.repository.ContentRepository;
+import io.oopy.coding.domain.user.entity.RoleType;
 import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -91,7 +92,7 @@ public class CommentService {
         if (comment.getDeleteAt() != null)
             throw new CommentErrorException(CommentErrorCode.DELETED_COMMENT);
 
-        if (securityUser.getRole().equals("ROLE_ADMIN") || comment.getUser().getId().equals(securityUser.getUserId()))
+        if (securityUser.getRole() == RoleType.ADMIN || comment.getUser().getId().equals(securityUser.getUserId()))
             comment.deleteComment();
         else
             throw new CommentErrorException(CommentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
@@ -110,7 +111,7 @@ public class CommentService {
         if (comment.getDeleteAt() != null)
             throw new CommentErrorException(CommentErrorCode.DELETED_COMMENT);
 
-        if (securityUser.getRole().equals("ROLE_ADMIN") || comment.getUser().getId().equals(securityUser.getUserId()))
+        if (securityUser.getRole() == RoleType.ADMIN || comment.getUser().getId().equals(securityUser.getUserId()))
             commentRepository.save(comment.updateComment(req.getContent()));
         else
             throw new CommentErrorException(CommentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
