@@ -3,6 +3,7 @@ package io.oopy.coding.domain.user.repository;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.oopy.coding.domain.content.entity.Content;
+import io.oopy.coding.domain.content.entity.ContentType;
 import io.oopy.coding.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,11 +35,12 @@ public class UserQueryRepository {
         return PageableExecutionUtils.getPage(fetch, pageable, count::fetchOne);
     }
 
+    //post project
     public long countPostByUserId(long id) {
         long postCount = queryFactory.selectFrom(content)
                 .where(content.user.id.eq(id)
-                    .and(content.type.eq("post"))
-                    .and(content.complete.eq(true))
+                    .and(content.type.eq(ContentType.POST))
+                    .and(content.publish.eq(true))
                     .and(content.deleteAt.isNull())
                 )
                 .fetchCount();
@@ -49,8 +51,8 @@ public class UserQueryRepository {
     public long countProjByUserId(long id) {
         long postCount = queryFactory.selectFrom(content)
                 .where(content.user.id.eq(id)
-                        .and(content.type.eq("proj"))
-                        .and(content.complete.eq(true))
+                        .and(content.type.eq(ContentType.PROJECT))
+                        .and(content.publish.eq(true))
                         .and(content.deleteAt.isNull())
                 )
                 .fetchCount();
