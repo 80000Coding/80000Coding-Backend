@@ -1,4 +1,4 @@
-package io.oopy.coding.common.util.jwt.exception;
+package io.oopy.coding.common.security.jwt.exception;
 
 public record AuthErrorResponse(String code, String message) {
     @Override public String toString() {

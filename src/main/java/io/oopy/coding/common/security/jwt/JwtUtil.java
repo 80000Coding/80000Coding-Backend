@@ -1,7 +1,7 @@
-package io.oopy.coding.common.util.jwt;
+package io.oopy.coding.common.security.jwt;
 
-import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
+import io.oopy.coding.common.security.jwt.dto.JwtUserInfo;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
 
 import java.time.LocalDateTime;
 

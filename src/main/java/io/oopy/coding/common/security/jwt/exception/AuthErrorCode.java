@@ -1,4 +1,4 @@
-package io.oopy.coding.common.util.jwt.exception;
+package io.oopy.coding.common.security.jwt.exception;
 
 import io.oopy.coding.common.response.code.StatusCode;
 import lombok.AccessLevel;

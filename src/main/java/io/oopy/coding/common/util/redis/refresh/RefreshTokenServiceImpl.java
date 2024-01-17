@@ -1,9 +1,9 @@
 package io.oopy.coding.common.util.redis.refresh;
 
-import io.oopy.coding.common.util.jwt.JwtUtil;
-import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorCode;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
+import io.oopy.coding.common.security.jwt.JwtUtil;
+import io.oopy.coding.common.security.jwt.dto.JwtUserInfo;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorCode;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

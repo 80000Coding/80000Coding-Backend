@@ -1,4 +1,4 @@
-package io.oopy.coding.common.util.jwt.entity;
+package io.oopy.coding.common.security.jwt.dto;
 
 import io.oopy.coding.domain.user.entity.RoleType;
 import io.oopy.coding.domain.user.entity.User;

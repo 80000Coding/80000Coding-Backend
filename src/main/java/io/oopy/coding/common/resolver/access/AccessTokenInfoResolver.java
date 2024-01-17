@@ -1,9 +1,9 @@
 package io.oopy.coding.common.resolver.access;
 
-import io.oopy.coding.common.util.jwt.AuthConstants;
-import io.oopy.coding.common.util.jwt.JwtUtil;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorCode;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
+import io.oopy.coding.common.security.jwt.AuthConstants;
+import io.oopy.coding.common.security.jwt.JwtUtil;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorCode;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
@@ -17,8 +17,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Parameter;
 import java.time.LocalDateTime;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)

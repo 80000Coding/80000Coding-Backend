@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static io.oopy.coding.common.util.jwt.AuthConstants.REFRESH_TOKEN;
+import static io.oopy.coding.common.security.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
 @RequiredArgsConstructor

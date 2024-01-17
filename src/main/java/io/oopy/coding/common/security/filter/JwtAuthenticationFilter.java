@@ -1,12 +1,12 @@
 package io.oopy.coding.common.security.filter;
 
 import io.oopy.coding.common.util.cookie.CookieUtil;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorCode;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorCode;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
 import io.oopy.coding.common.util.redis.refresh.RefreshToken;
 import io.oopy.coding.common.security.authentication.UserDetailServiceImpl;
-import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
-import io.oopy.coding.common.util.jwt.JwtUtil;
+import io.oopy.coding.common.security.jwt.dto.JwtUserInfo;
+import io.oopy.coding.common.security.jwt.JwtUtil;
 import io.oopy.coding.common.util.redis.forbidden.ForbiddenTokenService;
 import io.oopy.coding.common.util.redis.refresh.RefreshTokenService;
 import jakarta.servlet.FilterChain;
@@ -26,12 +26,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static io.oopy.coding.common.util.jwt.AuthConstants.*;
+import static io.oopy.coding.common.security.jwt.AuthConstants.*;
 
 /**
  * 지정한 URL 별로 JWT 유효성 검증을 수행하며, 직접적인 사용자 인증을 확인합니다.

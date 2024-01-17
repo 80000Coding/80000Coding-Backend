@@ -5,7 +5,7 @@ import io.oopy.coding.common.security.authentication.UserDetailServiceImpl;
 import io.oopy.coding.common.security.filter.JwtAuthenticationFilter;
 import io.oopy.coding.common.security.filter.JwtExceptionFilter;
 import io.oopy.coding.common.util.cookie.CookieUtil;
-import io.oopy.coding.common.util.jwt.JwtUtil;
+import io.oopy.coding.common.security.jwt.JwtUtil;
 import io.oopy.coding.common.util.redis.forbidden.ForbiddenTokenService;
 import io.oopy.coding.common.util.redis.refresh.RefreshTokenService;
 import lombok.AccessLevel;

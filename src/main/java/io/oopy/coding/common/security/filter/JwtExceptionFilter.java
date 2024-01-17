@@ -1,9 +1,9 @@
 package io.oopy.coding.common.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorResponse;
-import io.oopy.coding.common.util.jwt.exception.JwtErrorCodeUtil;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorResponse;
+import io.oopy.coding.common.security.jwt.exception.JwtErrorCodeUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

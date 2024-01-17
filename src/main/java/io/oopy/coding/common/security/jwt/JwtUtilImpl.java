@@ -1,19 +1,18 @@
-package io.oopy.coding.common.util.jwt;
+package io.oopy.coding.common.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.oopy.coding.common.security.jwt.dto.JwtUserInfo;
 import io.oopy.coding.common.util.DateUtil;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorCode;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
-import io.oopy.coding.common.util.jwt.exception.JwtErrorCodeUtil;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorCode;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
+import io.oopy.coding.common.security.jwt.exception.JwtErrorCodeUtil;
 import io.oopy.coding.domain.user.entity.RoleType;
-import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.time.Duration;
 import java.time.LocalDateTime;

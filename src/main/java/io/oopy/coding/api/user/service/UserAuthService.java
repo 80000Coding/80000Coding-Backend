@@ -3,8 +3,8 @@ package io.oopy.coding.api.user.service;
 import io.oopy.coding.common.resolver.access.AccessToken;
 import io.oopy.coding.domain.user.dto.UserAuthReq;
 import io.oopy.coding.domain.user.entity.User;
-import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
-import io.oopy.coding.common.util.jwt.JwtUtil;
+import io.oopy.coding.common.security.jwt.dto.JwtUserInfo;
+import io.oopy.coding.common.security.jwt.JwtUtil;
 import io.oopy.coding.common.util.redis.forbidden.ForbiddenTokenService;
 import io.oopy.coding.common.util.redis.refresh.RefreshToken;
 import io.oopy.coding.common.util.redis.refresh.RefreshTokenService;
@@ -16,8 +16,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
-import static io.oopy.coding.common.util.jwt.AuthConstants.ACCESS_TOKEN;
-import static io.oopy.coding.common.util.jwt.AuthConstants.REFRESH_TOKEN;
+import static io.oopy.coding.common.security.jwt.AuthConstants.ACCESS_TOKEN;
+import static io.oopy.coding.common.security.jwt.AuthConstants.REFRESH_TOKEN;
 
 @Slf4j
 @Service
