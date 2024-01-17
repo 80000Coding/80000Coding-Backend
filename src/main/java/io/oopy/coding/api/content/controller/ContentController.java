@@ -1,12 +1,13 @@
 package io.oopy.coding.api.content.controller;
 
 import io.oopy.coding.api.content.service.*;
-import io.oopy.coding.common.resolver.access.AccessToken;
-import io.oopy.coding.common.resolver.access.AccessTokenInfo;
 import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.content.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
+@Tag(name = "CONTENT", description = "게시글 관련 API(피드X)")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/contents")
@@ -22,29 +24,31 @@ public class ContentController {
 
     private final ContentService contentService;
 
-
-    // TODO 비회원/회원 이용은 Get만 진행, 뒤쪽 url을 구분해서 ignoring에 작성해야할 것 같음(url 이름 논의)
-    @Operation(summary = "게시글 정보 불러오기")
-    @GetMapping("/get")
-    public ResponseEntity<?> GetContent(@RequestParam Long contentId) {
+    @Operation(summary = "게시글 1개 상세조회", description = "게시글 중 한 개를 선택하여 상세 내용을 가져오는 API")
+    @GetMapping("/{content_id}")
+    public ResponseEntity<?> getContent(@Parameter(name = "content_id", description = "게시글 번호") @PathVariable(name = "content_id") Long contentId) {
         return ResponseEntity.ok().body(SuccessResponse.from(contentService.getContent(contentId)));
     }
 
-    @Operation(summary = "게시글 생성")
-    @PostMapping("/post")
-    public ResponseEntity<?> createContent(@Valid @RequestBody CreateContentReq req, @AuthenticationPrincipal CustomUserDetails securityUser) {
+    @Operation(summary = "게시글 생성", description = "게시글 생성 버튼을 누르는 즉시 content 목록 생성. 이후 작성되는 내용은 PATCH 메소드를 통한다(임시저장 기능을 위해)")
+    @PostMapping("")
+    public ResponseEntity<?> createContent(@Valid @RequestBody CreateContentReq req,
+                                           @AuthenticationPrincipal CustomUserDetails securityUser) {
         return ResponseEntity.ok().body(SuccessResponse.from(contentService.createContent(req, securityUser)));
     }
 
-    @Operation(summary = "게시글 수정 및 작성완료")
-    @PatchMapping("/update")
-    public ResponseEntity<?> updateContent(@Valid @RequestBody UpdateContentReq req, @AuthenticationPrincipal CustomUserDetails securityUser) {
-        return ResponseEntity.ok().body(SuccessResponse.from(contentService.updateContent(req, securityUser)));
+    @Operation(summary = "게시글 1개 수정 및 작성완료", description = "publish = true 일 경우 생성된 게시물, true 가 아닐 경우 임시저장 된 게시물로 판단")
+    @PatchMapping("/{content_id}")
+    public ResponseEntity<?> updateContent(@Parameter(name = "content_id", description = "게시글 번호") @PathVariable(name = "content_id") Long contentId,
+                                           @Valid @RequestBody UpdateContentReq req,
+                                           @AuthenticationPrincipal CustomUserDetails securityUser) {
+        return ResponseEntity.ok().body(SuccessResponse.from(contentService.updateContent(contentId, req, securityUser)));
     }
 
-    @Operation(summary = "게시글 삭제(Soft Delete)")
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteContent(@RequestParam Long contentId, @AuthenticationPrincipal CustomUserDetails securityUser) {
+    @Operation(summary = "게시글 1개 삭제", description = "게시글 삭제 기능. Soft Delete 를 이용하여 Deleted_dt값 세팅")
+    @DeleteMapping("/{content_id}")
+    public ResponseEntity<?> deleteContent(@Parameter(name = "content_id", description = "게시글 번호") @PathVariable(name = "content_id") Long contentId,
+                                           @AuthenticationPrincipal CustomUserDetails securityUser) {
         return ResponseEntity.ok().body(SuccessResponse.from(contentService.deleteContent(contentId, securityUser)));
     }
 }

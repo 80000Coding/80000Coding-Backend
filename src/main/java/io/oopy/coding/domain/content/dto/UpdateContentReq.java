@@ -6,16 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Schema(description = "게시글 수정 요청 DTO")
 public class UpdateContentReq {
-
-    @NotNull
-    @Schema(description = "게시글 id", example = "1")
-    private Long contentId;
 
     @NotBlank
     @Schema(description = "게시글 제목", example = "제목")

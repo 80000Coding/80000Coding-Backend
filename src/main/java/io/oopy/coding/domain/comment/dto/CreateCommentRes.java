@@ -15,9 +15,9 @@ public class CreateCommentRes {
     private Long parentId;
     private LocalDateTime createdAt;
 
-    public static CreateCommentRes from(CreateCommentReq req, Comment comment) {
+    public static CreateCommentRes from(Long contentId, CreateCommentReq req, Comment comment) {
         return CreateCommentRes.builder()
-                .contentId(req.getContentId())
+                .contentId(contentId)
                 .commentId(comment.getId())
                 .commentBody(req.getContent())
                 .parentId(req.getParentId())

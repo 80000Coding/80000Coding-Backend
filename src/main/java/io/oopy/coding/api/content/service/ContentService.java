@@ -79,9 +79,9 @@ public class ContentService {
      * @return contentId, updatedAt
      */
     //TODO 프론트쪽에서 넘겨주는 이미지 주소를 그대로 저장하면 되는건가?
-    public UpdateContentRes updateContent(UpdateContentReq req, CustomUserDetails securityUser) {
+    public UpdateContentRes updateContent(Long contentId, UpdateContentReq req, CustomUserDetails securityUser) {
 
-        Content content = findContent(req.getContentId());
+        Content content = findContent(contentId);
 
         if (securityUser.getRole() != RoleType.ADMIN && !content.getUser().getId().equals(securityUser.getUserId()))
             throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);

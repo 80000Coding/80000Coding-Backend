@@ -5,40 +5,49 @@ import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.comment.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "COMMENT", description = "댓글 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/comments")
+@RequestMapping("/api/v1/contents/{content_id}/comments")
 public class CommentController {
     private final CommentService commentService;
 
-    // TODO 비회원/회원 이용은 Get만 진행, 뒤쪽 url을 구분해서 ignoring에 작성해야할 것 같음
-    @Operation(summary = "게시글에 관련된 댓글 가져오기")
-    @GetMapping("/get")
-    public ResponseEntity<?> getComment(@RequestParam Long contentId) {
+    @Operation(summary = "게시글에 관련된 댓글 가져오기", description = "content_id 에 등록되어 있는 모든 댓글을 가져오는 API")
+    @GetMapping("")
+    public ResponseEntity<?> getComment(@Parameter(name = "content_id", description = "게시글 번호") @PathVariable(name = "content_id") Long contentId) {
         return ResponseEntity.ok().body(SuccessResponse.from(commentService.getComments(contentId)));
     }
 
-    @Operation(summary = "댓글 작성")
-    @PostMapping("/post")
-    public ResponseEntity<?> createComment(@Valid @RequestBody CreateCommentReq request, @AuthenticationPrincipal CustomUserDetails securityUser) {
-        return ResponseEntity.ok().body(SuccessResponse.from(commentService.createComment(request, securityUser)));
+    @Operation(summary = "댓글 작성", description = "content_id 게시물에 댓글 작성")
+    @PostMapping("")
+    public ResponseEntity<?> createComment(@Parameter(name = "content_id", description = "게시글 번호") @PathVariable(name = "content_id") Long contentId,
+                                           @Valid @RequestBody CreateCommentReq request,
+                                           @AuthenticationPrincipal CustomUserDetails securityUser) {
+        return ResponseEntity.ok().body(SuccessResponse.from(commentService.createComment(contentId, request, securityUser)));
     }
 
-    @Operation(summary = "댓글 수정")
-    @PatchMapping("/update")
-    public ResponseEntity<?> updateComment(@Valid @RequestBody UpdateCommentReq request, @AuthenticationPrincipal CustomUserDetails securityUser) {
-        return ResponseEntity.ok().body(SuccessResponse.from(commentService.updateComment(request, securityUser)));
+    @Operation(summary = "댓글 수정", description = "comment_id 댓글 수정")
+    @PatchMapping("/{comment_id}")
+    public ResponseEntity<?> updateComment(@Parameter(name = "content_id", description = "게시글 번호", hidden = true) @PathVariable(name = "content_id") Long contentId,
+                                           @Parameter(name = "comment_id", description = "댓글 번호") @PathVariable(name = "comment_id") Long commentId,
+                                           @Valid @RequestBody UpdateCommentReq request,
+                                           @AuthenticationPrincipal CustomUserDetails securityUser) {
+        return ResponseEntity.ok().body(SuccessResponse.from(commentService.updateComment(commentId, request, securityUser)));
     }
 
-    @Operation(summary = "댓글 삭제(Soft Delete)")
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteComment(@RequestParam Long commentId, @AuthenticationPrincipal CustomUserDetails securityUser) {
+    @Operation(summary = "댓글 삭제", description = "comment_id 댓글 삭제. Soft Delete")
+    @DeleteMapping("/{comment_id}")
+    public ResponseEntity<?> deleteComment(@Parameter(name = "content_id", description = "게시글 번호", hidden = true) @PathVariable(name = "content_id") Long contentId,
+                                           @Parameter(name = "comment_id", description = "댓글 번호") @PathVariable(name = "comment_id") Long commentId,
+                                           @AuthenticationPrincipal CustomUserDetails securityUser) {
         return ResponseEntity.ok().body(SuccessResponse.from(commentService.deleteComment(commentId, securityUser)));
     }
 

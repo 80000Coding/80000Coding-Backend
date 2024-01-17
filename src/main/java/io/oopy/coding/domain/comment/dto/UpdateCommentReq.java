@@ -5,20 +5,14 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "댓글 수정 DTO")
 public class UpdateCommentReq {
-
-    @NotBlank
-    @Schema(description = "댓글 작성자 ID")
-    private Long userId;
-
-    @NotBlank
-    @Schema(description = "댓글 ID")
-    private Long commentId;
 
     @NotBlank
     @Schema(description = "댓글 내용")

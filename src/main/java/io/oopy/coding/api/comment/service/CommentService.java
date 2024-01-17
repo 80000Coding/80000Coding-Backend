@@ -54,10 +54,10 @@ public class CommentService {
      * 댓글 생성
      * @param req
      */
-    public CreateCommentRes createComment(CreateCommentReq req, CustomUserDetails securityUser) {
+    public CreateCommentRes createComment(Long contentId, CreateCommentReq req, CustomUserDetails securityUser) {
         User user = userRepository.findById(securityUser.getUserId()).orElse(null);
 
-        Content content = contentRepository.findById(req.getContentId())
+        Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
 
         if (req.getParentId() != null) {
@@ -77,7 +77,26 @@ public class CommentService {
 
         commentRepository.save(newComment);
 
-        return CreateCommentRes.from(req, newComment);
+        return CreateCommentRes.from(contentId, req, newComment);
+    }
+
+    /**
+     * 댓글 수정
+     * @param req
+     */
+    public UpdateCommentRes updateComment(Long commentId, UpdateCommentReq req, CustomUserDetails securityUser) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentErrorException(CommentErrorCode.INVALID_COMMENT_ID));
+
+        if (comment.getDeleteAt() != null)
+            throw new CommentErrorException(CommentErrorCode.DELETED_COMMENT);
+
+        if (securityUser.getRole() == RoleType.ADMIN || comment.getUser().getId().equals(securityUser.getUserId()))
+            commentRepository.save(comment.updateComment(req.getContent()));
+        else
+            throw new CommentErrorException(CommentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
+
+        return UpdateCommentRes.of(comment.getId(), comment.getUpdatedAt());
     }
 
     /**
@@ -100,22 +119,4 @@ public class CommentService {
         return DeleteCommentRes.of(commentId, comment.getDeleteAt());
     }
 
-    /**
-     * 댓글 수정
-     * @param req
-     */
-    public UpdateCommentRes updateComment(UpdateCommentReq req, CustomUserDetails securityUser) {
-        Comment comment = commentRepository.findById(req.getCommentId())
-                .orElseThrow(() -> new CommentErrorException(CommentErrorCode.INVALID_COMMENT_ID));
-
-        if (comment.getDeleteAt() != null)
-            throw new CommentErrorException(CommentErrorCode.DELETED_COMMENT);
-
-        if (securityUser.getRole() == RoleType.ADMIN || comment.getUser().getId().equals(securityUser.getUserId()))
-            commentRepository.save(comment.updateComment(req.getContent()));
-        else
-            throw new CommentErrorException(CommentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
-
-        return UpdateCommentRes.of(comment.getId(), comment.getUpdatedAt());
-    }
 }

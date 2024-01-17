@@ -49,17 +49,13 @@ public class ContentCategoryService {
         return response;
     }
 
-    public boolean addCategory(ChangeCategoryReq req, CustomUserDetails securityUser) {
-        Content content = contentService.findContent(req.getContentId());
-
-        if (securityUser.getRole() != RoleType.ADMIN && !content.getUser().getId().equals(securityUser.getUserId())) {
-            throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
-        }
+    public boolean addCategory(Long contentId, ChangeCategoryReq req) {
+        Content content = contentService.findContent(contentId);
 
         Category category = categoryRepository.findByName(req.getCategory())
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_CATEGORY));
 
-        ContentCategory contentCategory = contentCategoryRepository.findContentCategoryByContentIdAndCategoryName(req.getContentId(), req.getCategory());
+        ContentCategory contentCategory = contentCategoryRepository.findContentCategoryByContentIdAndCategoryName(contentId, req.getCategory());
         if (contentCategory != null) {
             throw new ContentErrorException(ContentErrorCode.ALREADY_APPOINTED_CATEGORY);
         }
@@ -72,17 +68,11 @@ public class ContentCategoryService {
     }
 
     @Transactional
-    public boolean deleteCategory(ChangeCategoryReq req, CustomUserDetails securityUser) {
-        Content content = contentService.findContent(req.getContentId());
-
-        if (securityUser.getRole() != RoleType.ADMIN && !content.getUser().getId().equals(securityUser.getUserId())) {
-            throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
-        }
-
+    public boolean deleteCategory(Long contentId, ChangeCategoryReq req) {
         categoryRepository.findByName(req.getCategory())
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_CATEGORY));
 
-        ContentCategory contentCategory = contentCategoryRepository.findContentCategoryByContentIdAndCategoryName(req.getContentId(), req.getCategory());
+        ContentCategory contentCategory = contentCategoryRepository.findContentCategoryByContentIdAndCategoryName(contentId, req.getCategory());
         if (contentCategory == null) {
             throw new ContentErrorException(ContentErrorCode.ALREADY_DELETED_CATEGORY);
         }
