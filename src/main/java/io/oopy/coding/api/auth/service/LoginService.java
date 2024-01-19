@@ -1,10 +1,11 @@
 package io.oopy.coding.api.auth.service;
 
-import io.oopy.coding.common.security.jwt.dto.JwtUserInfo;
-import io.oopy.coding.common.security.jwt.JwtUtil;
+import io.oopy.coding.api.user.service.UserSearchService;
+import io.oopy.coding.common.security.jwt.JwtProvider;
+import io.oopy.coding.common.security.jwt.dto.JwtAuthInfo;
+import io.oopy.coding.common.security.jwt.dto.JwtSubInfo;
 import io.oopy.coding.common.util.redis.refresh.RefreshTokenService;
 import io.oopy.coding.domain.user.entity.User;
-import io.oopy.coding.api.user.service.UserSearchService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +22,13 @@ import static io.oopy.coding.common.security.jwt.AuthConstants.REFRESH_TOKEN;
 @Transactional
 public class LoginService {
     private final UserSearchService userSearchService;
-    private final JwtUtil jwtUtil;
+    private final JwtProvider jwtUtil;
     private final RefreshTokenService refreshTokenService;
 
     public Map<String, String> login(Integer githubId) {
         User user = userSearchService.findByGithubId(githubId);
-        JwtUserInfo jwtUserInfo = JwtUserInfo.from(user);
-        String accessToken = jwtUtil.generateAccessToken(jwtUserInfo);
+        JwtSubInfo jwtUserInfo = JwtAuthInfo.from(user);
+        String accessToken = jwtUtil.generateToken(jwtUserInfo);
         String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
         log.info("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
 

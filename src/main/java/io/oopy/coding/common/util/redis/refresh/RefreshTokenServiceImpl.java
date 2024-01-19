@@ -1,9 +1,10 @@
 package io.oopy.coding.common.util.redis.refresh;
 
-import io.oopy.coding.common.security.jwt.JwtUtil;
-import io.oopy.coding.common.security.jwt.dto.JwtUserInfo;
+import io.oopy.coding.common.security.jwt.JwtProvider;
+import io.oopy.coding.common.security.jwt.dto.JwtSubInfo;
 import io.oopy.coding.common.security.jwt.exception.AuthErrorCode;
 import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
+import io.oopy.coding.common.security.jwt.qualifier.RefreshTokenQualifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,22 +15,22 @@ import java.time.Duration;
 @Service
 public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
-    private final JwtUtil jwtUtil;
+    private final JwtProvider refreshTokenProvider;
     private final Duration refreshTokenExpireTime;
 
     public RefreshTokenServiceImpl(
             RefreshTokenRepository refreshTokenRepository,
-            JwtUtil jwtUtil,
+            @RefreshTokenQualifier JwtProvider refreshTokenProvider,
             @Value("${jwt.token.refresh-expiration-time}") Duration refreshTokenExpireTime)
     {
         this.refreshTokenRepository = refreshTokenRepository;
-        this.jwtUtil = jwtUtil;
+        this.refreshTokenProvider = refreshTokenProvider;
         this.refreshTokenExpireTime = refreshTokenExpireTime;
     }
 
     @Override
     public String issueRefreshToken(String accessToken) throws AuthErrorException {
-        final var user = jwtUtil.getUserInfoFromToken(accessToken);
+        final JwtSubInfo user = refreshTokenProvider.getSubInfoFromToken(accessToken);
 
         final var refreshToken = RefreshToken.builder()
                 .userId(user.id())
@@ -44,7 +45,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public RefreshToken refresh(String requestRefreshToken) throws AuthErrorException {
-        final JwtUserInfo user = jwtUtil.getUserInfoFromToken(requestRefreshToken);
+        final JwtSubInfo user = refreshTokenProvider.getSubInfoFromToken(requestRefreshToken);
         final RefreshToken refreshToken = findOrThrow(user.id());
 
         validateToken(requestRefreshToken, refreshToken);
@@ -58,15 +59,15 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public void logout(String requestRefreshToken) {
-        final Long userId = jwtUtil.getUserIdFromToken(requestRefreshToken);
+        final Long userId = refreshTokenProvider.getSubInfoFromToken(requestRefreshToken).id();
         final RefreshToken refreshToken = findOrThrow(userId);
 
         refreshTokenRepository.delete(refreshToken);
         log.info("refresh token deleted. : {}", refreshToken);
     }
 
-    private String makeRefreshToken(JwtUserInfo user) {
-        return jwtUtil.generateRefreshToken(user);
+    private String makeRefreshToken(JwtSubInfo user) {
+        return refreshTokenProvider.generateToken(user);
     }
 
     private long getExpireTime() {
