@@ -57,7 +57,10 @@ springdoc:
       enabled: true
 
 jwt:
-  secret: exampleSecretKeyForSpringBootProjectAtSubRepository
+  secret:
+    access: exampleSecretKeyForSpringBootProjectAtSubRepository
+    refresh: exampleSecretKeyForSpringBootProjectAtSubRepositoryRefresh
+    oauth-register: exampleSecretKeyForSpringBootProjectAtSubRepositoryOauthRegister
   token:
     # milliseconds 단위
     access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
