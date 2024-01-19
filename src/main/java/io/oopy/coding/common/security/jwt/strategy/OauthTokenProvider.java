@@ -36,7 +36,7 @@ public class OauthTokenProvider implements JwtProvider {
 
     public OauthTokenProvider(
             @Value("${jwt.secret.oauth-register}") String jwtSecretKey,
-            @Value("${jwt.token.refresh-expiration-time}") Duration tokenExpiration
+            @Value("${jwt.token.signup-access-expiration-time}") Duration tokenExpiration
     ) {
         final byte[] secretKeyBytes = Base64.getDecoder().decode(jwtSecretKey);
         this.signatureKey = Keys.hmacShaKeyFor(secretKeyBytes);
