@@ -4,7 +4,7 @@ import io.oopy.coding.domain.user.entity.RoleType;
 
 public interface JwtSubInfo {
     Long id();
-    String githubId();
+    Integer githubId();
     RoleType role();
 }
 

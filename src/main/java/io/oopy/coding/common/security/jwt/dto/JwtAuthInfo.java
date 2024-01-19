@@ -24,7 +24,7 @@ public record JwtAuthInfo(
     }
 
     @Override
-    public String githubId() {
+    public Integer githubId() {
         throw new UnsupportedOperationException();
     }
 }
