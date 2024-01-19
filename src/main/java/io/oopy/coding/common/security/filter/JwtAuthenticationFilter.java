@@ -1,13 +1,13 @@
 package io.oopy.coding.common.security.filter;
 
-import io.oopy.coding.common.util.cookie.CookieUtil;
+import io.oopy.coding.common.security.authentication.UserDetailServiceImpl;
+import io.oopy.coding.common.security.jwt.JwtProvider;
+import io.oopy.coding.common.security.jwt.dto.JwtSubInfo;
 import io.oopy.coding.common.security.jwt.exception.AuthErrorCode;
 import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
-import io.oopy.coding.common.util.redis.refresh.RefreshToken;
-import io.oopy.coding.common.security.authentication.UserDetailServiceImpl;
-import io.oopy.coding.common.security.jwt.dto.JwtUserInfo;
-import io.oopy.coding.common.security.jwt.JwtUtil;
+import io.oopy.coding.common.util.cookie.CookieUtil;
 import io.oopy.coding.common.util.redis.forbidden.ForbiddenTokenService;
+import io.oopy.coding.common.util.redis.refresh.RefreshToken;
 import io.oopy.coding.common.util.redis.refresh.RefreshTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -42,7 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
 
-    private final JwtUtil jwtUtil;
+    private final JwtProvider accessProvider;
+    private final JwtProvider refreshProvider;
+
     private final CookieUtil cookieUtil;
 
     private final List<String> jwtIgnoreUrls = List.of(
@@ -89,14 +91,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveAccessToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         String authHeader = request.getHeader(AUTH_HEADER.getValue());
 
-        String token = jwtUtil.resolveToken(authHeader);
+        String token = accessProvider.resolveToken(authHeader);
         if (!StringUtils.hasText(token))
             handleAuthException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "액세스 토큰이 없습니다.");
 
         if (forbiddenTokenService.isForbidden(token))
             handleAuthException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN, "더 이상 사용할 수 없는 토큰입니다.");
 
-        if (jwtUtil.isTokenExpired(token)) {
+        if (accessProvider.isTokenExpired(token)) {
             log.warn("Expired JWT access token: {}", token);
             return reissueAccessToken(request, response);
         }
@@ -113,14 +115,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), reissuedRefreshToken.getToken(), refreshTokenCookie.getMaxAge());
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        JwtUserInfo userInfo = jwtUtil.getUserInfoFromToken(requestRefreshToken);
-        String reissuedAccessToken = jwtUtil.generateAccessToken(userInfo);
+        JwtSubInfo userInfo = refreshProvider.getSubInfoFromToken(requestRefreshToken);
+        String reissuedAccessToken = accessProvider.generateToken(userInfo);
         response.addHeader(REISSUED_ACCESS_TOKEN.getValue(), reissuedAccessToken);
         return reissuedAccessToken;
     }
 
     private UserDetails getUserDetails(final String accessToken) {
-        Long userId = jwtUtil.getUserIdFromToken(accessToken);
+        Long userId = accessProvider.getSubInfoFromToken(accessToken).id();
         return userDetailServiceImpl.loadUserByUsername(userId.toString());
     }
 
