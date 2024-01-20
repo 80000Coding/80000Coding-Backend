@@ -69,6 +69,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        if (isAnonymousRequest(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String accessToken = resolveAccessToken(request, response);
 
         UserDetails userDetails = getUserDetails(accessToken);
@@ -86,6 +91,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 )
                 .findFirst();
         return !judge.isEmpty() || "OPTIONS".equals(method);
+    }
+
+    private boolean isAnonymousRequest(HttpServletRequest request) {
+        String accessToken = request.getHeader(AUTH_HEADER.getValue());
+        String refreshToken = request.getHeader(REFRESH_TOKEN.getValue());
+
+        return accessToken == null && refreshToken == null;
     }
 
     private String resolveAccessToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {

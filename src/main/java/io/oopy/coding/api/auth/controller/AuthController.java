@@ -60,9 +60,7 @@ public class AuthController {
 
     // TODO : 실제로는 다른 uri로 요청예정, 프론트와 협의 필요
     @Operation(summary = "OAuth2 로그인 후 로그인/회원가입 분기 조회", description = "githubId 존재유무에 따라 로그인 및 회원가입 인지를 알려주고 로그인의 경우 사용자 정보로 jwt를 생성하고, 회원가입의 경우 githubId로 jwt를 생성합니다.")
-    @Parameters({
-            @Parameter(name = "code", description = "OAuth2 login 후 받은 access token 발급 시 필요한 코드", in = ParameterIn.QUERY)
-    })
+    @Parameter(name = "code", description = "OAuth2 login 후 받은 access token 발급 시 필요한 코드", in = ParameterIn.QUERY)
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
         @ApiResponse(responseCode = "200", description = "회원가입으로 이동", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),

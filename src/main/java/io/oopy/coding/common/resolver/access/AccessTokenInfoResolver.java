@@ -1,7 +1,7 @@
 package io.oopy.coding.common.resolver.access;
 
 import io.oopy.coding.common.security.jwt.AuthConstants;
-import io.oopy.coding.common.security.jwt.JwtUtil;
+import io.oopy.coding.common.security.jwt.JwtProvider;
 import io.oopy.coding.common.security.jwt.exception.AuthErrorCode;
 import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,13 +23,10 @@ import java.time.LocalDateTime;
 @Slf4j
 @Component
 public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
-    private final JwtUtil jwtUtil;
+    private final JwtProvider jwtProvider;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        AccessTokenInfo parameterAnnotation = parameter.getParameterAnnotation(AccessTokenInfo.class);
-        //TODO : 닉네임 변경 시 아래 정보가 없어서 NPE 문제가 발생함
-        //log.info("parameter annotations: {}", parameter.getParameterAnnotation(AccessTokenInfo.class).required());
         return parameter.getParameterAnnotation(AccessTokenInfo.class) != null
                 && parameter.getParameterType().equals(AccessToken.class);
     }
@@ -52,7 +49,7 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
 
         String accessToken;
         if (!StringUtils.hasText(reissuedAccessToken)) {
-            accessToken = jwtUtil.resolveToken(httpServletRequest.getHeader(AuthConstants.AUTH_HEADER.getValue()));
+            accessToken = jwtProvider.resolveToken(httpServletRequest.getHeader(AuthConstants.AUTH_HEADER.getValue()));
 
             boolean isPresent = StringUtils.hasText(accessToken);
             if (!isPresent && !parameter.getParameterAnnotation(AccessTokenInfo.class).required()) {
@@ -67,10 +64,11 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
             isReissued = true;
         }
 
-        Integer githubId = jwtUtil.getGithubIdFromToken(accessToken);
-        LocalDateTime expiryDate = jwtUtil.getExpiryDate(accessToken);
-        log.info("access token expiryDate : {}", expiryDate);
+        Long id = jwtProvider.getSubInfoFromToken(accessToken).id();
+        LocalDateTime expiryDate = jwtProvider.getExpiryDate(accessToken);
 
-        return AccessToken.of(accessToken, githubId, expiryDate, isReissued);
+        log.info("{}번 유저 로그인", id);
+
+        return AccessToken.of(accessToken, id, expiryDate, isReissued);
     }
 }
