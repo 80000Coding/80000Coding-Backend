@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
@@ -59,6 +60,7 @@ public class UserAPI {
     }
 
     @GetMapping("/logout")
+    @PreAuthorize("isAuthenticate()")
     public ResponseEntity<?> logoutTest(@AccessTokenInfo AccessToken accessToken,
                                         @CookieValue(value = "refreshToken", required = false) @Valid String refreshToken,
                                         HttpServletRequest request, HttpServletResponse response) {
@@ -79,6 +81,7 @@ public class UserAPI {
     }
 
     @GetMapping("/refresh")
+    @PreAuthorize("anonymous()")
     public ResponseEntity<?> refreshTest(@CookieValue("refreshToken") String refreshToken) {
         if (refreshToken == null) {
             throw new IllegalArgumentException("존재하지 않는 쿠키입니다."); // TODO : 공통 예외로 변경
@@ -144,12 +147,14 @@ public class UserAPI {
 
     // 탈퇴
     @DeleteMapping("")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> delete(@AuthenticationPrincipal CustomUserDetails securityUser) {
         userProfileService.delete(securityUser.getUserId());
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
     @GetMapping("/profile-image")
+    @PreAuthorize("isAuthenticate()")
     public ResponseEntity<?> saveProfileImage(@AuthenticationPrincipal CustomUserDetails securityUser,
                                               @RequestParam("image") String imageUrl) {
         userProfileService.saveProfileImage(securityUser.getUserId(), imageUrl);
