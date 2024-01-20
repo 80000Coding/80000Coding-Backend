@@ -32,7 +32,6 @@ public class ContentService {
     public GetContentRes getContent(Long contentId) {
         Content content = findContent(contentId);
 
-        // soft Delete 된 게시글 일 경우
         if (content.getDeleteAt() != null)
             throw new ContentErrorException(ContentErrorCode.DELETED_CONTENT);
 
@@ -78,13 +77,10 @@ public class ContentService {
      * @param req
      * @return contentId, updatedAt
      */
-    //TODO 프론트쪽에서 넘겨주는 이미지 주소를 그대로 저장하면 되는건가?
-    public UpdateContentRes updateContent(UpdateContentReq req, CustomUserDetails securityUser) {
+    public UpdateContentRes updateContent(Long contentId, UpdateContentReq req, CustomUserDetails securityUser) {
 
-        Content content = findContent(req.getContentId());
+        Content content = findContent(contentId);
 
-        if (securityUser.getRole() != RoleType.ADMIN && !content.getUser().getId().equals(securityUser.getUserId()))
-            throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
         if(content.getDeleteAt() != null)
             throw new ContentErrorException(ContentErrorCode.DELETED_CONTENT);
 
@@ -102,8 +98,6 @@ public class ContentService {
     public DeleteContentRes deleteContent(Long contentId, CustomUserDetails securityUser) {
         Content content = findContent(contentId);
 
-        if (securityUser.getRole() != RoleType.ADMIN && !content.getUser().getId().equals(securityUser.getUserId()))
-            throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
         if(content.getDeleteAt() != null)
             throw new ContentErrorException(ContentErrorCode.DELETED_CONTENT);
 
