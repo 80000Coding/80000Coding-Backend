@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "COMMENT", description = "댓글 관련 API")
+@Tag(name = "댓글", description = "댓글 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/contents/{content_id}/comments")

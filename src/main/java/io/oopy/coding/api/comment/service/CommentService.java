@@ -91,10 +91,7 @@ public class CommentService {
         if (comment.getDeleteAt() != null)
             throw new CommentErrorException(CommentErrorCode.DELETED_COMMENT);
 
-        if (securityUser.getRole() == RoleType.ADMIN || comment.getUser().getId().equals(securityUser.getUserId()))
-            commentRepository.save(comment.updateComment(req.getContent()));
-        else
-            throw new CommentErrorException(CommentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
+        commentRepository.save(comment.updateComment(req.getContent()));
 
         return UpdateCommentRes.of(comment.getId(), comment.getUpdatedAt());
     }
@@ -111,10 +108,7 @@ public class CommentService {
         if (comment.getDeleteAt() != null)
             throw new CommentErrorException(CommentErrorCode.DELETED_COMMENT);
 
-        if (securityUser.getRole() == RoleType.ADMIN || comment.getUser().getId().equals(securityUser.getUserId()))
-            comment.deleteComment();
-        else
-            throw new CommentErrorException(CommentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
+        comment.deleteComment();
 
         return DeleteCommentRes.of(commentId, comment.getDeleteAt());
     }

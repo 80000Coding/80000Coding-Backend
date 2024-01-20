@@ -6,6 +6,7 @@ import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.content.dto.ChangeCategoryReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Tag(name = "카테고리", description = "게시글 카테고리 관련 API")
 @RequestMapping("/api/v1/contents/{content_id}/categories")
 @RequiredArgsConstructor
 public class ContentCategoryController {

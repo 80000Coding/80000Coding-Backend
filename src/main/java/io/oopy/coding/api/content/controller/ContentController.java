@@ -16,7 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@Tag(name = "CONTENT", description = "게시글 관련 API(피드X)")
+@Tag(name = "게시글", description = "게시글 관련 API(피드X)")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/contents")

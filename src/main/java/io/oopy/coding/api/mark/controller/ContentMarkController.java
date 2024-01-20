@@ -6,6 +6,7 @@ import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.mark.dto.ChangeUserPressReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
+@Tag(name = "게시글 마크", description = "게시글 마크 관련 API")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/contents/{content_id}/marks")
 public class ContentMarkController {
