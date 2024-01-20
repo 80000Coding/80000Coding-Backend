@@ -4,6 +4,7 @@ import io.oopy.coding.api.auth.service.LoginService;
 import io.oopy.coding.api.auth.service.SignupService;
 import io.oopy.coding.api.user.service.UserSearchService;
 import io.oopy.coding.common.response.SuccessResponse;
+import io.oopy.coding.common.security.jwt.dto.Jwt;
 import io.oopy.coding.common.util.cookie.CookieUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -74,12 +75,12 @@ public class AuthController {
         Integer githubId = getOauthUserId(accessToken);
 
         if (userSearchService.isPresentByGithubId(githubId)) {
-            Map<String, String> tokens = loginService.login(githubId);
-            ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
+            Jwt tokens = loginService.login(githubId);
+            ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.refreshToken(), 60 * 60 * 24 * 7);
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+                    .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
                     .body(SuccessResponse.from(Map.of("userId", "login"))); // TODO: 로그인 시 userId, 회원가입 시 githubID 반환..어떻게 로그인/회원가입 판단?
         }
         else {
