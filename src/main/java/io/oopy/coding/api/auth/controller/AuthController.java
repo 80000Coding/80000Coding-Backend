@@ -80,14 +80,14 @@ public class AuthController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                    .body(SuccessResponse.from(Map.of("action", "login")));
+                    .body(SuccessResponse.from(Map.of("userId", "login"))); // TODO: 로그인 시 userId, 회원가입 시 githubID 반환..어떻게 로그인/회원가입 판단?
         }
         else {
             Map<String, String> tokens = signupService.generateSignupTokens(githubId);
 
             return ResponseEntity.ok()
                     .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                    .body(SuccessResponse.from(Map.of("action", "signup")));
+                    .body(SuccessResponse.from(Map.of("githubId", "signup")));
         }
     }
 

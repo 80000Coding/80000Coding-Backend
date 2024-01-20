@@ -22,13 +22,13 @@ import static io.oopy.coding.common.security.jwt.AuthConstants.REFRESH_TOKEN;
 @Transactional
 public class LoginService {
     private final UserSearchService userSearchService;
-    private final JwtProvider jwtUtil;
+    private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
 
     public Map<String, String> login(Integer githubId) {
         User user = userSearchService.findByGithubId(githubId);
         JwtSubInfo jwtUserInfo = JwtAuthInfo.from(user);
-        String accessToken = jwtUtil.generateToken(jwtUserInfo);
+        String accessToken = jwtProvider.generateToken(jwtUserInfo);
         String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
         log.info("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
 

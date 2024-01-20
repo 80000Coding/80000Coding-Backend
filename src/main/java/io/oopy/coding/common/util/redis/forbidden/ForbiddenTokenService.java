@@ -20,14 +20,20 @@ public class ForbiddenTokenService {
      * @param accessToken : 블랙 리스트에 등록할 액세스 토큰 객체
      */
     public void register(AccessToken accessToken) {
+        register(accessToken.id(), accessToken.accessToken(), accessToken.expiryDate());
+    }
+
+    /**
+     * 사용자 임의로 블랙 리스트에 등록할 토큰 정보를 기입합니다.
+     */
+    public void register(Long id, String accessToken, LocalDateTime expiryDate) {
         final LocalDateTime now = LocalDateTime.now();
-        final long timeToLive = Duration.between(now, accessToken.expiryDate()).toSeconds();
+        final long ttl = Duration.between(now, expiryDate).toSeconds();
+        log.info("forbidden token ttl : {}", ttl);
 
-        log.info("forbidden token ttl : {}", timeToLive);
-
-        ForbiddenToken forbiddenToken = ForbiddenToken.of(accessToken.accessToken(), accessToken.githubId(), timeToLive);
+        ForbiddenToken forbiddenToken = ForbiddenToken.of(accessToken, id, ttl);
         forbiddenTokenRepository.save(forbiddenToken);
-        log.info("forbidden token registered. about User : {}", forbiddenToken.getGithubId());
+        log.info("forbidden token registered. about User : {}", forbiddenToken.getId());
     }
 
     /**
