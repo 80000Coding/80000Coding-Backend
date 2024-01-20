@@ -7,7 +7,7 @@ import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.content.dto.*;
 import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.content.repository.ContentRepository;
-import io.oopy.coding.domain.user.entity.RoleType;
+import io.oopy.coding.domain.content.repository.ContributorRepository;
 import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +23,7 @@ import java.util.Collections;
 public class ContentService {
     private final ContentRepository contentRepository;
     private final UserRepository userRepository;
+    private final ContributorRepository contributorRepository;
 
     /**
      * 게시글 상세 페이지
@@ -56,6 +57,7 @@ public class ContentService {
                 .contentCategories(Collections.emptyList())
                 .contentMarks(Collections.emptyList())
                 .comments(Collections.emptyList())
+                .contributors(Collections.emptyList())
                 .type(ContentType.fromString(req.getType()))
                 .title("")
                 .body("")
@@ -84,6 +86,10 @@ public class ContentService {
         if(content.getDeleteAt() != null)
             throw new ContentErrorException(ContentErrorCode.DELETED_CONTENT);
 
+//        if (content.getType().equals(ContentType.PROJECT) && !contributorRepository.existsByUserIdAndContentId(securityUser.getUserId(), contentId)) {
+//            throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
+//        }
+
         contentRepository.save(content.update(req.getTitle(), req.getBody(), req.getContentImageUrl(), req.getPublish()));
 
         return UpdateContentRes.of(content.getId(), content.getUpdatedAt());
@@ -98,8 +104,13 @@ public class ContentService {
     public DeleteContentRes deleteContent(Long contentId, CustomUserDetails securityUser) {
         Content content = findContent(contentId);
 
+
         if(content.getDeleteAt() != null)
             throw new ContentErrorException(ContentErrorCode.DELETED_CONTENT);
+
+        if (content.getType().equals(ContentType.PROJECT) && !contributorRepository.existsByUserIdAndContentId(securityUser.getUserId(), contentId)) {
+            throw new ContentErrorException(ContentErrorCode.REQUEST_USER_DATA_OWNER_MISMATCH);
+        }
 
         content.softDelete();
 

@@ -38,6 +38,10 @@ public class Content extends Auditable {
     @OneToMany(mappedBy = "content")
     private List<Comment> comments = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "content")
+    private List<Contributor> contributors = new ArrayList<>();
+
     @Column(name = "content_type", nullable = false)
     @Convert(converter = ContentTypeConverter.class)
     private ContentType type;
