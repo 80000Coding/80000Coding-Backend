@@ -6,6 +6,7 @@ import io.oopy.coding.api.user.service.UserSettingService;
 import io.oopy.coding.common.response.code.ErrorCode;
 import io.oopy.coding.common.response.exception.GlobalErrorException;
 import io.oopy.coding.common.security.jwt.JwtProvider;
+import io.oopy.coding.common.security.jwt.dto.Jwt;
 import io.oopy.coding.common.security.jwt.dto.JwtOauthInfo;
 import io.oopy.coding.common.security.jwt.dto.JwtSubInfo;
 import io.oopy.coding.common.security.jwt.qualifier.OauthRegisterTokenQualifier;
@@ -37,16 +38,16 @@ public class SignupService {
     private final ForbiddenTokenService forbiddenTokenService;
     private final UserSettingService userSettingService;
 
-    public Map<String, String> generateSignupTokens(Integer githubId) {
+    public Jwt generateSignupTokens(Integer githubId) {
         JwtSubInfo dto = JwtOauthInfo.of(githubId, RoleType.USER);
 
         String accessToken = jwtProvider.generateToken(dto);
         log.info("oauth signup accessToken : {}", accessToken);
 
-        return Map.of(ACCESS_TOKEN.getValue(), accessToken);
+        return Jwt.of(accessToken, null);
     }
 
-    public Map<String, String> signup(UserSignupReq dto, Integer githubId, String oauthToken) {
+    public Jwt signup(UserSignupReq dto, Integer githubId, String oauthToken) {
         if (userSearchService.isPresentByGithubId(githubId))
             throw new GlobalErrorException(ErrorCode.ALREADY_REGISTERED_USER);
 

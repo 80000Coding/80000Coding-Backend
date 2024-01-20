@@ -12,11 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
-import static io.oopy.coding.common.security.jwt.AuthConstants.ACCESS_TOKEN;
-import static io.oopy.coding.common.security.jwt.AuthConstants.REFRESH_TOKEN;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor

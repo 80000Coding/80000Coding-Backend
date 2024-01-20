@@ -5,7 +5,6 @@ import io.jsonwebtoken.security.Keys;
 import io.oopy.coding.common.security.jwt.JwtProvider;
 import io.oopy.coding.common.security.jwt.dto.JwtAuthInfo;
 import io.oopy.coding.common.security.jwt.dto.JwtSubInfo;
-import io.oopy.coding.common.security.jwt.dto.JwtUserInfo;
 import io.oopy.coding.common.security.jwt.exception.AuthErrorCode;
 import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
 import io.oopy.coding.common.security.jwt.exception.JwtErrorCodeUtil;

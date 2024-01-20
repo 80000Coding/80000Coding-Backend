@@ -5,10 +5,12 @@ import io.oopy.coding.api.user.service.UserSearchService;
 import io.oopy.coding.api.user.service.UserSettingService;
 import io.oopy.coding.api.user.service.UserStatisticService;
 import io.oopy.coding.common.resolver.access.AccessToken;
+import io.oopy.coding.common.security.authentication.CustomUserDetails;
 import io.oopy.coding.domain.user.entity.User;
 import io.oopy.coding.domain.user.entity.UserSetting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,15 +27,13 @@ public class ProfileService {
     private final UserSettingService userSettingService;
 
     @Transactional(readOnly = true)
-    public Map<String, ?> findByAccessTokenAndId(AccessToken accessToken, long id) {
+    public Map<String, ?> findByAccessTokenAndId(Authentication authentication, long id) {
         User user = userSearchService.findById(id);
         Boolean settingFlag;
 
         //github id 일치 시 설정 버튼 가능
-        if (accessToken != null && accessToken.githubId().equals(user.getGithubId()))
-            settingFlag = true;
-        else
-            settingFlag = false;
+        settingFlag = (authentication != null && ((CustomUserDetails)authentication.getPrincipal()).getUserId().equals(user.getId()))
+                ? Boolean.TRUE : Boolean.FALSE;
 
         return Map.of(
                 "settingFlag", settingFlag,
