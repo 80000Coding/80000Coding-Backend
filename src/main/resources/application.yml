@@ -130,7 +130,10 @@ springdoc:
       enabled: true
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret:
+    access: ${ACCESS_SECRET_KEY}
+    refresh: ${REFRESH_SECRET_KEY}
+    oauth-register: ${OAUTH_REGISTER_SECRET_KEY}
   token:
     # milliseconds 단위
     access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
