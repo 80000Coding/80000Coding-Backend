@@ -20,4 +20,8 @@ public class AuthorManager {
     public boolean isCommentAuthor(CustomUserDetails userDetails, Long commentId) {
         return commentRepository.existsByIdAndUserId(commentId, userDetails.getUserId());
     }
+
+    public boolean isSameAuthor(CustomUserDetails userDetails, Long id) {
+        return userDetails.getUserId().equals(id);
+    }
 }

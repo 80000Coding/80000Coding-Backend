@@ -104,51 +104,11 @@ public class UserAPI {
         return ResponseEntity.ok(user);
     }
 
-    //// 프로필 ////
-
-    // 닉네임 변경
-    @PatchMapping(value = "/nickname")
-    public ResponseEntity<?> changeNickname(@AuthenticationPrincipal CustomUserDetails securityUser,
-                                            @RequestBody UserNicknameReq userNicknameReq) {
-        userProfileService.changeNickname(securityUser.getUserId(), userNicknameReq.getNickname());
-        return ResponseEntity.ok(SuccessResponse.from(null));
-    }
-
-    // 중복 로그인 확인
-    @GetMapping("/duplicate")
-    public ResponseEntity<?> exists(@RequestParam String nickname) {
-        if(userProfileService.isExist(nickname)) {
-            return ResponseEntity.ok(SuccessResponse.from(Map.of("nickname", "EXIST")));
-        } else {
-            return ResponseEntity.ok(SuccessResponse.from(Map.of("nickname", "NOT_EXIST")));
-        }
-    }
-
-    // 컨트리뷰터 랭킹 뱃지 표시 변경
-    @PatchMapping("/contributor-ranking-mark")
-    public ResponseEntity<?> changeContributorRankingMark(@AuthenticationPrincipal CustomUserDetails securityUser) {
-        userProfileService.changeUserContributorRankingMarkAgree(securityUser.getUserId());
-        return ResponseEntity.ok(SuccessResponse.noContent());
-    }
-
-    // 이메일 수신 동의 변경
-    @PatchMapping("/email-agree")
-    public ResponseEntity<?> changeEmailAgree(@AuthenticationPrincipal CustomUserDetails securityUser) {
-        userProfileService.changeUserEmailAgree(securityUser.getUserId());
-        return ResponseEntity.ok(SuccessResponse.noContent());
-    }
-
-    // 푸시 메시지 수신 동의 변경
-    @PatchMapping("/push-agree")
-    public ResponseEntity<?> changeUserPushMessageAgree(@AuthenticationPrincipal CustomUserDetails securityUser) {
-        userProfileService.changeUserPushMessageAgree(securityUser.getUserId());
-        return ResponseEntity.ok(SuccessResponse.noContent());
-    }
 
     // 탈퇴
-    @DeleteMapping("")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> delete(@AuthenticationPrincipal CustomUserDetails securityUser) {
+    @DeleteMapping("/{user_id}")
+    @PreAuthorize("isAuthenticated() and authorManager.isSameAuthor(authentication.getPrincipal(), #userId)")
+    public ResponseEntity<?> delete(@AuthenticationPrincipal CustomUserDetails securityUser, @PathVariable("user_id") Long userId) {
         userProfileService.delete(securityUser.getUserId());
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
