@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +24,14 @@ public class ContentCategoryController {
 
     @Operation(summary = "게시글 관련된 모든 카테고리 불러오기", description = "특정 게시글에 등록되어 있는 카테고리 목록 반환")
     @GetMapping("")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> getCategories(@Parameter(name = "content_id", description = "게시글 번호") @PathVariable(name = "content_id") Long contentId) {
         return ResponseEntity.ok().body(SuccessResponse.from(contentCategoryService.getCategories(contentId)));
     }
 
     @Operation(summary = "게시글 카테고리 설정", description = "특정 게시글에 카테고리 설정 추가")
     @PatchMapping("/add")
+    @PreAuthorize("isAuthenticated() && @authorManager.isContentAuthor(authentication.getPrincipal(), #contentId)")
     public ResponseEntity<?> addCategory(@Parameter(name = "content_id", description = "게시글 번호") @PathVariable(name = "content_id") Long contentId,
                                          @Valid @RequestBody ChangeCategoryReq req) {
         contentCategoryService.addCategory(contentId, req);
@@ -37,6 +40,7 @@ public class ContentCategoryController {
 
     @Operation(summary = "게시글 카테고리 해제", description = "특정 게시글에 설정되어 있는 카테고리 해제")
     @DeleteMapping("/unselect")
+    @PreAuthorize("isAuthenticated() && @authorManager.isContentAuthor(authentication.getPrincipal(), #contentId)")
     public ResponseEntity<?> deleteCategory(@Parameter(name = "content_id", description = "게시글 번호") @PathVariable(name = "content_id") Long contentId,
                                             @Valid @RequestBody ChangeCategoryReq req) {
         contentCategoryService.deleteCategory(contentId, req);
