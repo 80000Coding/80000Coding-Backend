@@ -21,8 +21,4 @@ public record UserSignRes(
     public static UserSignRes ofLogin(Long userId, Jwt jwt) {
         return new UserSignRes("login", userId, null, jwt);
     }
-
-    public static UserSignRes ofAuth(Long userId, Jwt jwt) {
-        return new UserSignRes(null, userId, null, jwt);
-    }
 }
