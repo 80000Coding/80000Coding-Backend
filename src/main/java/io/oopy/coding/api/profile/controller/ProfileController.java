@@ -9,6 +9,7 @@ import io.oopy.coding.domain.user.dto.UserNicknameReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,10 +30,7 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @Operation(summary = "유저 프로필 정보 조회", description = "해당 유저와 관련된 정보를 불러온다.")
-    @Parameters({
-            @Parameter(name = "accessToken", description = "유저의 access token (전송하지 않으면 비로그인 유저)", required = false),
-            @Parameter(name = "id", description = "프로필 조회할 유저의 id")
-    })
+    @Parameter(name = "id", description = "프로필 조회할 유저의 id", in = ParameterIn.PATH, required = true)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
@@ -56,7 +54,6 @@ public class ProfileController {
     @PatchMapping(value = "/nickname")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> changeNickname(@AuthenticationPrincipal CustomUserDetails securityUser,
-//                                            @AccessTokenInfo(required = false) @Parameter(hidden = true) AccessToken accessToken,
                                             @RequestBody UserNicknameReq userNicknameReq) {
         profileService.changeNickname(securityUser.getUserId(), userNicknameReq.getNickname());
         return ResponseEntity.ok(SuccessResponse.from(null));

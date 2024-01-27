@@ -30,20 +30,12 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtSecurityConfig jwtSecurityConfig;
-    private List<String> corsOrigins = List.of("http://localhost:3000", "https://heyinsa.kr");
+    private final List<String> corsOrigins = List.of("http://localhost:3000", "https://heyinsa.kr");
 
-    private final String[] webSecurityIgnoring = {
-            "/",
+    private final String[] publicReadOnlyUrl = {
             "/favicon.ico",
             "/api-docs/**",
-            "/api/v1/users/test/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
-            "/api/v1/users/login", "/api/v1/users/refresh",
-            "/api/v1/auth/login/**", "/api/v1/auth/signup",
-            "/api/v1/contents/get", "/api/v1/comments/get",
-            "/api/v1/category/get", "/api/v1/mark/get",
-            "/api/v1/profile/**",
-            "/login/oauth2/**", "/api/v1/feed/title", "/api/v1/feed/body", "/api/v1/feed/nickname"
     };
 
     @Bean
@@ -70,8 +62,8 @@ public class SecurityConfig {
                             try {
                                 auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                                         .requestMatchers(HttpMethod.OPTIONS, "*").permitAll()
-                                        .requestMatchers(this.webSecurityIgnoring).permitAll()
-                                        .anyRequest().authenticated();
+                                        .requestMatchers(HttpMethod.GET, publicReadOnlyUrl).permitAll()
+                                        .anyRequest().permitAll();
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
