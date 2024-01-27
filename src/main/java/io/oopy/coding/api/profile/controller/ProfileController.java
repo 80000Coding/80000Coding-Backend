@@ -1,15 +1,11 @@
 package io.oopy.coding.api.profile.controller;
 
 import io.oopy.coding.api.profile.service.ProfileService;
-import io.oopy.coding.common.resolver.access.AccessToken;
-import io.oopy.coding.common.resolver.access.AccessTokenInfo;
 import io.oopy.coding.common.response.ErrorResponse;
 import io.oopy.coding.common.response.FailureResponse;
 import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.security.authentication.CustomUserDetails;
-import io.oopy.coding.domain.organization.entity.Organization;
 import io.oopy.coding.domain.user.dto.UserNicknameReq;
-import io.oopy.coding.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -51,17 +47,29 @@ public class ProfileController {
         return responseEntity;
     }
 
-    // 닉네임 변경
+    @Operation(summary = "닉네임 변경", description = "로그인한 유저의 닉네임을 변경한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "400", description = "실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PatchMapping(value = "/nickname")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> changeNickname(@AuthenticationPrincipal CustomUserDetails securityUser,
-                                            @AccessTokenInfo(required = false) AccessToken accessToken,
+//                                            @AccessTokenInfo(required = false) @Parameter(hidden = true) AccessToken accessToken,
                                             @RequestBody UserNicknameReq userNicknameReq) {
         profileService.changeNickname(securityUser.getUserId(), userNicknameReq.getNickname());
         return ResponseEntity.ok(SuccessResponse.from(null));
     }
 
-    // 중복 로그인 확인
+    @Operation(summary = "중복로그인 확인", description = "로그인한 유저의 닉네임을 변경한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "닉네임 변경 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "400", description = "닉네임 변경 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/duplicate")
+    @PreAuthorize("isAuthenticated() and hasRole(ROLE_USER)")
     public ResponseEntity<?> exists(@RequestParam String nickname) {
         if(profileService.isExist(nickname)) {
             return ResponseEntity.ok(SuccessResponse.from(Map.of("nickname", "EXIST")));
@@ -70,31 +78,42 @@ public class ProfileController {
         }
     }
 
-    // 컨트리뷰터 랭킹 뱃지 표시 변경
+    @Operation(summary = "컨트리뷰터 랭킹 뱃지 표시 변경", description = "로그인한 유저의 컨트리뷰터 랭킹 뱃지 표시 변경")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "닉네임 변경 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "400", description = "닉네임 변경 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PatchMapping("/contributor-ranking-mark")
+    @PreAuthorize("isAuthenticated() and hasRole(ROLE_USER)")
     public ResponseEntity<?> changeContributorRankingMark(@AuthenticationPrincipal CustomUserDetails securityUser) {
         profileService.changeUserContributorRankingMarkAgree(securityUser.getUserId());
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
-    // 이메일 수신 동의 변경
+    @Operation(summary = "이메일 수신 동의 변경", description = "로그인한 유저의 이메일 수신 동의 변경")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "닉네임 변경 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "400", description = "닉네임 변경 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PatchMapping("/email-agree")
+    @PreAuthorize("isAuthenticated() and hasRole(ROLE_USER)")
     public ResponseEntity<?> changeEmailAgree(@AuthenticationPrincipal CustomUserDetails securityUser) {
         profileService.changeUserEmailAgree(securityUser.getUserId());
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
-    // 푸시 메시지 수신 동의 변경
+    @Operation(summary = "푸시 메시지 수신 동의 변경", description = "로그인한 유저의 푸시 메시지 수신 동의 변경")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "닉네임 변경 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "400", description = "닉네임 변경 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PatchMapping("/push-agree")
+    @PreAuthorize("isAuthenticated() and hasRole(ROLE_USER)")
     public ResponseEntity<?> changeUserPushMessageAgree(@AuthenticationPrincipal CustomUserDetails securityUser) {
         profileService.changeUserPushMessageAgree(securityUser.getUserId());
-        return ResponseEntity.ok(SuccessResponse.noContent());
-    }
-
-    // 탈퇴
-    @DeleteMapping("")
-    public ResponseEntity<?> delete(@AuthenticationPrincipal CustomUserDetails securityUser) {
-        profileService.delete(securityUser.getUserId());
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 }
