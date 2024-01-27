@@ -6,6 +6,7 @@ import io.oopy.coding.common.response.FailureResponse;
 import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.security.jwt.dto.Jwt;
 import io.oopy.coding.common.util.cookie.CookieUtil;
+import io.oopy.coding.domain.user.dto.UserSignRes;
 import io.oopy.coding.domain.user.dto.UserSignupReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,6 +23,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 import static io.oopy.coding.common.security.jwt.AuthConstants.ACCESS_TOKEN;
 import static io.oopy.coding.common.security.jwt.AuthConstants.REFRESH_TOKEN;
@@ -50,12 +53,13 @@ public class SignupController {
             @RequestHeader("Authorization") String oauthToken,
             @RequestBody @Valid UserSignupReq dto
     ) {
-        Jwt tokens = signupService.signup(dto, githubId, oauthToken);
+        UserSignRes userInfo = signupService.signup(dto, githubId, oauthToken);
+        Jwt tokens = userInfo.jwt();
         ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.refreshToken(), 60 * 60 * 24 * 7);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
-                .body(SuccessResponse.noContent());
+                .body(SuccessResponse.from(Map.of("userId", userInfo.userId())));
     }
 }
