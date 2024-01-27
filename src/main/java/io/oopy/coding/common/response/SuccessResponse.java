@@ -46,7 +46,7 @@ public class SuccessResponse<T> {
     }
 
     public static <T> SuccessResponse<T> of(T data, int totalPage, Long totalElements) {
-        return new SuccessResponse(data, totalPage, totalElements);
+        return new SuccessResponse<>(data, totalPage, totalElements);
     }
 
     /**

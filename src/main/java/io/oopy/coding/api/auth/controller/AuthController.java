@@ -6,6 +6,7 @@ import io.oopy.coding.api.user.service.UserSearchService;
 import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.security.jwt.dto.Jwt;
 import io.oopy.coding.common.util.cookie.CookieUtil;
+import io.oopy.coding.domain.user.dto.UserSignRes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -74,20 +75,21 @@ public class AuthController {
         Integer githubId = getOauthUserId(accessToken);
 
         if (userSearchService.isPresentByGithubId(githubId)) {
-            Jwt tokens = loginService.login(githubId);
+            UserSignRes userInfo = loginService.login(githubId);
+            Jwt tokens = userInfo.jwt();
             ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.refreshToken(), 60 * 60 * 24 * 7);
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
-                    .body(SuccessResponse.from(Map.of("userId", "login"))); // TODO: 로그인 시 userId, 회원가입 시 githubID 반환..어떻게 로그인/회원가입 판단?
-        }
-        else {
-            Jwt tokens = signupService.generateSignupTokens(githubId);
+                    .body(Map.of("action", userInfo.action(), "userId", userInfo.userId()));
+        } else {
+            UserSignRes userInfo = signupService.generateSignupTokens(githubId);
+            Jwt tokens = userInfo.jwt();
 
             return ResponseEntity.ok()
                     .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
-                    .body(SuccessResponse.from(Map.of("githubId", "signup")));
+                    .body(SuccessResponse.from(Map.of("action", userInfo.action(), "githubId", userInfo.githubId())));
         }
     }
 

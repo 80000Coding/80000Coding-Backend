@@ -92,9 +92,7 @@ public class UserAPI {
 
     @GetMapping("/authentication")
     public ResponseEntity<?> authenticationTest(@AuthenticationPrincipal CustomUserDetails securityUser) {
-        JwtSubInfo user = securityUser.toJwtUserInfo();
-
-        return ResponseEntity.ok(user.id());
+        return ResponseEntity.ok(Map.of("userId", securityUser.getUserId()));
     }
 
     //// 프로필 ////
