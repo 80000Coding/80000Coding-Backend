@@ -6,11 +6,12 @@ import io.oopy.coding.common.resolver.access.AccessToken;
 import io.oopy.coding.common.resolver.access.AccessTokenInfo;
 import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.security.authentication.CustomUserDetails;
+import io.oopy.coding.common.security.jwt.AuthConstants;
+import io.oopy.coding.common.security.jwt.dto.Jwt;
+import io.oopy.coding.common.security.jwt.dto.JwtSubInfo;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorCode;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
 import io.oopy.coding.common.util.cookie.CookieUtil;
-import io.oopy.coding.common.util.jwt.AuthConstants;
-import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorCode;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
 import io.oopy.coding.domain.user.dto.UserAuthReq;
 import io.oopy.coding.domain.user.dto.UserNicknameReq;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,15 +22,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static io.oopy.coding.common.util.jwt.AuthConstants.ACCESS_TOKEN;
-import static io.oopy.coding.common.util.jwt.AuthConstants.REFRESH_TOKEN;
+import static io.oopy.coding.common.security.jwt.AuthConstants.ACCESS_TOKEN;
+import static io.oopy.coding.common.security.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -47,14 +47,12 @@ public class UserAPI {
      */
     @PostMapping("/login")
     public ResponseEntity<?> loginTest(@RequestBody UserAuthReq dto) {
-        Map<String, String> tokens = userAuthService.login(dto);
-        log.debug("access token: {}", tokens.get(ACCESS_TOKEN.getValue()));
-        log.debug("refresh token: {}", tokens.get(REFRESH_TOKEN.getValue()));
-        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
+        Jwt tokens = userAuthService.login(dto);
+        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.refreshToken(), 60 * 60 * 24 * 7);
 
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+                .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
                 .build();
     }
 
@@ -83,22 +81,20 @@ public class UserAPI {
         if (refreshToken == null) {
             throw new IllegalArgumentException("존재하지 않는 쿠키입니다."); // TODO : 공통 예외로 변경
         }
-        Map<String, String> tokens = userAuthService.refresh(refreshToken);
-        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
+        Jwt tokens = userAuthService.refresh(refreshToken);
+        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.refreshToken(), 60 * 60 * 24 * 7);
 
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+                .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
                 .build();
     }
 
     @GetMapping("/authentication")
-    public ResponseEntity<?> authenticationTest(@AuthenticationPrincipal CustomUserDetails securityUser, Authentication authentication) {
-        log.info("type: {}", authentication.getPrincipal());
-        JwtUserInfo user = securityUser.toJwtUserInfo();
-        log.info("user: {}", user);
+    public ResponseEntity<?> authenticationTest(@AuthenticationPrincipal CustomUserDetails securityUser) {
+        JwtSubInfo user = securityUser.toJwtUserInfo();
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(user.id());
     }
 
     //// 프로필 ////

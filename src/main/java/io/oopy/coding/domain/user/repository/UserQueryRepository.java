@@ -13,8 +13,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static io.oopy.coding.domain.user.entity.QUser.user;
 import static io.oopy.coding.domain.content.entity.QContent.content;
+import static io.oopy.coding.domain.user.entity.QUser.user;
 
 @RequiredArgsConstructor
 @Repository

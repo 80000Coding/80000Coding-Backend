@@ -1,6 +1,6 @@
 package io.oopy.coding.common.util.redis.refresh;
 
-import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
 
 public interface RefreshTokenService {
     /**

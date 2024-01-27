@@ -19,6 +19,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +34,8 @@ public class ProfileController {
 
     @Operation(summary = "유저 프로필 정보 조회", description = "해당 유저와 관련된 정보를 불러온다.")
     @Parameters({
-            @Parameter(name = "accessToken", description = "유저의 access token"),
-            @Parameter(name = "id", description = "유저의 id")
+            @Parameter(name = "accessToken", description = "유저의 access token (전송하지 않으면 비로그인 유저)", required = false),
+            @Parameter(name = "id", description = "프로필 조회할 유저의 id")
     })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -41,10 +43,9 @@ public class ProfileController {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<?> profileInfo(
-                                         @AccessTokenInfo(required = false) AccessToken accessToken,
-                                         @PathVariable("id") long id) {
-        Map<String, ?> profileInfo = profileService.findByAccessTokenAndId(accessToken, id);
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> profileInfo(@PathVariable("id") Long id, Authentication authentication) {
+        Map<String, ?> profileInfo = profileService.findByAccessTokenAndId(authentication, id);
         ResponseEntity<?> responseEntity = ResponseEntity.ok().body(SuccessResponse.from(profileInfo));
 
         return responseEntity;

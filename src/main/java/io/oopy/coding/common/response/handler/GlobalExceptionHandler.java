@@ -7,7 +7,7 @@ import io.oopy.coding.common.response.ErrorResponse;
 import io.oopy.coding.common.response.FailureResponse;
 import io.oopy.coding.common.response.code.ErrorCode;
 import io.oopy.coding.common.response.exception.GlobalErrorException;
-import io.oopy.coding.common.util.jwt.exception.AuthErrorException;
+import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

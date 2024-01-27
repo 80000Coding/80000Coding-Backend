@@ -1,4 +1,4 @@
-package io.oopy.coding.common.util.jwt;
+package io.oopy.coding.common.security.jwt;
 
 import lombok.Getter;
 

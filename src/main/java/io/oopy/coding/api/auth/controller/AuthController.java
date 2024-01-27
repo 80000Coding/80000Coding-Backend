@@ -4,11 +4,10 @@ import io.oopy.coding.api.auth.service.LoginService;
 import io.oopy.coding.api.auth.service.SignupService;
 import io.oopy.coding.api.user.service.UserSearchService;
 import io.oopy.coding.common.response.SuccessResponse;
-import io.oopy.coding.common.security.authentication.CustomUserDetails;
+import io.oopy.coding.common.security.jwt.dto.Jwt;
 import io.oopy.coding.common.util.cookie.CookieUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,8 +30,8 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.util.Map;
 
-import static io.oopy.coding.common.util.jwt.AuthConstants.ACCESS_TOKEN;
-import static io.oopy.coding.common.util.jwt.AuthConstants.REFRESH_TOKEN;
+import static io.oopy.coding.common.security.jwt.AuthConstants.ACCESS_TOKEN;
+import static io.oopy.coding.common.security.jwt.AuthConstants.REFRESH_TOKEN;
 
 @RestController
 @RequestMapping("/api/v1/auth/login")
@@ -62,9 +60,7 @@ public class AuthController {
 
     // TODO : 실제로는 다른 uri로 요청예정, 프론트와 협의 필요
     @Operation(summary = "OAuth2 로그인 후 로그인/회원가입 분기 조회", description = "githubId 존재유무에 따라 로그인 및 회원가입 인지를 알려주고 로그인의 경우 사용자 정보로 jwt를 생성하고, 회원가입의 경우 githubId로 jwt를 생성합니다.")
-    @Parameters({
-            @Parameter(name = "code", description = "OAuth2 login 후 받은 access token 발급 시 필요한 코드", in = ParameterIn.QUERY)
-    })
+    @Parameter(name = "code", description = "OAuth2 login 후 받은 access token 발급 시 필요한 코드", in = ParameterIn.QUERY)
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
         @ApiResponse(responseCode = "200", description = "회원가입으로 이동", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -78,20 +74,20 @@ public class AuthController {
         Integer githubId = getOauthUserId(accessToken);
 
         if (userSearchService.isPresentByGithubId(githubId)) {
-            Map<String, String> tokens = loginService.login(githubId);
-            ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()),  60 * 60 * 24 * 7);
+            Jwt tokens = loginService.login(githubId);
+            ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.refreshToken(), 60 * 60 * 24 * 7);
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                    .body(SuccessResponse.from(Map.of("action", "login")));
+                    .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
+                    .body(SuccessResponse.from(Map.of("userId", "login"))); // TODO: 로그인 시 userId, 회원가입 시 githubID 반환..어떻게 로그인/회원가입 판단?
         }
         else {
-            Map<String, String> tokens = signupService.generateSignupTokens(githubId);
+            Jwt tokens = signupService.generateSignupTokens(githubId);
 
             return ResponseEntity.ok()
-                    .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                    .body(SuccessResponse.from(Map.of("action", "signup")));
+                    .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
+                    .body(SuccessResponse.from(Map.of("githubId", "signup")));
         }
     }
 

@@ -2,9 +2,10 @@ package io.oopy.coding.common.security.authentication;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.oopy.coding.common.security.jwt.dto.JwtAuthInfo;
+import io.oopy.coding.common.security.jwt.dto.JwtSubInfo;
 import io.oopy.coding.domain.user.entity.RoleType;
 import io.oopy.coding.domain.user.entity.User;
-import io.oopy.coding.common.util.jwt.entity.JwtUserInfo;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -47,8 +48,8 @@ public final class CustomUserDetails implements UserDetails {
         return new CustomUserDetails(user.getId(), user.getGithubId(), user.getRole());
     }
 
-    public JwtUserInfo toJwtUserInfo() {
-        return JwtUserInfo.of(userId, githubId, role);
+    public JwtSubInfo toJwtUserInfo() {
+        return JwtAuthInfo.of(userId, role);
     }
 
     @Override
