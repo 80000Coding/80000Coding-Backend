@@ -2,6 +2,7 @@ package io.oopy.coding.domain.user.repository;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import io.oopy.coding.domain.content.entity.Content;
 import io.oopy.coding.domain.content.entity.ContentType;
 import io.oopy.coding.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class UserQueryRepository {
         return PageableExecutionUtils.getPage(fetch, pageable, count::fetchOne);
     }
 
+    //post project
     public long countPostByUserId(long id) {
         long postCount = queryFactory.selectFrom(content)
                 .where(content.user.id.eq(id)

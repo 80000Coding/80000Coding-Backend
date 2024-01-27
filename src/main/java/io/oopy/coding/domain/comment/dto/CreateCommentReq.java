@@ -6,16 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "댓글 생성 DTO")
 public class CreateCommentReq {
-
-    @NotNull
-    @Schema(description = "게시글 ID")
-    private Long contentId;
 
     @NotBlank
     @Schema(description = "댓글 내용")

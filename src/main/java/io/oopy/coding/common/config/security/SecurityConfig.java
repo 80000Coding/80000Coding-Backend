@@ -30,7 +30,7 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtSecurityConfig jwtSecurityConfig;
-    private List<String> corsOrigins = List.of("http://localhost:3000");
+    private List<String> corsOrigins = List.of("http://localhost:3000", "https://heyinsa.kr");
 
     private final String[] webSecurityIgnoring = {
             "/",

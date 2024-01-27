@@ -70,12 +70,12 @@ public class ContentMarkService {
     }
 
     @Transactional
-    public void changeUserPress(CustomUserDetails securityUser, ChangeUserPressReq req) {
-        Content content = contentService.findContent(req.getContentId());
+    public void changeUserPress(Long contentId, CustomUserDetails securityUser, ChangeUserPressReq req) {
+        Content content = contentService.findContent(contentId);
 
         MarkType markType = MarkType.fromString(req.getType());
 
-        ContentMark userMark = contentMarkRepository.findContentMarksByContentIdAndUserIdAndType(req.getContentId(), securityUser.getUserId(), markType);
+        ContentMark userMark = contentMarkRepository.findContentMarksByContentIdAndUserIdAndType(contentId, securityUser.getUserId(), markType);
 
         if (userMark == null) {
             ContentMark mark = ContentMark.builder()

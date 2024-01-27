@@ -5,10 +5,12 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "게시글 생성 요청 DTO")
 public class CreateContentReq {
 

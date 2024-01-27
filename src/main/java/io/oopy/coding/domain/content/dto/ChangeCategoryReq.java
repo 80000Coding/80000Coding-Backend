@@ -6,16 +6,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ChangeCategoryReq {
-
-    @NotNull
-    @Schema(description = "게시글 번호", example = "1")
-    private Long contentId;
-
     @NotBlank
     @Schema(description = "카테고리 타입", example = "spring")
     private String category;
