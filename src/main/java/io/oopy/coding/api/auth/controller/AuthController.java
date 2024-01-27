@@ -89,7 +89,7 @@ public class AuthController {
 
             return ResponseEntity.ok()
                     .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
-                    .body(SuccessResponse.from(Map.of("action", userInfo.action(), "githubId", userInfo.githubId()))).;
+                    .body(SuccessResponse.from(Map.of("action", userInfo.action(), "githubId", userInfo.githubId())));
         }
     }
 

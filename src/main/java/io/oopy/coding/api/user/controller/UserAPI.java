@@ -94,7 +94,7 @@ public class UserAPI {
     public ResponseEntity<?> authenticationTest(@AuthenticationPrincipal CustomUserDetails securityUser) {
         JwtSubInfo user = securityUser.toJwtUserInfo();
 
-        return ResponseEntity.ok(user.id());
+        return ResponseEntity.ok(Map.of("userId", user.id()));
     }
 
     //// 프로필 ////
