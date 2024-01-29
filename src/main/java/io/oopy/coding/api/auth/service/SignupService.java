@@ -62,9 +62,6 @@ public class SignupService {
 
         forbiddenTokenService.register(Long.valueOf(githubId), oauthToken, oauthJwtProvider.getExpiryDate(oauthToken));
 
-        JwtSubInfo jwtUserInfo = JwtAuthInfo.from(user);
-        String accessToken = accessTokenProvider.generateToken(jwtUserInfo);
-        String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
         return loginService.login(user.getGithubId());
     }
 }
