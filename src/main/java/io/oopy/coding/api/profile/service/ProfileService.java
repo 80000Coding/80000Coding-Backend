@@ -27,13 +27,12 @@ public class ProfileService {
     private final UserSettingService userSettingService;
 
     @Transactional(readOnly = true)
-    public Map<String, ?> findByAccessTokenAndId(Authentication authentication, long id) {
+    public Map<String, ?> findByAccessTokenAndId(CustomUserDetails principal, long id) {
         User user = userSearchService.findById(id);
         Boolean settingFlag;
 
         //github id 일치 시 설정 버튼 가능
-        settingFlag = (authentication != null && ((CustomUserDetails)authentication.getPrincipal()).getUserId().equals(user.getId()))
-                ? Boolean.TRUE : Boolean.FALSE;
+        settingFlag = principal.getUserId().equals(user.getId()) ? Boolean.TRUE : Boolean.FALSE;
 
         return Map.of(
                 "settingFlag", settingFlag,

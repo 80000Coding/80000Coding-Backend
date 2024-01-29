@@ -38,7 +38,7 @@ public class ProfileController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<?> profileInfo(@PathVariable("id") Long id, Authentication authentication) {
+    public ResponseEntity<?> profileInfo(@PathVariable("id") Long id, @AuthenticationPrincipal CustomUserDetails authentication) {
         Map<String, ?> profileInfo = profileService.findByAccessTokenAndId(authentication, id);
         ResponseEntity<?> responseEntity = ResponseEntity.ok().body(SuccessResponse.from(profileInfo));
 
