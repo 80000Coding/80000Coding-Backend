@@ -30,7 +30,7 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtSecurityConfig jwtSecurityConfig;
-    private final List<String> corsOrigins = List.of("http://localhost:3000", "https://heyinsa.kr");
+    private final List<String> corsOrigins = List.of("http://localhost:3000", "https://heyinsa.kr", "https://80000coding.xyz");
 
     private final String[] publicReadOnlyUrl = {
             "/favicon.ico",
