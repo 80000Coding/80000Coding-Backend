@@ -29,12 +29,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
-    public String issueRefreshToken(String accessToken) throws AuthErrorException {
-        final JwtSubInfo user = refreshTokenProvider.getSubInfoFromToken(accessToken);
-
+    public String issueRefreshToken(JwtSubInfo jwtUserInfo) throws AuthErrorException {
         final var refreshToken = RefreshToken.builder()
-                .userId(user.id())
-                .token(makeRefreshToken(user))
+                .userId(jwtUserInfo.id())
+                .token(makeRefreshToken(jwtUserInfo))
                 .ttl(getExpireTime())
                 .build();
 

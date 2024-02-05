@@ -56,7 +56,7 @@ public final class CustomUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Arrays.stream(RoleType.values())
                 .filter(roleType -> roleType == role)
-                .map(roleType -> (GrantedAuthority) roleType::name)
+                .map(roleType -> (GrantedAuthority) roleType::getRole)
                 .toList();
     }
 
