@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,6 +69,7 @@ public class AuthController {
         @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = Error.class)))
     })
     @GetMapping("/github/code")
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> oauth2Redirected(@RequestParam("code") String authorizationCode,
                                               HttpServletRequest request) throws Exception {
         String redirectUri = request.getRequestURL().toString();

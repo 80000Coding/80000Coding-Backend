@@ -34,14 +34,14 @@ public class ContentQueryRepository {
 
     public Page<Content> findByBody(String body, Pageable pageable) {
         List<Content> fetch = queryFactory.selectFrom(content)
-                .where(content.title.contains(body))
+                .where(content.body.contains(body))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         JPAQuery<Long> count = queryFactory.select(content.count())
                 .from(content)
-                .where(content.title.contains(body));
+                .where(content.body.contains(body));
         return PageableExecutionUtils.getPage(fetch, pageable, count::fetchOne);
     }
 }

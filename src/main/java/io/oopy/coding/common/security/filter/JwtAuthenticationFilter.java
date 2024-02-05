@@ -14,6 +14,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -47,22 +49,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final CookieUtil cookieUtil;
 
-    private final List<String> jwtIgnoreUrls = List.of(
-            "/api/v1/users/test/**",
-            "/api/v1/users/login",
-            "/api/v1/users/refresh",
-            "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
-            "/api/v1/auth/login/**", "/api/v1/auth/signup",
-            "/api/v1/profile/**",
-            "/login/oauth2/**",
-            "/api/v1/contents/get", "/api/v1/comments/get",
-            "/favicon.ico",
-            "/api/v1/feed/title", "/api/v1/feed/body", "/api/v1/feed/nickname",
-            "/api/v1/category/get", "/api/v1/mark/get"
-    );
+    private final List<String> jwtIgnoreUrls = List.of("/api/v1/auth/oauth/users/**");
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         if (shouldIgnoreRequest(request)) {
             log.info("Ignoring request: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
@@ -90,7 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 Pattern.matches(v.replace("/**", ""), uri)
                 )
                 .findFirst();
-        return !judge.isEmpty() || "OPTIONS".equals(method);
+        return judge.isPresent() || "OPTIONS".equals(method);
     }
 
     private boolean isAnonymousRequest(HttpServletRequest request) {

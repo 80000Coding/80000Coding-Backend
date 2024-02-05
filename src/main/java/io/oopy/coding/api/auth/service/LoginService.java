@@ -26,7 +26,7 @@ public class LoginService {
         User user = userSearchService.findByGithubId(githubId);
         JwtSubInfo jwtUserInfo = JwtAuthInfo.from(user);
         String accessToken = jwtProvider.generateToken(jwtUserInfo);
-        String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
+        String refreshToken = refreshTokenService.issueRefreshToken(jwtUserInfo);
 
         return UserSignRes.ofLogin(user.getId(), Jwt.of(accessToken, refreshToken));
     }

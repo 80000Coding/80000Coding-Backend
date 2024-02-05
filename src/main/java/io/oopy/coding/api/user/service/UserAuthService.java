@@ -52,7 +52,7 @@ public class UserAuthService {
 
     private Jwt generateToken(JwtAuthInfo jwtAuthInfo) {
         String accessToken = jwtProvider.generateToken(jwtAuthInfo);
-        String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
+        String refreshToken = refreshTokenService.issueRefreshToken(jwtAuthInfo);
         log.debug("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
 
         return Jwt.of(accessToken, refreshToken);

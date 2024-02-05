@@ -1,5 +1,6 @@
 package io.oopy.coding.common.util.redis.refresh;
 
+import io.oopy.coding.common.security.jwt.dto.JwtSubInfo;
 import io.oopy.coding.common.security.jwt.exception.AuthErrorException;
 
 public interface RefreshTokenService {
@@ -9,7 +10,8 @@ public interface RefreshTokenService {
      * @return String : Refresh Token
      * @throws AuthErrorException : 토큰이 유효하지 않을 경우
      */
-    String issueRefreshToken(String accessToken) throws AuthErrorException;
+//    String issueRefreshToken(String accessToken) throws AuthErrorException;
+    String issueRefreshToken(JwtSubInfo jwtUserInfo) throws AuthErrorException;
 
     /**
      * refresh token을 받아서 refresh token을 재발행
