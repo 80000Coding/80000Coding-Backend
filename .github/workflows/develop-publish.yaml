@@ -2,7 +2,7 @@ name: Continuous Deployment
 
 on:
   push:
-    branches: ["dev", "feat/65"]
+    branches: ["dev"]
   workflow_dispatch:
     inputs:
       logLevel:
@@ -58,28 +58,28 @@ jobs:
         run: |
           docker push $REPO:latest
 
-      - name: Get Github Actions IP # 실행 중인 가상 환경 IP 확인
+      - name: Get Github Actions IP
         id: ip
-        uses: haythem/public-ip@v1.2 # steps.ip.outputs.ipv4 로 사용 가능
+        uses: haythem/public-ip@v1.2
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }} # <----- ACCESS_KEY
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }} # <----- SECRET_ACCESS
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ap-northeast-2
 
-      - name: Add Github Actions IP to Security group # <----- secrets.AWS_SG_ID
+      - name: Add Github Actions IP to Security group
         run: |
           aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32 
 
       - name: SSH Commands
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.AWS_SSH_HOST }} # <----- ip 주소
-          username: ${{ secrets.AWS_SSH_USERNAME }} # <----- ec2 접속 계정
-          password: ${{ secrets.AWS_SSH_PASSWORD }} # <----- ec2 접속 비밀번호
-          port: ${{ secrets.AWS_SSH_PORT }} # <----- ec2 접속 포트
+          host: ${{ secrets.AWS_SSH_HOST }}
+          username: ${{ secrets.AWS_SSH_USERNAME }}
+          password: ${{ secrets.AWS_SSH_PASSWORD }}
+          port: ${{ secrets.AWS_SSH_PORT }}
           script: |
             ./run_80000coding_backend.sh
 
