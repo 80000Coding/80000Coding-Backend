@@ -15,14 +15,14 @@ public class CommentDTO {
     private Long id;
     private String commentBody;
     private Long parentId;
-    private LocalDateTime deleteAt;
+    private LocalDateTime deletedAt;
 
     public static CommentDTO fromEntity(Comment comment) {
         return CommentDTO.builder()
                 .id(comment.getId())
                 .commentBody(comment.getCommentBody())
                 .parentId(comment.getParentId())
-                .deleteAt(comment.getDeleteAt())
+                .deletedAt(comment.getDeleteAt())
                 .build();
     }
 }
