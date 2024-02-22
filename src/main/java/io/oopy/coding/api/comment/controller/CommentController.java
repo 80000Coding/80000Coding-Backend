@@ -40,7 +40,7 @@ public class CommentController {
     @Operation(summary = "댓글 수정", description = "comment_id 댓글 수정")
     @PatchMapping("/{comment_id}")
     @PreAuthorize("isAuthenticated() && @authorManager.isCommentAuthor(#authentication.getPrincipal(), #commentId)")
-    public ResponseEntity<?> updateComment(@Parameter(name = "content_id", description = "게시글 번호", hidden = true) @PathVariable(name = "content_id") Long contentId,
+    public ResponseEntity<?> updateComment(@Parameter(name = "content_id", description = "게시글 번호") @PathVariable(name = "content_id") Long contentId,
                                            @Parameter(name = "comment_id", description = "댓글 번호") @PathVariable(name = "comment_id") Long commentId,
                                            @Valid @RequestBody UpdateCommentReq request,
                                            @AuthenticationPrincipal CustomUserDetails securityUser) {
@@ -50,7 +50,7 @@ public class CommentController {
     @Operation(summary = "댓글 삭제", description = "comment_id 댓글 삭제. Soft Delete")
     @DeleteMapping("/{comment_id}")
     @PreAuthorize("isAuthenticated() && @authorManager.isCommentAuthor(#authentication.getPrincipal(), #commentId)")
-    public ResponseEntity<?> deleteComment(@Parameter(name = "content_id", description = "게시글 번호", hidden = true) @PathVariable(name = "content_id") Long contentId,
+    public ResponseEntity<?> deleteComment(@Parameter(name = "content_id", description = "게시글 번호") @PathVariable(name = "content_id") Long contentId,
                                            @Parameter(name = "comment_id", description = "댓글 번호") @PathVariable(name = "comment_id") Long commentId,
                                            @AuthenticationPrincipal CustomUserDetails securityUser) {
         return ResponseEntity.ok().body(SuccessResponse.from(commentService.deleteComment(commentId, securityUser)));
