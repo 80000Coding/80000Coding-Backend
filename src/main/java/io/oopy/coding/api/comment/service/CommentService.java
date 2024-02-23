@@ -34,16 +34,16 @@ public class CommentService {
      * @param contentId
      */
     @Transactional
-    public List<CommentDTO> getComments(Long contentId) {
+    public List<GetCommentRes> getComments(Long contentId) {
         contentRepository.findById(contentId)
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
 
         List<Comment> comments = commentRepository.findCommentsByContentId(contentId);
 
-        List<CommentDTO> response = new ArrayList<>();
+        List<GetCommentRes> response = new ArrayList<>();
 
         for (Comment comment : comments) {
-            CommentDTO dto = CommentDTO.fromEntity(comment);
+            GetCommentRes dto = GetCommentRes.fromEntity(comment);
             response.add(dto);
         }
 
@@ -84,7 +84,11 @@ public class CommentService {
      * 댓글 수정
      * @param req
      */
-    public UpdateCommentRes updateComment(Long commentId, UpdateCommentReq req, CustomUserDetails securityUser) {
+    public UpdateCommentRes updateComment(Long contentId, Long commentId, UpdateCommentReq req, CustomUserDetails securityUser) {
+        if (!contentRepository.existsByIdAndDeleteAtIsNull(contentId)) {
+            throw new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID);
+        }
+
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentErrorException(CommentErrorCode.INVALID_COMMENT_ID));
 
@@ -101,7 +105,11 @@ public class CommentService {
      * @param commentId
      */
     @Transactional
-    public DeleteCommentRes deleteComment(Long commentId, CustomUserDetails securityUser) {
+    public DeleteCommentRes deleteComment(Long contentId, Long commentId, CustomUserDetails securityUser) {
+        if (!contentRepository.existsByIdAndDeleteAtIsNull(contentId)) {
+            throw new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID);
+        }
+
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentErrorException(CommentErrorCode.INVALID_COMMENT_ID));
 

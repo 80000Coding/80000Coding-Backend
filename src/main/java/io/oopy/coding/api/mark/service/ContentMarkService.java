@@ -1,6 +1,10 @@
 package io.oopy.coding.api.mark.service;
 
+import io.oopy.coding.api.content.exception.ContentErrorCode;
+import io.oopy.coding.api.content.exception.ContentErrorException;
 import io.oopy.coding.api.content.service.ContentService;
+import io.oopy.coding.api.mark.exception.ContentMarkErrorCode;
+import io.oopy.coding.api.mark.exception.ContentMarkErrorException;
 import io.oopy.coding.domain.mark.entity.MarkType;
 import io.oopy.coding.domain.mark.dto.ChangeUserPressReq;
 import io.oopy.coding.domain.mark.dto.ContentMarkDto;
@@ -40,8 +44,8 @@ public class ContentMarkService {
         }
 
         return ContentMarkDto.builder()
-                .like(likeCount)
-                .bookmark(bookmarkCount)
+                .like(likeCount == null ? 0 : likeCount)
+                .bookmark(bookmarkCount == null ? 0 : bookmarkCount)
                 .build();
     }
 
@@ -72,8 +76,14 @@ public class ContentMarkService {
     @Transactional
     public void changeUserPress(Long contentId, CustomUserDetails securityUser, ChangeUserPressReq req) {
         Content content = contentService.findContent(contentId);
+        if (content.getDeleteAt() != null) {
+            throw new ContentErrorException(ContentErrorCode.DELETED_CONTENT);
+        }
 
         MarkType markType = MarkType.fromString(req.getType());
+        if (markType == null) {
+            throw new ContentMarkErrorException(ContentMarkErrorCode.INVALID_TYPE);
+        }
 
         ContentMark userMark = contentMarkRepository.findContentMarksByContentIdAndUserIdAndType(contentId, securityUser.getUserId(), markType);
 
