@@ -106,7 +106,6 @@ public class CommentService {
      */
     @Transactional
     public DeleteCommentRes deleteComment(Long contentId, Long commentId, CustomUserDetails securityUser) {
-        System.out.println("repository result = " + contentRepository.existsByIdAndDeleteAtIsNull(contentId));
         if (!contentRepository.existsByIdAndDeleteAtIsNull(contentId)) {
             throw new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID);
         }
