@@ -18,26 +18,6 @@ public class ContentFeedService {
     private final ContentQueryRepository contentQueryRepository;
 
     @Transactional(readOnly = true)
-    public Page<ContentDTO> searchByTitle(ContentFeedSearchReq.Title search, Pageable pageable) {
-        Page<Content> contents = contentQueryRepository.findByTitle(search.getTitle(), pageable);
-        return getContentDTO(contents);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<ContentDTO> searchByBody(ContentFeedSearchReq.Body search, Pageable pageable) {
-        Page<Content> contents = contentQueryRepository.findByBody(search.getBody(), pageable);
-        return getContentDTO(contents);
-    }
-
-    // private //
-    public Page<ContentDTO> getContentDTO(Page<Content> contents) {
-        return contents.map(v-> {
-            ContentDTO contentDTO = ContentDTO.toDTO(v);
-            return contentDTO;
-        });
-    }
-
-    @Transactional(readOnly = true)
     public Page<ContentDetailDTO> searchPostByTitle(ContentFeedSearchReq.Title search, Pageable pageable) {
         return contentQueryRepository.findPostByTitle(search.getTitle(), pageable);
     }

@@ -52,22 +52,6 @@ public class ContentFeedController {
                 .build();
     }
 
-    @Operation(summary = "게시글 제목으로 검색", description = "게시글 제목으로 검색")
-    @GetMapping("/title")
-    @PreAuthorize("permitAll()")
-    public ResponseEntity<SuccessResponse<List<ContentDTO> > > contentFeedListByTitle(ContentFeedSearchReq.Title contentFeedSearchReq, @PageableDefault Pageable pageable) {
-        Page<ContentDTO> contentDtos = contentFeedService.searchByTitle(contentFeedSearchReq, pageable);
-        return ResponseEntity.ok(SuccessResponse.of(contentDtos.getContent(), contentDtos.getTotalPages(), contentDtos.getTotalElements()));
-    }
-
-    @Operation(summary = "게시글 내용으로 검색", description = "게시글 내용으로 검색")
-    @GetMapping("/body")
-    @PreAuthorize("permitAll()")
-    public ResponseEntity<SuccessResponse<List<ContentDTO> > > contentFeedListByBody(ContentFeedSearchReq.Body contentFeedSearchReq, @PageableDefault Pageable pageable) {
-        Page<ContentDTO> contentDtos = contentFeedService.searchByBody(contentFeedSearchReq, pageable);
-        return ResponseEntity.ok(SuccessResponse.of(contentDtos.getContent(), contentDtos.getTotalPages(), contentDtos.getTotalElements()));
-    }
-
     @Operation(summary = "게시글 제목으로 post 검색", description = "게시글 제목으로 post 검색")
     @GetMapping("/post/title")
     public ResponseEntity<SuccessResponse<List<ContentDetailDTO> > > contentFeedPostListByTitle(ContentFeedSearchReq.Title contentFeedSearchReq, @PageableDefault Pageable pageable) {
@@ -82,14 +66,14 @@ public class ContentFeedController {
         return ResponseEntity.ok(SuccessResponse.of(contentDetailDtos.getContent(), contentDetailDtos.getTotalPages(), contentDetailDtos.getTotalElements()));
     }
 
-    @Operation(summary = "게시글 제목으로 project 검색", description = "게시글 제목으로 post 검색")
+    @Operation(summary = "게시글 제목으로 project 검색", description = "게시글 제목으로 project 검색")
     @GetMapping("/proj/title")
     public ResponseEntity<SuccessResponse<List<ContentDetailDTO> > > contentFeedProjectListByTitle(ContentFeedSearchReq.Title contentFeedSearchReq, @PageableDefault Pageable pageable) {
         Page<ContentDetailDTO> contentDetailDtos = contentFeedService.searchProjectByTitle(contentFeedSearchReq, pageable);
         return ResponseEntity.ok(SuccessResponse.of(contentDetailDtos.getContent(), contentDetailDtos.getTotalPages(), contentDetailDtos.getTotalElements()));
     }
 
-    @Operation(summary = "게시글 내용으로 project 검색", description = "게시글 내용으로 post 검색")
+    @Operation(summary = "게시글 내용으로 project 검색", description = "게시글 내용으로 project 검색")
     @GetMapping("/proj/body")
     public ResponseEntity<SuccessResponse<List<ContentDetailDTO> > > contentFeedProjectListByBody(ContentFeedSearchReq.Body contentFeedSearchReq, @PageableDefault Pageable pageable) {
         Page<ContentDetailDTO> contentDetailDtos = contentFeedService.searchProjectByBody(contentFeedSearchReq, pageable);
