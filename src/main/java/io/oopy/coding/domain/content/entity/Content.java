@@ -10,6 +10,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name="CONTENT")
@@ -83,4 +84,13 @@ public class Content extends Auditable {
         this.views += 1;
     }
 
+    public List<String> getCategoryNames() {
+        if (this.contentCategories == null) {
+            return new ArrayList<>();
+        }
+        return this.contentCategories.stream()
+                .map(ContentCategory::getCategory)
+                .map(Category::getName)
+                .collect(Collectors.toList());
+    }
 }

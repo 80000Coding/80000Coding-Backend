@@ -2,7 +2,6 @@ package io.oopy.coding.domain.content.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.oopy.coding.domain.content.entity.Content;
-import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -37,19 +36,4 @@ public class ContentDetailDTO {
         this.likeCount = likeCount;
         this.bookmarkCount = bookmarkCount;
     }
-//
-//    public static ContentDetailDTO toDTO(Content content, Long likeCount, Long bookmarkCount) {
-//        return ContentDetailDTO.builder()
-//                .id(content.getId())
-//                .title(content.getTitle())
-//                .body(content.getBody())
-//                .categories(content.getCategoryNames())
-//                .writer(content.getWriterName())
-//                .createdAt(content.getCreatedAt())
-//                .views(content.getViews())
-//                .commentCount((long)content.getComments().size())
-//                .markCount(bookmarkCount)
-//                .likeCount(likeCount)
-//                .build();
-//    }
 }

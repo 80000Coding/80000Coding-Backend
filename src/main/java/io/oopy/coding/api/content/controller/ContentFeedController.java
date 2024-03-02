@@ -6,6 +6,7 @@ import io.oopy.coding.common.response.SuccessResponse;
 import io.oopy.coding.common.types.CategoryType;
 import io.oopy.coding.common.types.HashTagType;
 import io.oopy.coding.domain.content.dto.ContentDTO;
+import io.oopy.coding.domain.content.dto.ContentDetailDTO;
 import io.oopy.coding.domain.content.dto.ContentFeedSearchReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -64,5 +66,33 @@ public class ContentFeedController {
     public ResponseEntity<SuccessResponse<List<ContentDTO> > > contentFeedListByBody(ContentFeedSearchReq.Body contentFeedSearchReq, @PageableDefault Pageable pageable) {
         Page<ContentDTO> contentDtos = contentFeedService.searchByBody(contentFeedSearchReq, pageable);
         return ResponseEntity.ok(SuccessResponse.of(contentDtos.getContent(), contentDtos.getTotalPages(), contentDtos.getTotalElements()));
+    }
+
+    @Operation(summary = "게시글 제목으로 post 검색", description = "게시글 제목으로 post 검색")
+    @GetMapping("/post/title")
+    public ResponseEntity<SuccessResponse<List<ContentDetailDTO> > > contentFeedPostListByTitle(ContentFeedSearchReq.Title contentFeedSearchReq, @PageableDefault Pageable pageable) {
+        Page<ContentDetailDTO> contentDetailDtos = contentFeedService.searchPostByTitle(contentFeedSearchReq, pageable);
+        return ResponseEntity.ok(SuccessResponse.of(contentDetailDtos.getContent(), contentDetailDtos.getTotalPages(), contentDetailDtos.getTotalElements()));
+    }
+
+    @Operation(summary = "게시글 내용으로 post 검색", description = "게시글 내용으로 post 검색")
+    @GetMapping("/post/body")
+    public ResponseEntity<SuccessResponse<List<ContentDetailDTO> > > contentFeedPostListByBody(ContentFeedSearchReq.Body contentFeedSearchReq, @PageableDefault Pageable pageable) {
+        Page<ContentDetailDTO> contentDetailDtos = contentFeedService.searchPostByBody(contentFeedSearchReq, pageable);
+        return ResponseEntity.ok(SuccessResponse.of(contentDetailDtos.getContent(), contentDetailDtos.getTotalPages(), contentDetailDtos.getTotalElements()));
+    }
+
+    @Operation(summary = "게시글 제목으로 project 검색", description = "게시글 제목으로 post 검색")
+    @GetMapping("/proj/title")
+    public ResponseEntity<SuccessResponse<List<ContentDetailDTO> > > contentFeedProjectListByTitle(ContentFeedSearchReq.Title contentFeedSearchReq, @PageableDefault Pageable pageable) {
+        Page<ContentDetailDTO> contentDetailDtos = contentFeedService.searchProjectByTitle(contentFeedSearchReq, pageable);
+        return ResponseEntity.ok(SuccessResponse.of(contentDetailDtos.getContent(), contentDetailDtos.getTotalPages(), contentDetailDtos.getTotalElements()));
+    }
+
+    @Operation(summary = "게시글 내용으로 project 검색", description = "게시글 내용으로 post 검색")
+    @GetMapping("/proj/body")
+    public ResponseEntity<SuccessResponse<List<ContentDetailDTO> > > contentFeedProjectListByBody(ContentFeedSearchReq.Body contentFeedSearchReq, @PageableDefault Pageable pageable) {
+        Page<ContentDetailDTO> contentDetailDtos = contentFeedService.searchProjectByBody(contentFeedSearchReq, pageable);
+        return ResponseEntity.ok(SuccessResponse.of(contentDetailDtos.getContent(), contentDetailDtos.getTotalPages(), contentDetailDtos.getTotalElements()));
     }
 }
