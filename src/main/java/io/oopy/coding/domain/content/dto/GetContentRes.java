@@ -20,6 +20,7 @@ public class GetContentRes {
     private ResContent content;
     private ResUser user;
     private ResContentCategory contentCategory;
+    private Long commentCount;
 
     @Builder
     @Getter
@@ -99,11 +100,12 @@ public class GetContentRes {
         }
     }
 
-    public static GetContentRes from(Content content) {
+    public static GetContentRes from(Content content, Long commentCount) {
         return new GetContentRes(
                 ResContent.from(content),
                 ResUser.from(content.getUser()),
-                ResContentCategory.from(content));
+                ResContentCategory.from(content),
+                commentCount);
     }
 
 }

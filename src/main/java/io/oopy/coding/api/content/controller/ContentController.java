@@ -57,4 +57,11 @@ public class ContentController {
                                            @AuthenticationPrincipal CustomUserDetails securityUser) {
         return ResponseEntity.ok().body(SuccessResponse.from(contentService.deleteContent(contentId, securityUser)));
     }
+
+    @Operation(summary = "유저가 작성한 게시글", description = "AT로 들어온 user_id에 해당하는 유저가 작성한 게시글 리턴")
+    @GetMapping("")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getUserContents(@AuthenticationPrincipal CustomUserDetails securityUser) {
+        return ResponseEntity.ok().body(SuccessResponse.from(contentService.getUserContents(securityUser)));
+    }
 }

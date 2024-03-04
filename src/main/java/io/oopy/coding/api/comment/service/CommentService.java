@@ -34,20 +34,13 @@ public class CommentService {
      * @param contentId
      */
     @Transactional
-    public List<GetCommentRes> getComments(Long contentId) {
+    public GetCommentRes getComments(Long contentId) {
         contentRepository.findById(contentId)
                 .orElseThrow(() -> new ContentErrorException(ContentErrorCode.INVALID_CONTENT_ID));
 
         List<Comment> comments = commentRepository.findCommentsByContentId(contentId);
 
-        List<GetCommentRes> response = new ArrayList<>();
-
-        for (Comment comment : comments) {
-            GetCommentRes dto = GetCommentRes.fromEntity(comment);
-            response.add(dto);
-        }
-
-        return response;
+        return GetCommentRes.from(comments);
     }
 
     /**

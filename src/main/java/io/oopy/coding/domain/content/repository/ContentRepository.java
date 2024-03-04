@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface ContentRepository extends JpaRepository<Content, Long> {
     List<Content> findContentsByUserId(Long userId);
+    List<Content> findContentsByUserIdAndPublishIsTrue(Long userId);
     boolean existsByIdAndUserId(Long id, Long userId);
 
     boolean existsByIdAndDeleteAtIsNull(Long id);
